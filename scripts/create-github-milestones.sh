@@ -40,25 +40,25 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-run_cmd() {
-    if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] $*"
-    else
-        eval "$@"
-    fi
-}
-
 create_label() {
     local name="$1"
     local color="$2"
     local description="$3"
-    run_cmd "gh label create '$name' --color '$color' --description '$description' --repo '$REPO' --force 2>/dev/null || true"
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] gh label create '$name' --color '$color' --description '$description' --repo '$REPO' --force"
+    else
+        gh label create "$name" --color "$color" --description "$description" --repo "$REPO" --force 2>/dev/null || true
+    fi
 }
 
 create_milestone() {
     local title="$1"
     local description="$2"
-    run_cmd "gh api repos/$REPO/milestones -f title='$title' -f description='$description' -f state='open' 2>/dev/null || echo 'Milestone may already exist: $title'"
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] gh api repos/$REPO/milestones -f title='$title' -f description='$description' -f state='open'"
+    else
+        gh api "repos/$REPO/milestones" -f title="$title" -f description="$description" -f state="open" 2>/dev/null || echo "Milestone may already exist: $title"
+    fi
 }
 
 create_issue() {
@@ -66,7 +66,11 @@ create_issue() {
     local body="$2"
     local milestone="$3"
     local labels="$4"
-    run_cmd "gh issue create --repo '$REPO' --title '$title' --body '$body' --milestone '$milestone' --label '$labels'"
+    if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] gh issue create --repo '$REPO' --title '$title' --milestone '$milestone' --label '$labels'"
+    else
+        gh issue create --repo "$REPO" --title "$title" --body "$body" --milestone "$milestone" --label "$labels"
+    fi
 }
 
 echo "========================================="
