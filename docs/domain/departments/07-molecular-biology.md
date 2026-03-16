@@ -83,9 +83,11 @@
 @Service
 public class CtValueInterpretationService {
 
+    private static final BigDecimal IC_CUTOFF = new BigDecimal("35");
+
     public String interpretCtValue(BigDecimal ctValue, BigDecimal cutoff, BigDecimal icCtValue) {
         // Step 1: Validate internal control
-        if (icCtValue == null || icCtValue.compareTo(new BigDecimal("35")) > 0) {
+        if (icCtValue == null || icCtValue.compareTo(IC_CUTOFF) > 0) {
             return "INVALID";
         }
 

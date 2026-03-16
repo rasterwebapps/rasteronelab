@@ -71,7 +71,6 @@ Stored in MinIO under `orgs/{orgId}/logo.*` — referenced by `organization.logo
 CREATE TABLE department (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL REFERENCES organization(id),
-    branch_id       UUID NOT NULL,
     dept_code       VARCHAR(20) NOT NULL,
     dept_name       VARCHAR(100) NOT NULL,
     display_order   INT DEFAULT 0,
@@ -111,7 +110,6 @@ CREATE TABLE department (
 CREATE TABLE test_master (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL REFERENCES organization(id),
-    branch_id           UUID NOT NULL,
     test_code           VARCHAR(30) NOT NULL,
     test_name           VARCHAR(200) NOT NULL,
     short_name          VARCHAR(50),
@@ -161,7 +159,6 @@ CREATE TABLE test_master (
 CREATE TABLE parameter_master (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL REFERENCES organization(id),
-    branch_id           UUID NOT NULL,
     param_code          VARCHAR(30) NOT NULL,
     param_name          VARCHAR(200) NOT NULL,
     short_name          VARCHAR(50),
@@ -208,7 +205,6 @@ CREATE TABLE parameter_master (
 CREATE TABLE test_panel (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL REFERENCES organization(id),
-    branch_id       UUID NOT NULL,
     panel_code      VARCHAR(30) NOT NULL,
     panel_name      VARCHAR(200) NOT NULL,
     department_id   UUID REFERENCES department(id),
@@ -249,7 +245,6 @@ CREATE TABLE test_panel_item (
 CREATE TABLE reference_range (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL REFERENCES organization(id),
-    branch_id           UUID NOT NULL,
     parameter_id        UUID NOT NULL REFERENCES parameter_master(id),
     gender              VARCHAR(10),           -- MALE, FEMALE, ALL
     age_min_days        INT DEFAULT 0,
@@ -295,7 +290,6 @@ Defined per test via `test_master.sample_type_code`, `test_master.tube_type_code
 CREATE TABLE sample_requirement (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL,
-    branch_id           UUID NOT NULL,
     test_id             UUID NOT NULL REFERENCES test_master(id),
     sample_type_code    VARCHAR(30) NOT NULL,
     tube_type_code      VARCHAR(30) NOT NULL,
@@ -341,7 +335,6 @@ Formulas stored in `parameter_master.formula` for parameters with `data_type = '
 CREATE TABLE reflex_rule (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL,
-    branch_id           UUID NOT NULL,
     trigger_param_id    UUID NOT NULL REFERENCES parameter_master(id),
     condition_operator  VARCHAR(10) NOT NULL,  -- GT, LT, GTE, LTE, EQ, BETWEEN, IN
     condition_value     VARCHAR(100) NOT NULL,
@@ -390,7 +383,6 @@ Turn-around time per test — stored in `test_master.tat_hours`.
 CREATE TABLE price_catalog (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     test_id         UUID NOT NULL REFERENCES test_master(id),
     base_price      NUMERIC(10,2) NOT NULL,
     currency_code   VARCHAR(3) DEFAULT 'INR',
@@ -426,7 +418,6 @@ Users are managed in **Keycloak** and synced to the LIS `user_profile` table for
 CREATE TABLE user_profile (
     id              UUID PRIMARY KEY,          -- Same as Keycloak user ID
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     employee_code   VARCHAR(30),
     full_name       VARCHAR(200) NOT NULL,
     email           VARCHAR(200),
@@ -485,7 +476,6 @@ CREATE TABLE custom_permission (
 CREATE TABLE doctor (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     doctor_code     VARCHAR(30),
     full_name       VARCHAR(200) NOT NULL,
     qualification   VARCHAR(200),
@@ -516,7 +506,6 @@ CREATE TABLE doctor (
 CREATE TABLE report_template (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL,
-    branch_id           UUID NOT NULL,
     template_code       VARCHAR(30) NOT NULL,
     template_name       VARCHAR(200) NOT NULL,
     department_id       UUID REFERENCES department(id),
@@ -570,7 +559,6 @@ Organization-wide holidays that affect TAT calculations and sample scheduling.
 CREATE TABLE discount_scheme (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     scheme_code     VARCHAR(30) NOT NULL,
     scheme_name     VARCHAR(200) NOT NULL,
     discount_type   VARCHAR(20) NOT NULL,      -- PERCENTAGE, FLAT_AMOUNT
@@ -600,7 +588,6 @@ Insurance-specific pricing per test, per insurer.
 CREATE TABLE insurance_tariff (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL,
-    branch_id           UUID NOT NULL,
     insurance_provider_id UUID NOT NULL,       -- FK to global insurance_provider
     test_id             UUID NOT NULL REFERENCES test_master(id),
     tariff_price        NUMERIC(10,2) NOT NULL,
@@ -626,7 +613,6 @@ CREATE TABLE insurance_tariff (
 CREATE TABLE qc_material (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     material_code   VARCHAR(30) NOT NULL,
     material_name   VARCHAR(200) NOT NULL,
     manufacturer    VARCHAR(200),
@@ -684,7 +670,6 @@ Stored in `reference_range.critical_low` and `reference_range.critical_high`. Wh
 CREATE TABLE auto_validation_rule (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id              UUID NOT NULL,
-    branch_id           UUID NOT NULL,
     parameter_id        UUID NOT NULL REFERENCES parameter_master(id),
     rule_type           VARCHAR(30) NOT NULL,  -- RANGE, DELTA, QC_STATUS, REPEAT
     condition_json      JSONB NOT NULL,
@@ -722,7 +707,6 @@ Service area definitions for home sample collection.
 CREATE TABLE partner_lab (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id          UUID NOT NULL,
-    branch_id       UUID NOT NULL,
     lab_code        VARCHAR(30) NOT NULL,
     lab_name        VARCHAR(200) NOT NULL,
     contact_person  VARCHAR(200),
