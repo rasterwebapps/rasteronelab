@@ -1,0 +1,109 @@
+# ===========================
+# Java / Gradle
+# ===========================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+target/
+build/
+out/
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+.gradle-enterprise/
+
+# ===========================
+# Spring Boot
+# ===========================
+application-local.yml
+application-local.properties
+*.log
+logs/
+
+# ===========================
+# Node / Angular
+# ===========================
+node_modules/
+dist/
+.angular/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+.yarn/
+coverage/
+e2e/screenshots/
+
+# ===========================
+# IDE
+# ===========================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+.project
+.classpath
+.settings/
+.factorypath
+nbproject/
+
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# ===========================
+# Docker
+# ===========================
+docker-compose.override.yml
+
+# ===========================
+# SonarQube
+# ===========================
+.sonar/
+
+# ===========================
+# Test Reports
+# ===========================
+test-results/
+jacoco/
+allure-results/
+allure-report/
+cypress/screenshots/
+cypress/videos/
+
+# ===========================
+# Terraform
+# ===========================
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# ===========================
+# Misc
+# ===========================
+*.tmp
+*.bak
+*.orig
+*.patch

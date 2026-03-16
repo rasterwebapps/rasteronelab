@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: lis-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: lis-patient
+          uri: ${PATIENT_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/patients/**,/api/v1/patient-visits/**
+          filters:
+            - StripPrefix=0
+            - name: CircuitBreaker
+              args:
+                name: patient-cb
+                fallbackUri: forward:/fallback
+
+        - id: lis-order
+          uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/orders/**,/api/v1/order-line-items/**
+          filters:
+            - StripPrefix=0
+
+        - id: lis-sample
+          uri: ${SAMPLE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/samples/**,/api/v1/sample-collections/**
+          filters:
+            - StripPrefix=0
+
+        - id: lis-result
+          uri: ${RESULT_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/results/**
+          filters:
+            - StripPrefix=0
+
+        - id: lis-report
+          uri: ${REPORT_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/v1/reports/**
+          filters:
+            - StripPrefix=0
+
+        - id: lis-billing
+          uri: ${BILLING_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/v1/invoices/**,/api/v1/payments/**
+          filters:
+            - StripPrefix=0
+
+        - id: lis-admin
+          uri: ${ADMIN_SERVICE_URL:http://localhost:8090}
+          predicates:
+            - Path=/api/v1/admin/**,/api/v1/branches/**,/api/v1/departments/**
+          filters:
+            - StripPrefix=0
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - ${ALLOWED_ORIGINS:http://localhost:4200}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/rasteronelab
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.rasteronelab.lis: DEBUG

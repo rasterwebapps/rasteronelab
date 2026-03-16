@@ -1,0 +1,230 @@
+version: '3.9'
+
+services:
+  # ===========================
+  # PostgreSQL 17 — Primary Database
+  # ===========================
+  postgres:
+    image: postgres:17-alpine
+    container_name: lis-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-lisdb}
+      POSTGRES_USER: ${DB_USER:-lisadmin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lispassword}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=en_US.utf8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/:/docker-entrypoint-initdb.d/
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-lisadmin} -d ${DB_NAME:-lisdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ===========================
+  # PgBouncer — Connection Pooling
+  # ===========================
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    container_name: lis-pgbouncer
+    ports:
+      - "6432:6432"
+    environment:
+      POSTGRESQL_HOST: postgres
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_DATABASE: ${DB_NAME:-lisdb}
+      POSTGRESQL_USERNAME: ${DB_USER:-lisadmin}
+      POSTGRESQL_PASSWORD: ${DB_PASSWORD:-lispassword}
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: 1000
+      PGBOUNCER_DEFAULT_POOL_SIZE: 25
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+
+  # ===========================
+  # Redis 7 — Caching & Sessions
+  # ===========================
+  redis:
+    image: redis:7-alpine
+    container_name: lis-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-lisredispass}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-lisredispass}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================
+  # Keycloak 24 — Authentication (OAuth2 + OIDC)
+  # ===========================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: lis-keycloak
+    ports:
+      - "8180:8080"
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      KC_DB_USERNAME: ${DB_USER:-lisadmin}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-lispassword}
+      KC_HOSTNAME: ${KC_HOSTNAME:-localhost}
+      KC_HOSTNAME_PORT: 8180
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_LOG_LEVEL: INFO
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    command: start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./keycloak/realms/:/opt/keycloak/data/import/
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  # ===========================
+  # RabbitMQ 3.13 — Message Queue
+  # ===========================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: lis-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-lisuser}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-lispassword}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/lis}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ===========================
+  # Elasticsearch 8 — Search & Analytics
+  # ===========================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: lis-elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - node.name=lis-es01
+      - cluster.name=lis-cluster
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-elasticpassword}
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ===========================
+  # MinIO — S3-compatible Object Storage (Reports, Images)
+  # ===========================
+  minio:
+    image: minio/minio:latest
+    container_name: lis-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"  # Console UI
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ===========================
+  # Mailhog — Email Testing (Dev only)
+  # ===========================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: lis-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - lis-network
+    restart: unless-stopped
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  keycloak_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  lis-network:
+    driver: bridge
+    name: rasteronelab-lis-network

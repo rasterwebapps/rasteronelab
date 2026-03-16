@@ -1,0 +1,183 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'rasteronelab-lis'
+        DOCKER_REGISTRY = 'registry.rasterdevapps.com'
+        SONARQUBE_SERVER = 'SonarQube'
+        NEXUS_CREDENTIALS = credentials('nexus-credentials')
+        DOCKER_CREDENTIALS = credentials('docker-registry')
+        KUBECONFIG = credentials('k8s-config')
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Deployment environment')
+        string(name: 'MODULE', defaultValue: 'all', description: 'Module to build (all or specific module name)')
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip unit tests')
+        booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Deploy after build')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    env.IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT_SHORT}"
+                    echo "Building: ${APP_NAME}:${env.IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh '''
+                        chmod +x gradlew
+                        ./gradlew clean build -x test --no-daemon --parallel
+                    '''
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            when {
+                expression { !params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Backend Unit Tests') {
+                    steps {
+                        dir('backend') {
+                            sh './gradlew test --no-daemon'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'backend/**/build/test-results/test/*.xml'
+                            jacoco(
+                                execPattern: 'backend/**/build/jacoco/*.exec',
+                                classPattern: 'backend/**/build/classes',
+                                sourcePattern: 'backend/**/src/main/java'
+                            )
+                        }
+                    }
+                }
+                stage('Frontend Tests') {
+                    steps {
+                        dir('frontend') {
+                            sh '''
+                                npm ci
+                                npm test -- --no-watch --no-progress --browsers=ChromeHeadless
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withSonarQubeEnv(env.SONARQUBE_SERVER) {
+                    dir('backend') {
+                        sh './gradlew sonar --no-daemon'
+                    }
+                }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            when {
+                expression { params.DEPLOY }
+            }
+            steps {
+                script {
+                    def modules = ['lis-patient', 'lis-sample', 'lis-order', 'lis-result',
+                                   'lis-report', 'lis-billing', 'lis-admin', 'lis-gateway', 'lis-auth']
+
+                    modules.each { module ->
+                        sh """
+                            docker build \
+                                --file infrastructure/docker/Dockerfile.backend \
+                                --build-arg MODULE=${module} \
+                                --tag ${DOCKER_REGISTRY}/${APP_NAME}/${module}:${env.IMAGE_TAG} \
+                                --tag ${DOCKER_REGISTRY}/${APP_NAME}/${module}:latest \
+                                backend/
+                        """
+                    }
+
+                    // Frontend
+                    sh """
+                        docker build \
+                            --file infrastructure/docker/Dockerfile.frontend \
+                            --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG} \
+                            --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:latest \
+                            frontend/
+                    """
+                }
+            }
+        }
+
+        stage('Push Docker Images') {
+            when {
+                expression { params.DEPLOY }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-registry', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh "docker login ${DOCKER_REGISTRY} -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                    sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/lis-gateway:${env.IMAGE_TAG}"
+                    sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG}"
+                    // Push all module images
+                    sh """
+                        for module in lis-patient lis-sample lis-order lis-result lis-report lis-billing lis-admin; do
+                            docker push ${DOCKER_REGISTRY}/${APP_NAME}/\${module}:${env.IMAGE_TAG}
+                        done
+                    """
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                allOf {
+                    expression { params.DEPLOY }
+                    anyOf {
+                        branch 'main'
+                        branch 'develop'
+                    }
+                }
+            }
+            steps {
+                script {
+                    def namespace = params.ENVIRONMENT == 'production' ? 'lis-prod' : 'lis-dev'
+                    sh """
+                        kubectl --namespace=${namespace} set image deployment/lis-gateway \
+                            gateway=${DOCKER_REGISTRY}/${APP_NAME}/lis-gateway:${env.IMAGE_TAG}
+                        kubectl --namespace=${namespace} rollout status deployment/lis-gateway
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ Build ${env.BUILD_NUMBER} succeeded!"
+        }
+        failure {
+            emailext(
+                subject: "❌ LIS Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build failed. Check: ${env.BUILD_URL}",
+                to: "${env.CHANGE_AUTHOR_EMAIL}"
+            )
+        }
+    }
+}

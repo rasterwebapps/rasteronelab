@@ -1,0 +1,65 @@
+# ===========================
+# Stage 1: Build
+# ===========================
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+ARG MODULE=lis-patient
+ARG PORT=8081
+
+WORKDIR /app
+
+# Copy gradle wrapper and build files first (for layer caching)
+COPY gradlew settings.gradle.kts build.gradle.kts ./
+COPY gradle/ gradle/
+RUN chmod +x gradlew
+
+# Download dependencies (cached layer)
+RUN ./gradlew dependencies --no-daemon --quiet 2>/dev/null || true
+
+# Copy source code
+COPY lis-core/ lis-core/
+COPY ${MODULE}/ ${MODULE}/
+
+# Build the specific module
+RUN ./gradlew :${MODULE}:bootJar --no-daemon -x test && \
+    ls -la ${MODULE}/build/libs/
+
+# ===========================
+# Stage 2: Runtime
+# ===========================
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+ARG MODULE=lis-patient
+ARG PORT=8081
+
+LABEL maintainer="Raster Dev Apps <dev@rasterdevapps.com>"
+LABEL module="${MODULE}"
+
+WORKDIR /app
+
+# Security: Create non-root user
+RUN addgroup -S lisapp && \
+    adduser -S lisapp -G lisapp && \
+    chown -R lisapp:lisapp /app
+
+USER lisapp
+
+# Copy jar from builder stage
+COPY --from=builder --chown=lisapp:lisapp /app/${MODULE}/build/libs/*.jar app.jar
+
+EXPOSE ${PORT}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+    CMD wget -q --spider http://localhost:${PORT}/actuator/health || exit 1
+
+# JVM flags optimized for containers
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-XX:InitialRAMPercentage=50.0", \
+    "-XX:+UseG1GC", \
+    "-XX:MaxGCPauseMillis=200", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-Dspring.profiles.active=docker", \
+    "-jar", "app.jar"]

@@ -1,0 +1,80 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[LIS Convention Check] Verifying file conventions...' && if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *.java ]]; then echo '[CHECK] Java file - ensure PascalCase class name, hexagonal package structure'; fi && if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *.ts ]]; then echo '[CHECK] TypeScript file - ensure standalone components, no NgModules, no *ngIf/*ngFor'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[LIS Safety Check] Running pre-bash safety validation...' && if echo \"$CLAUDE_TOOL_INPUT_COMMAND\" | grep -qE 'DROP TABLE|DROP DATABASE|TRUNCATE'; then echo '[BLOCKED] Destructive SQL command blocked. Use Liquibase migrations only.' && exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity modified! Required actions: 1) Create Liquibase migration in resources/db/changelog/ 2) Update DTO in api/dto/ 3) Update MapStruct mapper in api/mapper/ 4) Ensure branchId field exists 5) Extend BaseEntity'; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *.ts ]] && grep -q 'NgModule\\|@NgModule' \"$CLAUDE_TOOL_INPUT_PATH\" 2>/dev/null; then echo '[WARNING] NgModule detected in TypeScript file! RasterOneLab uses STANDALONE COMPONENTS ONLY. Remove NgModule and use standalone: true'; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *.java ]] && grep -qE 'double |float |Double |Float ' \"$CLAUDE_TOOL_INPUT_PATH\" 2>/dev/null; then echo '[WARNING] double/float detected in Java file! Use BigDecimal for ALL monetary and lab values. double/float causes precision errors in medical data.'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity edited! Check: Liquibase migration needed? DTO updated? Mapper updated? branchId present?'; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *.java ]] && grep -q '@Entity' \"$CLAUDE_TOOL_INPUT_PATH\" 2>/dev/null && ! grep -q 'branchId\\|branch_id' \"$CLAUDE_TOOL_INPUT_PATH\" 2>/dev/null; then echo '[WARNING] @Entity class missing branchId! ALL entities MUST have branchId for multi-branch support.'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT_COMMAND\" | grep -q 'rm -rf'; then echo '[BLOCKED] rm -rf is not allowed. Use targeted file deletion.' && exit 1; fi"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_RESULT\" | grep -qE 'BUILD SUCCESSFUL|Tests run.*Failures: 0'; then echo '[✅ LIS Build] Build/tests completed successfully at '$(date '+%Y-%m-%d %H:%M:%S'); fi"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[LIS Task] Completed at '$(date '+%Y-%m-%d %H:%M:%S UTC')"
+          }
+        ]
+      }
+    ]
+  }
+}
