@@ -158,4 +158,4 @@ All documentation is in the [`docs/`](docs/README.md) directory.
 
 ## 📄 License
 
-Proprietary — © 2024 Raster Dev Apps. All rights reserved.
+Proprietary — © 2025 Raster Dev Apps. All rights reserved.
