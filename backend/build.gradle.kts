@@ -5,8 +5,6 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.4.1" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
-    id("checkstyle") apply false
-    id("jacoco") apply false
 }
 
 group = "com.rasteronelab.lis"
@@ -36,7 +34,7 @@ subprojects {
         mavenCentral()
     }
 
-    dependencyManagement {
+    the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.1")
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
@@ -62,6 +60,7 @@ subprojects {
         testImplementation("org.assertj:assertj-core")
         testImplementation("org.testcontainers:postgresql")
         testImplementation("org.testcontainers:junit-jupiter")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
     tasks.withType<JavaCompile> {

@@ -9,6 +9,9 @@ dependencies {
     // Spring Security (for @PreAuthorize, SecurityContextHolder)
     api("org.springframework.boot:spring-boot-starter-security")
 
+    // OAuth2 Resource Server (for JWT-based branch validation in BranchInterceptor)
+    api("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
     // Spring Validation
     api("org.springframework.boot:spring-boot-starter-validation")
 
