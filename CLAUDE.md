@@ -8,7 +8,7 @@
 **RasterOneLab** is an enterprise-grade, multi-branch **Lab Information System (LIS)** built for diagnostic laboratory chains.
 
 - **Type**: Multi-tenant SaaS (branch_id column-level filtering, NOT schema per tenant)
-- **Use Case**: Complete lab operations — patient registration → sample → testing → results → billing → reports
+- **Use Case**: Complete lab operations — patient registration → billing → sample → testing → results → reports
 - **Scale**: Designed for 10-500 branches, 10,000+ daily tests, 1M+ patient records
 
 ---
@@ -198,17 +198,18 @@ com.rasteronelab.lis.{module}/
 
 ---
 
-## Lab Workflow (8 Steps)
+## Lab Workflow (9 Steps)
 
 ```
 1. REGISTRATION    → Patient demographics, UHID generation
 2. ORDER           → Test selection, priority, doctor, insurance
-3. COLLECTION      → Sample collection, barcode label, tube assignment
-4. RECEIVING       → Lab receipt, acceptance/rejection, aliquoting
-5. PROCESSING      → Centrifugation, preparation, routing to department
-6. RESULT ENTRY    → Department-specific entry (numeric/narrative/culture)
-7. AUTHORIZATION   → Pathologist review, critical value notification
-8. DELIVERY        → PDF report generation, portal/SMS/email delivery
+3. BILLING         → Invoice generation, payment collection, barcode printing
+4. COLLECTION      → Sample collection, barcode label, tube assignment
+5. RECEIVING       → Lab receipt, acceptance/rejection, aliquoting
+6. PROCESSING      → Centrifugation, preparation, routing to department
+7. RESULT ENTRY    → Department-specific entry (numeric/narrative/culture)
+8. AUTHORIZATION   → Pathologist review, critical value notification
+9. DELIVERY        → PDF report generation, portal/SMS/email delivery
 ```
 
 ---
