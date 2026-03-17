@@ -24,6 +24,10 @@ dependencies {
 
     // Circuit breaker
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+
+    // Test support
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.projectreactor:reactor-test")
 }
 
 springBoot {

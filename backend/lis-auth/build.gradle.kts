@@ -20,6 +20,9 @@ dependencies {
 
     // Redis for token cache
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Spring Security Test (for jwt() MockMvc post-processor)
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 springBoot {

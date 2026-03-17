@@ -1,29 +1,19 @@
-// Angular Material Theme
+// Angular Material v19 Theme (M3)
 @use '@angular/material' as mat;
 
-@include mat.core();
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$blue-palette,
+      tertiary: mat.$green-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
 
-// Define LIS Theme (blue primary, green accent)
-$lis-primary: mat.define-palette(mat.$blue-palette, 700);
-$lis-accent: mat.define-palette(mat.$green-palette, 600);
-$lis-warn: mat.define-palette(mat.$red-palette);
-
-$lis-theme: mat.define-light-theme((
-  color: (
-    primary: $lis-primary,
-    accent: $lis-accent,
-    warn: $lis-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,
-));
-
-@include mat.all-component-themes($lis-theme);
-
-// Tailwind CSS
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+// Tailwind CSS v4
+@import 'tailwindcss';
 
 // Global styles
 html, body {

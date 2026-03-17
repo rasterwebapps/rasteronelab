@@ -1,9 +1,35 @@
 spring:
   application:
     name: lis-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   cloud:
     gateway:
       routes:
+        # Login/token endpoints — strict rate limit (burst 5, ~1 req/s refill)
+        - id: lis-auth-login
+          uri: ${AUTH_SERVICE_URL:http://localhost:8093}
+          predicates:
+            - Path=/api/v1/auth/login/**,/api/v1/auth/token/**
+          filters:
+            - StripPrefix=0
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 5
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@ipKeyResolver}"
+
+        # General auth endpoints
+        - id: lis-auth
+          uri: ${AUTH_SERVICE_URL:http://localhost:8093}
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - StripPrefix=0
+
         - id: lis-patient
           uri: ${PATIENT_SERVICE_URL:http://localhost:8081}
           predicates:
@@ -59,6 +85,13 @@ spring:
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        # General rate limit: 100 req/s per IP with burst capacity of 200
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 100
+            redis-rate-limiter.burstCapacity: 200
+            redis-rate-limiter.requestedTokens: 1
+            key-resolver: "#{@ipKeyResolver}"
       globalcors:
         corsConfigurations:
           '[/**]':

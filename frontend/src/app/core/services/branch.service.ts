@@ -32,7 +32,7 @@ export class BranchService {
   }
 
   private loadFromStorage(): void {
-    const branchJson = sessionStorage.getItem('current_branch');
+    const branchJson = localStorage.getItem('current_branch');
     if (branchJson) {
       this._currentBranch.set(JSON.parse(branchJson));
     }
@@ -48,11 +48,11 @@ export class BranchService {
 
   selectBranch(branch: Branch): void {
     this._currentBranch.set(branch);
-    sessionStorage.setItem('current_branch', JSON.stringify(branch));
+    localStorage.setItem('current_branch', JSON.stringify(branch));
   }
 
   clearBranch(): void {
     this._currentBranch.set(null);
-    sessionStorage.removeItem('current_branch');
+    localStorage.removeItem('current_branch');
   }
 }

@@ -43,7 +43,9 @@ public class GatewaySecurityConfig {
                         .pathMatchers(
                                 "/actuator/**",
                                 "/health/**",
-                                "/fallback"
+                                "/fallback",
+                                "/api/v1/auth/login/**",
+                                "/api/v1/auth/token/**"
                         ).permitAll()
                         .anyExchange().authenticated()
                 )

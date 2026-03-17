@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: lis-gateway-test
+  main:
+    web-application-type: reactive
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+  cloud:
+    gateway:
+      routes: []
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://keycloak.test/realms/rasteronelab
+
+server:
+  port: 0
+
+logging:
+  level:
+    root: WARN
+    com.rasteronelab.lis: DEBUG
