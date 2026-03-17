@@ -17,7 +17,7 @@
 - Spring Data JPA + Hibernate 6
 - Spring Security + Keycloak adapter
 - Spring Cloud Gateway (lis-gateway)
-- Liquibase (DB migrations)
+- Flyway (DB migrations)
 - MapStruct 1.6 (DTO mapping)
 - Lombok (boilerplate reduction)
 - UUID Creator (UUID v7 generation)
@@ -28,8 +28,8 @@
 
 When creating a new domain entity, follow these 10 steps in order:
 
-1. **Create Liquibase migration** (DB first!)
-   - File: `src/main/resources/db/changelog/YYYY-MM-DD-create-{table}.xml`
+1. **Create Flyway migration** (DB first!)
+   - File: `src/main/resources/db/migration/V{YYYYMMDD_HHmm}__{description}.sql`
    - Include: UUID PK, branch_id, domain columns, audit columns, soft delete, indexes
 
 2. **Create JPA Entity** (`domain/model/{Entity}.java`)

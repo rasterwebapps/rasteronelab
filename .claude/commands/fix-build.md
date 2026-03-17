@@ -7,7 +7,7 @@ Diagnose and fix build, test, and deployment failures.
 /fix-build {type}
 ```
 
-Types: `gradle`, `angular`, `docker`, `liquibase`, `test`, `checkstyle`
+Types: `gradle`, `angular`, `docker`, `flyway`, `test`, `checkstyle`
 
 ## Common Issues & Fixes
 
@@ -66,20 +66,19 @@ Error: 'XComponent' is declared in a NgModule but is used in a standalone compon
 ```
 **Fix**: Remove NgModule imports, ensure component is standalone, use importProvidersFrom in app.config.ts
 
-### Liquibase Failures
+### Flyway Failures
 
 #### Checksum Mismatch
 ```sql
--- NEVER edit existing changesets!
--- Instead, add a new changeset to fix the issue
+-- NEVER edit existing migrations!
+-- Instead, create a new versioned migration to fix the issue
 -- If absolutely necessary in dev only:
-UPDATE databasechangelog SET md5sum = NULL WHERE id = 'changeset-id';
+./gradlew :lis-patient:flywayRepair
 ```
 
 #### Lock Stuck
 ```sql
-DELETE FROM databasechangeloglock;
-UPDATE databasechangeloglock SET locked = false, lockgranted = null, lockedby = null;
+DELETE FROM flyway_schema_history WHERE success = false;
 ```
 
 ### Docker Issues

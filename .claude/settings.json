@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[LIS Safety Check] Running pre-bash safety validation...' && if echo \"$CLAUDE_TOOL_INPUT_COMMAND\" | grep -qE 'DROP TABLE|DROP DATABASE|TRUNCATE'; then echo '[BLOCKED] Destructive SQL command blocked. Use Liquibase migrations only.' && exit 1; fi"
+            "command": "echo '[LIS Safety Check] Running pre-bash safety validation...' && if echo \"$CLAUDE_TOOL_INPUT_COMMAND\" | grep -qE 'DROP TABLE|DROP DATABASE|TRUNCATE'; then echo '[BLOCKED] Destructive SQL command blocked. Use Flyway migrations only.' && exit 1; fi"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity modified! Required actions: 1) Create Liquibase migration in resources/db/changelog/ 2) Update DTO in api/dto/ 3) Update MapStruct mapper in api/mapper/ 4) Ensure branchId field exists 5) Extend BaseEntity'; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity modified! Required actions: 1) Create Flyway migration in resources/db/migration/ 2) Update DTO in api/dto/ 3) Update MapStruct mapper in api/mapper/ 4) Ensure branchId field exists 5) Extend BaseEntity'; fi"
           },
           {
             "type": "command",
@@ -43,7 +43,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity edited! Check: Liquibase migration needed? DTO updated? Mapper updated? branchId present?'; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_PATH\" == *domain/model/*.java ]]; then echo '[REMINDER] Entity edited! Check: Flyway migration needed? DTO updated? Mapper updated? branchId present?'; fi"
           },
           {
             "type": "command",

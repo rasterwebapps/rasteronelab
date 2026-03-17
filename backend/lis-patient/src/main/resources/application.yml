@@ -14,8 +14,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  liquibase:
-    change-log: classpath:db/changelog/master.xml
+  flyway:
+    locations: classpath:db/migration
     enabled: true
   redis:
     host: ${REDIS_HOST:localhost}

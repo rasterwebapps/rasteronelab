@@ -153,7 +153,7 @@ All documentation is in the [`docs/`](docs/README.md) directory.
 1. Follow the [coding standards](docs/development/coding-standards.md)
 2. All PRs must include tests (80% coverage)
 3. Use conventional commits: `feat(module): message [LIS-XXX]`
-4. Update Liquibase migrations for DB changes
+4. Update Flyway migrations for DB changes
 5. Update relevant documentation
 
 ## 📄 License

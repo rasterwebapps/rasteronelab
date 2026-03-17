@@ -140,7 +140,7 @@ com.rasteronelab.lis.{module}/
 - **@PreAuthorize** on all controller methods
 - **ApiResponse<T>** wrapper for all REST responses
 - **PagedResponse<T>** for paginated responses
-- **Liquibase** for ALL database schema changes (never modify DB directly)
+- **Flyway** for ALL database schema changes (never modify DB directly)
 - **BigDecimal** for all monetary and decimal lab values (NEVER double/float)
 - **Constructor injection** only (no @Autowired field injection)
 - **JUnit 5 + Mockito + Testcontainers** for testing

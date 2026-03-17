@@ -43,7 +43,7 @@
 - [ ] Doctor management
 - [ ] User management (CRUD in Keycloak)
 - [ ] Admin Angular screens (25 screens)
-- [ ] Liquibase migrations for all admin tables
+- [ ] Flyway migrations for all admin tables
 
 ---
 

@@ -260,5 +260,5 @@ test(sample): add sample rejection integration tests
 - [ ] `BigDecimal` for monetary values
 - [ ] Unit tests for service layer
 - [ ] Integration test (Testcontainers) for repository
-- [ ] Liquibase migration if entity changed
+- [ ] Flyway migration if entity changed
 - [ ] Audit logging for PHI access

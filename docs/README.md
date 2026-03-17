@@ -77,6 +77,20 @@
 |----------|-------------|
 | [Screen List (194 screens)](screens/screen-list-complete.md) | Complete list of all screens |
 
+## 🎯 Development Milestones
+
+| Document | Description |
+|----------|-------------|
+| [Milestones Overview](milestones/README.md) | All 8 milestones with 135 issues |
+| [Phase 1: Foundation](milestones/phase-1-foundation.md) | Auth, multi-branch, CI/CD (15 issues) |
+| [Phase 2: Administration](milestones/phase-2-administration.md) | Master data CRUD, admin screens (18 issues) |
+| [Phase 3: Patient & Ordering](milestones/phase-3-patient-ordering.md) | Registration, orders, billing (22 issues) |
+| [Phase 4: Sample Management](milestones/phase-4-sample-management.md) | Sample lifecycle (16 issues) |
+| [Phase 5: Result Entry](milestones/phase-5-result-entry.md) | All departments, validation (24 issues) |
+| [Phase 6: Instrument Interface](milestones/phase-6-instrument-interface.md) | ASTM/HL7 integration (14 issues) |
+| [Phase 7: Reports, QC & Notifications](milestones/phase-7-reports-qc-notifications.md) | PDF, QC, alerts (20 issues) |
+| [Phase 8: Portals & Analytics](milestones/phase-8-portals-analytics.md) | Portals, dashboards, launch (18 issues) |
+
 ## 👨‍💻 Development
 
 | Document | Description |

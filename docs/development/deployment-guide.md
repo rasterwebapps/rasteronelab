@@ -135,17 +135,17 @@ readinessProbe:
   periodSeconds: 10
 ```
 
-## Database Migrations (Liquibase)
+## Database Migrations (Flyway)
 
 ```bash
 # Run pending migrations (auto-runs on startup)
 ./gradlew :lis-patient:bootRun
 
-# Manual migration check
-./gradlew :lis-patient:liquibaseStatus
+# Manual migration info
+./gradlew :lis-patient:flywayInfo
 
-# Rollback last changeset
-./gradlew :lis-patient:liquibaseRollback -PliquibaseCommandValue=1
+# Repair migration checksums (dev only)
+./gradlew :lis-patient:flywayRepair
 ```
 
 ## Monitoring Stack

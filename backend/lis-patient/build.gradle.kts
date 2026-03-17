@@ -19,8 +19,9 @@ dependencies {
     // Database
     runtimeOnly("org.postgresql:postgresql")
 
-    // Liquibase
-    implementation("org.liquibase:liquibase-core")
+    // Flyway
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
 
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")

@@ -34,10 +34,10 @@ O — Output: What format you want (code, explanation, both)
     - Service in application/service/ with @Transactional
     - DTO in api/dto/, mapper in api/mapper/
     - Controller with @PreAuthorize for RECEPTIONIST and ADMIN roles
-    - Liquibase migration for the table
+    - Flyway migration for the table
     - Unit test for service
 
-[O] Provide complete, compilable Java code for all layers. Include the Liquibase XML.
+[O] Provide complete, compilable Java code for all layers. Include the Flyway SQL migration.
 ```
 
 ## Slash Commands (Custom Skills)
@@ -79,7 +79,7 @@ Apply all rules from @docs/development/coding-standards.md:
 - MapStruct for DTO mapping
 - @Transactional on service
 - @PreAuthorize on controller
-- Liquibase migration
+- Flyway migration
 - JUnit 5 unit test
 
 Target roles: {ROLE1, ROLE2}
@@ -154,5 +154,5 @@ Required role: {ROLE}
 - Break large requests into smaller focused prompts
 - Reference specific files (`@backend/lis-core/src/.../BaseEntity.java`) for context
 - Ask for one layer at a time (entity first, then service, then controller)
-- Always review generated Liquibase migrations before running
+- Always review generated Flyway migrations before running
 - Test generated code by compiling: `./gradlew :lis-patient:compileJava`

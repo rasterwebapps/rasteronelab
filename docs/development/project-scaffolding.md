@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document specifies the exact project skeleton — Gradle config, Spring Boot main classes, base entity classes, global exception handler, security config, Liquibase, application.yml.
+This document specifies the exact project skeleton — Gradle config, Spring Boot main classes, base entity classes, global exception handler, security config, Flyway, application.yml.
 
 ## Root Gradle: settings.gradle.kts
 
@@ -250,8 +250,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
-  liquibase:
-    change-log: classpath:db/changelog/master.xml
+  flyway:
+    locations: classpath:db/migration
     enabled: true
   security:
     oauth2:
@@ -288,21 +288,47 @@ logging:
     org.springframework.security: WARN
 ```
 
-## Liquibase Master Changelog (per module)
+## Flyway Migrations (per module)
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+Flyway uses versioned SQL migration files located in `src/main/resources/db/migration/`.
 
-    <!-- Migration files included in order -->
-    <include file="db/changelog/changes/2024011501001-create-patient-table.xml"
-             relativeToChangelogFile="false"/>
-    <include file="db/changelog/changes/2024011501002-create-patient-visit-table.xml"
-             relativeToChangelogFile="false"/>
-
-</databaseChangeLog>
+### Naming Convention
 ```
+V{YYYYMMDD_HHmm}__{description}.sql
+```
+
+### Example: `V20240115_0100__create_patient_table.sql`
+
+```sql
+-- Create patient table
+CREATE TABLE patient (
+    id UUID PRIMARY KEY,
+    branch_id UUID NOT NULL,
+    
+    -- Domain columns
+    name VARCHAR(200) NOT NULL,
+    uhid VARCHAR(50) NOT NULL,
+    
+    -- Audit columns (MANDATORY)
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(100),
+    updated_by VARCHAR(100),
+    
+    -- Soft delete columns (MANDATORY)
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes (MANDATORY)
+CREATE INDEX idx_patient_branch_id ON patient(branch_id);
+CREATE INDEX idx_patient_branch_deleted ON patient(branch_id, is_deleted);
+CREATE INDEX idx_patient_uhid ON patient(uhid);
+```
+
+### Rules
+1. File naming: `V{YYYYMMDD_HHmm}__{description}.sql` (double underscore separator)
+2. Always include: id (UUID PK), branch_id, audit columns, soft delete columns
+3. Always add indexes on: branch_id, (branch_id, is_deleted), foreign keys, frequently queried columns
+4. Migrations are immutable — never edit a migration after it has been applied
+5. Use repeatable migrations (`R__description.sql`) for views, stored procedures, or seed data

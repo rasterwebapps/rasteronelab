@@ -63,14 +63,12 @@ Generate a complete entity stack following RasterOneLab hexagonal architecture.
 - Full CRUD: GET all (paginated), GET by id, POST, PUT, DELETE
 - OpenAPI `@Operation`, `@ApiResponse` annotations
 
-### 9. Liquibase Migration
-- File: `resources/db/changelog/YYYY-MM-DD-create-{table_name}.xml`
-- `createTable` with all columns (snake_case)
+### 9. Flyway Migration
+- File: `resources/db/migration/V{YYYYMMDD_HHmm}__create_{table_name}.sql`
+- `CREATE TABLE` with all columns (snake_case)
 - UUID PK, branch_id, all entity fields
 - Audit columns (created_at, updated_at, created_by, updated_by, is_deleted, deleted_at)
 - Indexes: branch_id, is_deleted, unique constraints
-- Rollback: `dropTable`
-- Add to master changelog
 
 ### 10. Tests
 - **Unit test** (`{EntityName}ServiceTest.java`): Test all service methods with Mockito
