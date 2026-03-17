@@ -1,0 +1,418 @@
+{
+  "id": "rasteronelab",
+  "realm": "rasteronelab",
+  "displayName": "RasterOneLab LIS",
+  "displayNameHtml": "<strong>RasterOneLab</strong> Lab Information System",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "bruteForceProtected": true,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespan": 5184000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "defaultSignatureAlgorithm": "RS256",
+  "roles": {
+    "realm": [
+      {
+        "name": "SUPER_ADMIN",
+        "description": "Full system access across all branches and organizations",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "ORG_ADMIN",
+        "description": "Organization-level administrator with access to all branches within the organization",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "BRANCH_ADMIN",
+        "description": "Branch-level administrator with full access within a single branch",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "PATHOLOGIST",
+        "description": "Lab pathologist responsible for result validation and report authorization",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "LAB_TECHNICIAN",
+        "description": "Lab technician responsible for sample processing and result entry",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "RECEPTIONIST",
+        "description": "Front desk staff handling patient registration and order creation",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "PHLEBOTOMIST",
+        "description": "Sample collection staff responsible for phlebotomy and specimen labeling",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "BILLING_STAFF",
+        "description": "Billing and accounts staff managing invoices, payments, and financial reports",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "DOCTOR",
+        "description": "Referring doctor with access to patient reports and order placement",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "PATIENT",
+        "description": "Patient portal access for viewing reports and booking appointments",
+        "composite": false,
+        "clientRole": false
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "lis-frontend",
+      "name": "LIS Frontend Application",
+      "description": "Angular 19 SPA for the RasterOneLab LIS",
+      "enabled": true,
+      "publicClient": true,
+      "clientAuthenticatorType": "client-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4200/*",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "login_theme": "keycloak"
+      },
+      "fullScopeAllowed": true,
+      "protocolMappers": [
+        {
+          "name": "organizationId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "organizationId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "organizationId",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        },
+        {
+          "name": "branchIds",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "branchIds",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "branchIds",
+            "jsonType.label": "JSON",
+            "multivalued": "true",
+            "aggregate.attrs": "true"
+          }
+        },
+        {
+          "name": "employeeId",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "employeeId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "employeeId",
+            "jsonType.label": "String",
+            "multivalued": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "lis-backend",
+      "name": "LIS Backend Services",
+      "description": "Spring Boot backend microservices for the RasterOneLab LIS",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "lis-backend-secret-dev",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [],
+      "webOrigins": [],
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "false",
+        "oidc.ciba.grant.enabled": "false"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "superadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Super",
+      "lastName": "Admin",
+      "email": "superadmin@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333"],
+        "employeeId": ["EMP-001"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SUPER_ADMIN", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "orgadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Org",
+      "lastName": "Admin",
+      "email": "orgadmin@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333"],
+        "employeeId": ["EMP-002"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ORG_ADMIN", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "branchadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Branch",
+      "lastName": "Admin",
+      "email": "branchadmin@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-003"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["BRANCH_ADMIN", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "pathologist",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Path",
+      "lastName": "Ologist",
+      "email": "pathologist@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-004"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PATHOLOGIST", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "labtechnician",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lab",
+      "lastName": "Technician",
+      "email": "labtechnician@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-005"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["LAB_TECHNICIAN", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "receptionist",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Front",
+      "lastName": "Desk",
+      "email": "receptionist@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-006"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["RECEPTIONIST", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "phlebotomist",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Phle",
+      "lastName": "Botomist",
+      "email": "phlebotomist@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-007"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PHLEBOTOMIST", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "billingstaff",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Billing",
+      "lastName": "Staff",
+      "email": "billingstaff@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-008"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["BILLING_STAFF", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "doctor",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Referring",
+      "lastName": "Doctor",
+      "email": "doctor@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"],
+        "employeeId": ["EMP-009"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["DOCTOR", "default-roles-rasteronelab"]
+    },
+    {
+      "username": "patient",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "Patient",
+      "email": "patient@rasteronelab.com",
+      "attributes": {
+        "organizationId": ["11111111-1111-1111-1111-111111111111"],
+        "branchIds": ["22222222-2222-2222-2222-222222222222"]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test@1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["PATIENT", "default-roles-rasteronelab"]
+    }
+  ],
+  "scopeMappings": [],
+  "clientScopeMappings": {},
+  "internationalizationEnabled": false,
+  "supportedLocales": [],
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients"
+}

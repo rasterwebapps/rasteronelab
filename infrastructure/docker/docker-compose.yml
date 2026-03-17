@@ -99,7 +99,7 @@ services:
       KC_LOG_LEVEL: INFO
       KC_METRICS_ENABLED: "true"
       KC_HEALTH_ENABLED: "true"
-    command: start-dev
+    command: start-dev --import-realm
     depends_on:
       postgres:
         condition: service_healthy
