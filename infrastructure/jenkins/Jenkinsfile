@@ -34,7 +34,7 @@ pipeline {
                 dir('backend') {
                     sh '''
                         chmod +x gradlew
-                        ./gradlew clean build -x test --no-daemon --parallel
+                        ./gradlew clean build -x test --no-daemon --parallel --build-cache
                     '''
                 }
             }
@@ -48,7 +48,7 @@ pipeline {
                 stage('Backend Unit Tests') {
                     steps {
                         dir('backend') {
-                            sh './gradlew test --no-daemon'
+                            sh './gradlew test jacocoTestReport jacocoTestCoverageVerification --no-daemon --build-cache'
                         }
                     }
                     post {
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 withSonarQubeEnv(env.SONARQUBE_SERVER) {
                     dir('backend') {
-                        sh './gradlew sonar --no-daemon'
+                        sh './gradlew sonar --no-daemon --build-cache'
                     }
                 }
                 timeout(time: 5, unit: 'MINUTES') {
