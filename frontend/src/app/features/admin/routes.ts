@@ -69,4 +69,43 @@ export const ADMIN_ROUTES: Routes = [
     path: 'panels/:id/edit',
     loadComponent: () => import('./components/panel-form/panel-form.component').then(m => m.PanelFormComponent),
   },
+  // LIS-031: Doctor Management
+  {
+    path: 'doctors',
+    loadComponent: () => import('./components/doctor-list/doctor-list.component').then(m => m.DoctorListComponent),
+  },
+  {
+    path: 'doctors/new',
+    loadComponent: () => import('./components/doctor-form/doctor-form.component').then(m => m.DoctorFormComponent),
+  },
+  {
+    path: 'doctors/:id/edit',
+    loadComponent: () => import('./components/doctor-form/doctor-form.component').then(m => m.DoctorFormComponent),
+  },
+  // LIS-031: User Management
+  {
+    path: 'users',
+    loadComponent: () => import('./components/user-list/user-list.component').then(m => m.UserListComponent),
+  },
+  {
+    path: 'users/new',
+    loadComponent: () => import('./components/user-form/user-form.component').then(m => m.UserFormComponent),
+  },
+  {
+    path: 'users/:id/edit',
+    loadComponent: () => import('./components/user-form/user-form.component').then(m => m.UserFormComponent),
+  },
+  // LIS-031: Role Management
+  {
+    path: 'roles',
+    loadComponent: () => import('./components/role-list/role-list.component').then(m => m.RoleListComponent),
+  },
+  {
+    path: 'roles/new',
+    loadComponent: () => import('./components/role-form/role-form.component').then(m => m.RoleFormComponent),
+  },
+  {
+    path: 'roles/:id/edit',
+    loadComponent: () => import('./components/role-form/role-form.component').then(m => m.RoleFormComponent),
+  },
 ];
