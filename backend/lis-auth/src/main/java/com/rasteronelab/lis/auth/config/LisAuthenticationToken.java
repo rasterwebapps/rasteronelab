@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.Getter;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -14,7 +12,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * Extended JWT authentication token that carries LIS-specific claims
  * extracted from Keycloak: organizationId, branchIds, and employeeId.
  */
-@Getter
 public class LisAuthenticationToken extends JwtAuthenticationToken {
 
     private final String organizationId;
@@ -34,4 +31,17 @@ public class LisAuthenticationToken extends JwtAuthenticationToken {
                 : Collections.emptyList();
         this.employeeId = employeeId;
     }
+
+    public String getOrganizationId() {
+        return this.organizationId;
+    }
+
+    public List<String> getBranchIds() {
+        return this.branchIds;
+    }
+
+    public String getEmployeeId() {
+        return this.employeeId;
+    }
+
 }

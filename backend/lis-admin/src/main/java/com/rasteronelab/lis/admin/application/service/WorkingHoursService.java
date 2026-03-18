@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.WorkingHoursRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Day of week must be unique within a branch. Open time must be before close time.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class WorkingHoursService {
 
@@ -100,4 +98,10 @@ public class WorkingHoursService {
             throw new IllegalArgumentException("Open time must be before close time");
         }
     }
+
+    public WorkingHoursService(WorkingHoursRepository workingHoursRepository, WorkingHoursMapper workingHoursMapper) {
+        this.workingHoursRepository = workingHoursRepository;
+        this.workingHoursMapper = workingHoursMapper;
+    }
+
 }

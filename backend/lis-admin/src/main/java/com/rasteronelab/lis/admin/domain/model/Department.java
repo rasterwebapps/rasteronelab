@@ -9,8 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -28,8 +26,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "department")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
 public class Department {
 
     @Id
@@ -85,4 +81,117 @@ public class Department {
         this.deletedAt = LocalDateTime.now();
         this.updatedBy = deletedBy;
     }
+
+    public UUID getId() {
+        return this.id;
+    }
+
+    public UUID getOrgId() {
+        return this.orgId;
+    }
+
+    public Organization getOrganization() {
+        return this.organization;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public Integer getDisplayOrder() {
+        return this.displayOrder;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return this.updatedBy;
+    }
+
+    public Boolean getIsDeleted() {
+        return this.isDeleted;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return this.deletedAt;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
 }

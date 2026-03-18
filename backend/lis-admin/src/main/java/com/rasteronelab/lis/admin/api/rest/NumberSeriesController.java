@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.NumberSeriesService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config/number-series")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class NumberSeriesController {
 
     private final NumberSeriesService numberSeriesService;
@@ -68,4 +66,9 @@ public class NumberSeriesController {
         numberSeriesService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Number series deleted successfully"));
     }
+
+    public NumberSeriesController(NumberSeriesService numberSeriesService) {
+        this.numberSeriesService = numberSeriesService;
+    }
+
 }

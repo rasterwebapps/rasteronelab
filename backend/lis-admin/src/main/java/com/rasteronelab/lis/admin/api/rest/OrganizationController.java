@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.OrganizationService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/organizations")
 @PreAuthorize("hasRole('SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class OrganizationController {
 
     private final OrganizationService organizationService;
@@ -68,4 +66,9 @@ public class OrganizationController {
         organizationService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Organization deleted successfully"));
     }
+
+    public OrganizationController(OrganizationService organizationService) {
+        this.organizationService = organizationService;
+    }
+
 }

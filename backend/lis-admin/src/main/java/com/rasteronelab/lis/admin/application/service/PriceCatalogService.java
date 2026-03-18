@@ -12,7 +12,6 @@ import com.rasteronelab.lis.admin.domain.repository.TestPanelRepository;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +26,6 @@ import java.util.UUID;
  * Exactly one of testId or panelId must be provided per entry.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class PriceCatalogService {
 
@@ -144,4 +142,12 @@ public class PriceCatalogService {
             priceCatalog.setTest(null);
         }
     }
+
+    public PriceCatalogService(PriceCatalogRepository priceCatalogRepository, TestMasterRepository testMasterRepository, TestPanelRepository testPanelRepository, PriceCatalogMapper priceCatalogMapper) {
+        this.priceCatalogRepository = priceCatalogRepository;
+        this.testMasterRepository = testMasterRepository;
+        this.testPanelRepository = testPanelRepository;
+        this.priceCatalogMapper = priceCatalogMapper;
+    }
+
 }

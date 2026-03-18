@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.ReferenceRangeService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/reference-ranges")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class ReferenceRangeController {
 
     private final ReferenceRangeService referenceRangeService;
@@ -76,4 +74,9 @@ public class ReferenceRangeController {
         referenceRangeService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Reference range deleted successfully"));
     }
+
+    public ReferenceRangeController(ReferenceRangeService referenceRangeService) {
+        this.referenceRangeService = referenceRangeService;
+    }
+
 }

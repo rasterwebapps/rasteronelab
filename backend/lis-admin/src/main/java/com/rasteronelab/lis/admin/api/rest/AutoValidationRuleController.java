@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.AutoValidationRuleService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config/auto-validation")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class AutoValidationRuleController {
 
     private final AutoValidationRuleService autoValidationRuleService;
@@ -90,4 +88,9 @@ public class AutoValidationRuleController {
         autoValidationRuleService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Auto validation rule deleted successfully"));
     }
+
+    public AutoValidationRuleController(AutoValidationRuleService autoValidationRuleService) {
+        this.autoValidationRuleService = autoValidationRuleService;
+    }
+
 }

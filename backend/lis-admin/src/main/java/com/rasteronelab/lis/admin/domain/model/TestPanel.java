@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,8 +18,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "test_panel")
-@Getter
-@Setter
 public class TestPanel extends BaseEntity {
 
     @Column(name = "department_id", nullable = false, insertable = false, updatable = false)
@@ -51,4 +47,77 @@ public class TestPanel extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public UUID getDepartmentId() {
+        return this.departmentId;
+    }
+
+    public Department getDepartment() {
+        return this.department;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public String getShortName() {
+        return this.shortName;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public BigDecimal getPanelPrice() {
+        return this.panelPrice;
+    }
+
+    public Integer getDisplayOrder() {
+        return this.displayOrder;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setDepartmentId(UUID departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPanelPrice(BigDecimal panelPrice) {
+        this.panelPrice = panelPrice;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

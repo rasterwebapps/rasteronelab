@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,8 +18,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "price_catalog")
-@Getter
-@Setter
 public class PriceCatalog extends BaseEntity {
 
     @Column(name = "test_id", insertable = false, updatable = false)
@@ -52,4 +48,77 @@ public class PriceCatalog extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public UUID getTestId() {
+        return this.testId;
+    }
+
+    public TestMaster getTest() {
+        return this.test;
+    }
+
+    public UUID getPanelId() {
+        return this.panelId;
+    }
+
+    public TestPanel getPanel() {
+        return this.panel;
+    }
+
+    public String getRateListType() {
+        return this.rateListType;
+    }
+
+    public BigDecimal getPrice() {
+        return this.price;
+    }
+
+    public LocalDate getEffectiveFrom() {
+        return this.effectiveFrom;
+    }
+
+    public LocalDate getEffectiveTo() {
+        return this.effectiveTo;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setTestId(UUID testId) {
+        this.testId = testId;
+    }
+
+    public void setTest(TestMaster test) {
+        this.test = test;
+    }
+
+    public void setPanelId(UUID panelId) {
+        this.panelId = panelId;
+    }
+
+    public void setPanel(TestPanel panel) {
+        this.panel = panel;
+    }
+
+    public void setRateListType(String rateListType) {
+        this.rateListType = rateListType;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public void setEffectiveFrom(LocalDate effectiveFrom) {
+        this.effectiveFrom = effectiveFrom;
+    }
+
+    public void setEffectiveTo(LocalDate effectiveTo) {
+        this.effectiveTo = effectiveTo;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

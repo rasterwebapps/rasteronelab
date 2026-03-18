@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.DeltaCheckConfigService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config/delta-checks")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class DeltaCheckConfigController {
 
     private final DeltaCheckConfigService deltaCheckConfigService;
@@ -76,4 +74,9 @@ public class DeltaCheckConfigController {
         deltaCheckConfigService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Delta check config deleted successfully"));
     }
+
+    public DeltaCheckConfigController(DeltaCheckConfigService deltaCheckConfigService) {
+        this.deltaCheckConfigService = deltaCheckConfigService;
+    }
+
 }

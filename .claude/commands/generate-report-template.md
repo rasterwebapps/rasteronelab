@@ -14,12 +14,21 @@ Departments: `biochemistry`, `hematology`, `microbiology`, `histopathology`, `se
 ### 1. PDF Report Service
 ```java
 @Service
-@RequiredArgsConstructor
 public class BiochemistryReportService implements DepartmentReportService {
     private final BranchTemplateService branchTemplateService;
     private final MinioService minioService;
     private final QrCodeService qrCodeService;
     private final BarcodeService barcodeService;
+
+    public BiochemistryReportService(BranchTemplateService branchTemplateService,
+                                     MinioService minioService,
+                                     QrCodeService qrCodeService,
+                                     BarcodeService barcodeService) {
+        this.branchTemplateService = branchTemplateService;
+        this.minioService = minioService;
+        this.qrCodeService = qrCodeService;
+        this.barcodeService = barcodeService;
+    }
     
     @Override
     public byte[] generateReport(ReportContext context) {

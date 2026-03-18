@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.DoctorRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Doctor code must be unique within a branch when provided.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class DoctorService {
 
@@ -99,4 +97,10 @@ public class DoctorService {
         doctor.softDelete(currentUser);
         doctorRepository.save(doctor);
     }
+
+    public DoctorService(DoctorRepository doctorRepository, DoctorMapper doctorMapper) {
+        this.doctorRepository = doctorRepository;
+        this.doctorMapper = doctorMapper;
+    }
+
 }

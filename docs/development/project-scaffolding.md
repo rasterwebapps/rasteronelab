@@ -89,9 +89,6 @@ subprojects {
 package com.rasteronelab.lis.core.domain.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -101,9 +98,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
@@ -152,10 +146,8 @@ public abstract class BaseEntity {
 package com.rasteronelab.lis.core.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
 import java.time.LocalDateTime;
 
-@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     private final boolean success;
@@ -170,6 +162,12 @@ public class ApiResponse<T> {
         this.data = data;
         this.errorCode = errorCode;
     }
+
+    public boolean isSuccess() { return success; }
+    public String getMessage() { return message; }
+    public T getData() { return data; }
+    public String getErrorCode() { return errorCode; }
+    public LocalDateTime getTimestamp() { return timestamp; }
 
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(true, "Success", data, null);
@@ -191,15 +189,17 @@ public class ApiResponse<T> {
 package com.rasteronelab.lis.core.api;
 
 import com.rasteronelab.lis.core.common.exception.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleNotFound(NotFoundException ex) {

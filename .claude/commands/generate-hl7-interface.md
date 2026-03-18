@@ -14,12 +14,21 @@ Example: `/generate-hl7-interface cobas RocheCobas8000 TCP_IP`
 ### 1. ASTM Message Handler
 ```java
 @Component
-@RequiredArgsConstructor
 public class CobasAstmMessageHandler implements AstmMessageHandler {
     private final InstrumentResultMapper resultMapper;
     private final ResultAutoValidator autoValidator;
     private final RabbitMQPublisher publisher;
     private final InstrumentLogger instrumentLogger;
+
+    public CobasAstmMessageHandler(InstrumentResultMapper resultMapper,
+                                   ResultAutoValidator autoValidator,
+                                   RabbitMQPublisher publisher,
+                                   InstrumentLogger instrumentLogger) {
+        this.resultMapper = resultMapper;
+        this.autoValidator = autoValidator;
+        this.publisher = publisher;
+        this.instrumentLogger = instrumentLogger;
+    }
     
     @Override
     public void handleResultMessage(AstmMessage message) {

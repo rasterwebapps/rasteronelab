@@ -10,7 +10,6 @@ import com.rasteronelab.lis.admin.domain.repository.ParameterRepository;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +25,6 @@ import java.util.UUID;
  * Validates parameter existence and that low threshold is less than high threshold.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class CriticalValueConfigService {
 
@@ -119,4 +117,11 @@ public class CriticalValueConfigService {
             throw new BusinessRuleException("Low threshold must be less than high threshold");
         }
     }
+
+    public CriticalValueConfigService(CriticalValueConfigRepository criticalValueConfigRepository, ParameterRepository parameterRepository, CriticalValueConfigMapper criticalValueConfigMapper) {
+        this.criticalValueConfigRepository = criticalValueConfigRepository;
+        this.parameterRepository = parameterRepository;
+        this.criticalValueConfigMapper = criticalValueConfigMapper;
+    }
+
 }

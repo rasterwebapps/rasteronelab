@@ -9,7 +9,6 @@ import com.rasteronelab.lis.admin.domain.repository.BranchRepository;
 import com.rasteronelab.lis.admin.domain.repository.OrganizationRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +21,6 @@ import java.util.UUID;
  * Service for Branch CRUD operations.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class BranchService {
 
@@ -114,4 +112,11 @@ public class BranchService {
         Branch saved = branchRepository.save(branch);
         return branchMapper.toResponse(saved);
     }
+
+    public BranchService(BranchRepository branchRepository, OrganizationRepository organizationRepository, BranchMapper branchMapper) {
+        this.branchRepository = branchRepository;
+        this.organizationRepository = organizationRepository;
+        this.branchMapper = branchMapper;
+    }
+
 }

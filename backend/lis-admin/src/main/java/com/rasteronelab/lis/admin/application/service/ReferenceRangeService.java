@@ -10,7 +10,6 @@ import com.rasteronelab.lis.admin.domain.repository.ReferenceRangeRepository;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +26,6 @@ import java.util.UUID;
  * Validates no overlapping age ranges for the same parameter and gender.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class ReferenceRangeService {
 
@@ -147,4 +145,11 @@ public class ReferenceRangeService {
     private boolean rangesOverlap(BigDecimal min1, BigDecimal max1, BigDecimal min2, BigDecimal max2) {
         return min1.compareTo(max2) <= 0 && min2.compareTo(max1) <= 0;
     }
+
+    public ReferenceRangeService(ReferenceRangeRepository referenceRangeRepository, ParameterRepository parameterRepository, ReferenceRangeMapper referenceRangeMapper) {
+        this.referenceRangeRepository = referenceRangeRepository;
+        this.parameterRepository = parameterRepository;
+        this.referenceRangeMapper = referenceRangeMapper;
+    }
+
 }

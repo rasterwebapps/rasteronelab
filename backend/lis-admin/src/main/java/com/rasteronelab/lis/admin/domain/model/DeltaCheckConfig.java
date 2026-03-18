@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,8 +18,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "delta_check_config")
-@Getter
-@Setter
 public class DeltaCheckConfig extends BaseEntity {
 
     @Column(name = "parameter_id", nullable = false, insertable = false, updatable = false)
@@ -42,4 +38,53 @@ public class DeltaCheckConfig extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public UUID getParameterId() {
+        return this.parameterId;
+    }
+
+    public Parameter getParameter() {
+        return this.parameter;
+    }
+
+    public BigDecimal getPercentageThreshold() {
+        return this.percentageThreshold;
+    }
+
+    public BigDecimal getAbsoluteThreshold() {
+        return this.absoluteThreshold;
+    }
+
+    public Integer getTimeWindowHours() {
+        return this.timeWindowHours;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setParameterId(UUID parameterId) {
+        this.parameterId = parameterId;
+    }
+
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setPercentageThreshold(BigDecimal percentageThreshold) {
+        this.percentageThreshold = percentageThreshold;
+    }
+
+    public void setAbsoluteThreshold(BigDecimal absoluteThreshold) {
+        this.absoluteThreshold = absoluteThreshold;
+    }
+
+    public void setTimeWindowHours(Integer timeWindowHours) {
+        this.timeWindowHours = timeWindowHours;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

@@ -7,7 +7,6 @@ import com.rasteronelab.lis.admin.domain.model.Organization;
 import com.rasteronelab.lis.admin.domain.repository.OrganizationRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +19,6 @@ import java.util.UUID;
  * Service for Organization CRUD operations.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class OrganizationService {
 
@@ -76,4 +74,10 @@ public class OrganizationService {
         organization.softDelete(currentUser);
         organizationRepository.save(organization);
     }
+
+    public OrganizationService(OrganizationRepository organizationRepository, OrganizationMapper organizationMapper) {
+        this.organizationRepository = organizationRepository;
+        this.organizationMapper = organizationMapper;
+    }
+
 }

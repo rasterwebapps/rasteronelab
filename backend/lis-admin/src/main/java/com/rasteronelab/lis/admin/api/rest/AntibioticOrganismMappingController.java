@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.AntibioticOrganismMappingS
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/antibiotic-organism-mappings")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class AntibioticOrganismMappingController {
 
     private final AntibioticOrganismMappingService mappingService;
@@ -82,4 +80,9 @@ public class AntibioticOrganismMappingController {
         mappingService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Antibiotic-Organism mapping deleted successfully"));
     }
+
+    public AntibioticOrganismMappingController(AntibioticOrganismMappingService mappingService) {
+        this.mappingService = mappingService;
+    }
+
 }

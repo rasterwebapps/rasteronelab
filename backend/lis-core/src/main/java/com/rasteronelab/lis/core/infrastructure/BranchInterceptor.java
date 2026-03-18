@@ -3,7 +3,6 @@ package com.rasteronelab.lis.core.infrastructure;
 import com.rasteronelab.lis.core.common.exception.BranchAccessDeniedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,6 +12,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Intercepts HTTP requests to establish branch context from the X-Branch-Id header.
@@ -26,9 +27,10 @@ import java.util.UUID;
  *
  * Skips interception for actuator, health, and swagger endpoints.
  */
-@Slf4j
 @Component
 public class BranchInterceptor implements HandlerInterceptor {
+
+    private static final Logger log = LoggerFactory.getLogger(BranchInterceptor.class);
 
     private static final String BRANCH_HEADER = "X-Branch-Id";
 

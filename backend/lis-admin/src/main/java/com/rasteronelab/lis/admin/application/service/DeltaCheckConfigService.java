@@ -9,7 +9,6 @@ import com.rasteronelab.lis.admin.domain.repository.DeltaCheckConfigRepository;
 import com.rasteronelab.lis.admin.domain.repository.ParameterRepository;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +24,6 @@ import java.util.UUID;
  * Validates parameter existence before creating or updating configurations.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class DeltaCheckConfigService {
 
@@ -103,4 +101,11 @@ public class DeltaCheckConfigService {
         config.softDelete(currentUser);
         deltaCheckConfigRepository.save(config);
     }
+
+    public DeltaCheckConfigService(DeltaCheckConfigRepository deltaCheckConfigRepository, ParameterRepository parameterRepository, DeltaCheckConfigMapper deltaCheckConfigMapper) {
+        this.deltaCheckConfigRepository = deltaCheckConfigRepository;
+        this.parameterRepository = parameterRepository;
+        this.deltaCheckConfigMapper = deltaCheckConfigMapper;
+    }
+
 }

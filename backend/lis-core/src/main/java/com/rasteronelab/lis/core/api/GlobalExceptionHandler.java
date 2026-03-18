@@ -7,7 +7,6 @@ import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.common.exception.UnauthorizedException;
 import com.rasteronelab.lis.core.common.exception.ValidationException;
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,14 +20,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Global exception handler for all LIS REST endpoints.
  * Converts exceptions into standardized {@link ApiResponse} error responses.
  */
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFoundException(NotFoundException ex) {

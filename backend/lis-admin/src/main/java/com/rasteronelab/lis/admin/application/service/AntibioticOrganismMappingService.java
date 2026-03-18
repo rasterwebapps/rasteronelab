@@ -12,7 +12,6 @@ import com.rasteronelab.lis.admin.domain.repository.MicroorganismRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +27,6 @@ import java.util.UUID;
  * Mapping must be unique per branch (antibiotic + microorganism).
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AntibioticOrganismMappingService {
 
@@ -138,4 +136,12 @@ public class AntibioticOrganismMappingService {
         mapping.softDelete(currentUser);
         mappingRepository.save(mapping);
     }
+
+    public AntibioticOrganismMappingService(AntibioticOrganismMappingRepository mappingRepository, AntibioticRepository antibioticRepository, MicroorganismRepository microorganismRepository, AntibioticOrganismMappingMapper mappingMapper) {
+        this.mappingRepository = mappingRepository;
+        this.antibioticRepository = antibioticRepository;
+        this.microorganismRepository = microorganismRepository;
+        this.mappingMapper = mappingMapper;
+    }
+
 }
