@@ -1,4 +1,4 @@
-# Phase 8: Portals, Analytics & Launch Prep (Months 16-22)
+# Phase 8: Portals, Analytics & Launch Prep
 
 > Doctor and patient portals, analytics dashboards, performance optimization, and production launch.
 

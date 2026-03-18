@@ -1,4 +1,4 @@
-# Phase 4: Sample Management (Months 6-8)
+# Phase 4: Sample Management
 
 > Complete sample lifecycle from collection to disposal, including rejection workflow and barcode scanning.
 

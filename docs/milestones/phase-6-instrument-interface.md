@@ -1,4 +1,4 @@
-# Phase 6: Instrument Interface (Months 10-13)
+# Phase 6: Instrument Interface
 
 > ASTM E1381/E1394 bidirectional communication with lab instruments.
 

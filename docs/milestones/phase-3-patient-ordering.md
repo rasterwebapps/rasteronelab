@@ -1,4 +1,4 @@
-# Phase 3: Patient & Ordering (Months 4-6)
+# Phase 3: Patient & Ordering
 
 > Complete patient registration through order placement and basic billing.
 

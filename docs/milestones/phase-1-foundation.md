@@ -1,4 +1,4 @@
-# Phase 1: Foundation (Months 1-2)
+# Phase 1: Foundation
 
 > Project setup, authentication, multi-branch infrastructure, and CI/CD pipeline.
 

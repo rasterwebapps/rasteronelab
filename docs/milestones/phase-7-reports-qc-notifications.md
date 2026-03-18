@@ -1,4 +1,4 @@
-# Phase 7: Reports, QC & Notifications (Months 12-16)
+# Phase 7: Reports, QC & Notifications
 
 > PDF reports, quality control with Westgard rules, and multi-channel notifications.
 
