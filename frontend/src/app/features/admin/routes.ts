@@ -108,4 +108,91 @@ export const ADMIN_ROUTES: Routes = [
     path: 'roles/:id/edit',
     loadComponent: () => import('./components/role-form/role-form.component').then(m => m.RoleFormComponent),
   },
+  // LIS-032: Holiday Management
+  {
+    path: 'holidays',
+    loadComponent: () => import('./components/holiday-list/holiday-list.component').then(m => m.HolidayListComponent),
+  },
+  {
+    path: 'holidays/new',
+    loadComponent: () => import('./components/holiday-form/holiday-form.component').then(m => m.HolidayFormComponent),
+  },
+  {
+    path: 'holidays/:id/edit',
+    loadComponent: () => import('./components/holiday-form/holiday-form.component').then(m => m.HolidayFormComponent),
+  },
+  // LIS-032: Notification Templates
+  {
+    path: 'notification-templates',
+    loadComponent: () => import('./components/notification-template-list/notification-template-list.component').then(m => m.NotificationTemplateListComponent),
+  },
+  {
+    path: 'notification-templates/new',
+    loadComponent: () => import('./components/notification-template-form/notification-template-form.component').then(m => m.NotificationTemplateFormComponent),
+  },
+  {
+    path: 'notification-templates/:id/edit',
+    loadComponent: () => import('./components/notification-template-form/notification-template-form.component').then(m => m.NotificationTemplateFormComponent),
+  },
+  // LIS-032: Report Templates
+  {
+    path: 'report-templates',
+    loadComponent: () => import('./components/report-template-list/report-template-list.component').then(m => m.ReportTemplateListComponent),
+  },
+  {
+    path: 'report-templates/new',
+    loadComponent: () => import('./components/report-template-form/report-template-form.component').then(m => m.ReportTemplateFormComponent),
+  },
+  {
+    path: 'report-templates/:id/edit',
+    loadComponent: () => import('./components/report-template-form/report-template-form.component').then(m => m.ReportTemplateFormComponent),
+  },
+  // LIS-032: Working Hours
+  {
+    path: 'working-hours',
+    loadComponent: () => import('./components/working-hours-list/working-hours-list.component').then(m => m.WorkingHoursListComponent),
+  },
+  {
+    path: 'working-hours/edit',
+    loadComponent: () => import('./components/working-hours-form/working-hours-form.component').then(m => m.WorkingHoursFormComponent),
+  },
+  // LIS-032: Number Series
+  {
+    path: 'number-series',
+    loadComponent: () => import('./components/number-series-list/number-series-list.component').then(m => m.NumberSeriesListComponent),
+  },
+  {
+    path: 'number-series/new',
+    loadComponent: () => import('./components/number-series-form/number-series-form.component').then(m => m.NumberSeriesFormComponent),
+  },
+  {
+    path: 'number-series/:id/edit',
+    loadComponent: () => import('./components/number-series-form/number-series-form.component').then(m => m.NumberSeriesFormComponent),
+  },
+  // LIS-032: Discount Schemes
+  {
+    path: 'discount-schemes',
+    loadComponent: () => import('./components/discount-scheme-list/discount-scheme-list.component').then(m => m.DiscountSchemeListComponent),
+  },
+  {
+    path: 'discount-schemes/new',
+    loadComponent: () => import('./components/discount-scheme-form/discount-scheme-form.component').then(m => m.DiscountSchemeFormComponent),
+  },
+  {
+    path: 'discount-schemes/:id/edit',
+    loadComponent: () => import('./components/discount-scheme-form/discount-scheme-form.component').then(m => m.DiscountSchemeFormComponent),
+  },
+  // LIS-032: Insurance Tariffs
+  {
+    path: 'insurance-tariffs',
+    loadComponent: () => import('./components/insurance-tariff-list/insurance-tariff-list.component').then(m => m.InsuranceTariffListComponent),
+  },
+  {
+    path: 'insurance-tariffs/new',
+    loadComponent: () => import('./components/insurance-tariff-form/insurance-tariff-form.component').then(m => m.InsuranceTariffFormComponent),
+  },
+  {
+    path: 'insurance-tariffs/:id/edit',
+    loadComponent: () => import('./components/insurance-tariff-form/insurance-tariff-form.component').then(m => m.InsuranceTariffFormComponent),
+  },
 ];
