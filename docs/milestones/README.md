@@ -6,16 +6,16 @@
 
 > **0 phases fully completed** — Phase 1 is actively in progress at ~65%.
 
-| Milestone | Phase | Timeline | Status | Issues | Progress |
-|-----------|-------|----------|--------|--------|---------|
-| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | 🟡 In Progress | 15 | ~65% |
-| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | ⬜ Not Started | 18 | 0% |
-| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | ⬜ Not Started | 21 | 0% |
-| [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 | 0% |
-| [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 | 0% |
-| [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 | 0% |
-| [Phase 7: Reports, QC & Notifications](phase-7-reports-qc-notifications.md) | PDF, QC, Alerts | Months 12-16 | ⬜ Not Started | 17 | 0% |
-| [Phase 8: Portals, Analytics & Launch](phase-8-portals-analytics.md) | Portals, Dashboards | Months 16-22 | ⬜ Not Started | 18 | 0% |
+| Milestone | Phase | Status | Issues | Progress |
+|-----------|-------|--------|--------|---------|
+| Phase 1: Foundation | Infrastructure & Auth | 🟡 In Progress | 15 | ~65% |
+| Phase 2: Administration Module | Master Data & Admin | ⬜ Not Started | 18 | 0% |
+| Phase 3: Patient & Ordering | Registration, Orders, Billing | ⬜ Not Started | 21 | 0% |
+| Phase 4: Sample Management | Sample Lifecycle | ⬜ Not Started | 14 | 0% |
+| Phase 5: Result Entry & Validation | All Departments | ⬜ Not Started | 20 | 0% |
+| Phase 6: Instrument Interface | ASTM/HL7 Integration | ⬜ Not Started | 12 | 0% |
+| Phase 7: Reports, QC & Notifications | PDF, QC, Alerts | ⬜ Not Started | 17 | 0% |
+| Phase 8: Portals, Analytics & Launch | Portals, Dashboards | ⬜ Not Started | 18 | 0% |
 
 **Total Issues: 135 (LIS-001 through LIS-135)**
 
@@ -38,23 +38,6 @@
 | LIS-013 | CI/CD pipeline with Jenkins | ⚠️ In Progress |
 | LIS-014 | Dockerfiles for backend and frontend | ✅ Done |
 | LIS-015 | Flyway migration framework and core tables | ⚠️ In Progress |
-
----
-
-## Timeline Overview
-
-| Milestone | Phase | Timeline | Status | Issues |
-|-----------|-------|----------|--------|--------|
-| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | 🟡 In Progress | 15 |
-| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | ⬜ Not Started | 18 |
-| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | ⬜ Not Started | 21 |
-| [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 |
-| [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 |
-| [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 |
-| [Phase 7: Reports, QC & Notifications](phase-7-reports-qc-notifications.md) | PDF, QC, Alerts | Months 12-16 | ⬜ Not Started | 17 |
-| [Phase 8: Portals, Analytics & Launch](phase-8-portals-analytics.md) | Portals, Dashboards | Months 16-22 | ⬜ Not Started | 18 |
-
-**Total Issues: 135 (LIS-001 through LIS-135)**
 
 ---
 
