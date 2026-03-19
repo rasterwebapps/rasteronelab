@@ -67,12 +67,13 @@ public class OutstandingInvoiceResponse {
         OutstandingInvoiceResponse that = (OutstandingInvoiceResponse) o;
         return this.invoiceCount == that.invoiceCount &&
                Objects.equals(this.patientId, that.patientId) &&
-               Objects.equals(this.totalOutstanding, that.totalOutstanding);
+               Objects.equals(this.totalOutstanding, that.totalOutstanding) &&
+               Objects.equals(this.invoices, that.invoices);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.patientId, this.totalOutstanding, this.invoiceCount);
+        return Objects.hash(this.patientId, this.totalOutstanding, this.invoiceCount, this.invoices);
     }
 
     @Override
