@@ -2,6 +2,7 @@ package com.rasteronelab.lis.patient.application.service;
 
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
+import com.rasteronelab.lis.patient.api.dto.DuplicateCheckRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientResponse;
 import com.rasteronelab.lis.patient.api.mapper.PatientMapper;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -47,11 +47,11 @@ class PatientServiceTest {
     @Mock
     private PatientMapper patientMapper;
 
-    @InjectMocks
     private PatientService patientService;
 
     @BeforeEach
     void setUp() {
+        patientService = new PatientService(patientRepository, patientMapper, 40);
         BranchContextHolder.setCurrentBranchId(BRANCH_ID);
     }
 
@@ -342,8 +342,9 @@ class PatientServiceTest {
                 .thenReturn(List.of(highScorePatient, lowScorePatient));
         when(patientMapper.toResponse(highScorePatient)).thenReturn(highResponse);
 
-        List<java.util.Map<String, Object>> results = patientService.findDuplicatesWithScore(
+        DuplicateCheckRequest request = new DuplicateCheckRequest(
                 "John", "Doe", "1234567890", null, null, LocalDate.of(1990, 1, 1));
+        List<java.util.Map<String, Object>> results = patientService.findDuplicatesWithScore(request);
 
         // High score patient (name+DOB=40 + phone=30 = 70) should be included
         // Low score patient (no matches significant enough) should be filtered out

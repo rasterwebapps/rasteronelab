@@ -2,11 +2,13 @@ package com.rasteronelab.lis.patient.application.service;
 
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
+import com.rasteronelab.lis.patient.api.dto.DuplicateCheckRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientResponse;
 import com.rasteronelab.lis.patient.api.mapper.PatientMapper;
 import com.rasteronelab.lis.patient.domain.model.Patient;
 import com.rasteronelab.lis.patient.domain.repository.PatientRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +35,14 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
+    private final int duplicateScoreThreshold;
+
+    public PatientService(PatientRepository patientRepository, PatientMapper patientMapper,
+                          @Value("${lis.patient.duplicate-score-threshold:40}") int duplicateScoreThreshold) {
+        this.patientRepository = patientRepository;
+        this.patientMapper = patientMapper;
+        this.duplicateScoreThreshold = duplicateScoreThreshold;
+    }
 
     public PatientResponse create(PatientRequest request) {
         UUID branchId = BranchContextHolder.getCurrentBranchId();
@@ -113,16 +123,17 @@ public class PatientService {
      * @return list of maps containing "patient" (PatientResponse) and "score" (int)
      */
     @Transactional(readOnly = true)
-    public List<Map<String, Object>> findDuplicatesWithScore(String firstName, String lastName,
-                                                              String phone, String email,
-                                                              String gender, LocalDate dob) {
+    public List<Map<String, Object>> findDuplicatesWithScore(DuplicateCheckRequest request) {
         UUID branchId = BranchContextHolder.getCurrentBranchId();
-        List<Patient> candidates = patientRepository.findDuplicates(branchId, firstName, lastName, phone, dob);
+        List<Patient> candidates = patientRepository.findDuplicates(branchId,
+                request.getFirstName(), request.getLastName(),
+                request.getPhone(), request.getDateOfBirth());
 
         List<Map<String, Object>> scored = new ArrayList<>();
         for (Patient candidate : candidates) {
-            int score = calculateDuplicateScore(candidate, firstName, lastName, phone, email, gender, dob);
-            if (score >= DUPLICATE_SCORE_THRESHOLD) {
+            int score = calculateDuplicateScore(candidate, request.getFirstName(), request.getLastName(),
+                    request.getPhone(), request.getEmail(), request.getGender(), request.getDateOfBirth());
+            if (score >= duplicateScoreThreshold) {
                 Map<String, Object> entry = new LinkedHashMap<>();
                 entry.put("patient", patientMapper.toResponse(candidate));
                 entry.put("score", score);
@@ -133,8 +144,6 @@ public class PatientService {
         scored.sort(Comparator.<Map<String, Object>, Integer>comparing(m -> (Integer) m.get("score")).reversed());
         return scored;
     }
-
-    static final int DUPLICATE_SCORE_THRESHOLD = 40;
 
     int calculateDuplicateScore(Patient candidate, String firstName, String lastName,
                                 String phone, String email, String gender, LocalDate dob) {
@@ -190,11 +199,6 @@ public class PatientService {
         }
 
         return uhid;
-    }
-
-    public PatientService(PatientRepository patientRepository, PatientMapper patientMapper) {
-        this.patientRepository = patientRepository;
-        this.patientMapper = patientMapper;
     }
 
 }

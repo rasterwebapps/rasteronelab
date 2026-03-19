@@ -2,6 +2,7 @@ package com.rasteronelab.lis.patient.api.rest;
 
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
+import com.rasteronelab.lis.patient.api.dto.DuplicateCheckRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientResponse;
 import com.rasteronelab.lis.patient.application.service.PatientMergeService;
@@ -134,8 +135,8 @@ public class PatientController {
             @Parameter(description = "Email address") @RequestParam(required = false) String email,
             @Parameter(description = "Gender") @RequestParam(required = false) String gender,
             @Parameter(description = "Date of birth (ISO format)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dob) {
-        List<Map<String, Object>> results = patientService.findDuplicatesWithScore(
-                firstName, lastName, phone, email, gender, dob);
+        DuplicateCheckRequest request = new DuplicateCheckRequest(firstName, lastName, phone, email, gender, dob);
+        List<Map<String, Object>> results = patientService.findDuplicatesWithScore(request);
         return ResponseEntity.ok(ApiResponse.success(results));
     }
 

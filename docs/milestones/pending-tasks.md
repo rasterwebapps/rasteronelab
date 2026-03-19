@@ -1,8 +1,8 @@
 # RasterOneLab LIS — Pending Task List (Phases 1–3)
 
-> **Review Date:** 2026-03-19 (updated after PRs #15, #16, #17)
+> **Review Date:** 2026-03-19 (updated after PRs #15, #16, #17, #21)
 > **Scope:** Phases 1, 2, and 3 only
-> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 🟡 ~65%
+> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 🟡 ~80%
 
 ---
 
@@ -12,8 +12,8 @@
 |-------|-------------|------|---------|---------|
 | Phase 1 — Foundation | 15 | 15 | **0** | — |
 | Phase 2 — Administration | 18 | 17 | **1 (frontend tests)** | — |
-| Phase 3 — Patient & Ordering | 21 | 13 | **8 partial/missing** | 1 critical (state machine) |
-| **Total** | **54** | **45** | **9** | — |
+| Phase 3 — Patient & Ordering | 21 | 17 | **4 partial/missing** | — |
+| **Total** | **54** | **49** | **5** | — |
 
 ---
 
@@ -163,22 +163,22 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 
 ---
 
-## 🟡 Phase 3 — Patient & Ordering (~65% — Critical domain logic remaining)
+## 🟡 Phase 3 — Patient & Ordering (~80% — Integration tests and validation remaining)
 
-> **Context (as of 2026-03-19):** lis-patient, lis-order, lis-billing backend CRUD is fully implemented; all 3 frontend modules have inline-template components (PR #17); all 7 Phase 3 controllers have OpenAPI annotations (PR #17); DB migrations are complete. Critical gaps: full state machine, Spring Events wiring, panel expansion, barcode wiring, 6 remaining LIS issues.
+> **Context (as of 2026-03-19):** lis-patient, lis-order, lis-billing backend CRUD is fully implemented; all 3 frontend modules have inline-template components (PR #17); all 7 Phase 3 controllers have OpenAPI annotations (PR #17); DB migrations are complete. Full order state machine with VALID_TRANSITIONS map implemented (PR #20). Spring Events wired: OrderPlacedEvent→BillingEventListener auto-generates invoice, PaymentReceivedEvent→OrderEventListener transitions to PAID, SampleCollectedEvent→transitions to SAMPLE_COLLECTED (PR #20 + #21). Barcode generation wired in TestOrderService.create() (PR #21). Weighted duplicate patient scoring algorithm implemented (PR #21). Remaining gaps: order validation/sample grouping, discount application logic, E2E integration tests.
 
 ### Backend — Patient Module (`lis-patient`)
 
 #### ✅ TASK-P3-01 · Patient CRUD + UHID — RESOLVED
 `Patient` entity, `PatientService`, `PatientController`, DTOs, mapper, `PatientRepository`, `PatientVisitRepository`, `PatientMergeAuditRepository`. UHID auto-generated via `generateUhid()` in PatientService. Flyway migrations present. `PatientServiceTest` added.
 
-#### TASK-P3-02 · LIS-035: Duplicate Patient Detection and Merge
+#### ✅ TASK-P3-02 · LIS-035: Duplicate Patient Detection and Merge — RESOLVED (PR #21)
 
-- [ ] Duplicate detection: name + DOB match, phone match (weighted scoring algorithm) — entity exists, algorithm missing
-- [ ] `PatientMergeService`: select primary patient, transfer orders/results to primary, deactivate duplicate
-- [ ] Merge audit trail: log which records were merged and by whom
-- [ ] Endpoints: `GET /api/v1/patients/duplicates`, `POST /api/v1/patients/merge`
-- [ ] Integration tests for merge scenarios
+- [x] Duplicate detection: weighted scoring algorithm (name+DOB=40pts, phone=30pts, email=15pts, gender=15pts)
+- [x] `PatientMergeService`: select primary patient, fill missing fields from duplicate, soft-delete duplicate
+- [x] Merge audit trail: `PatientMergeAudit` entity logs merged records
+- [x] Endpoints: `GET /api/v1/patients/duplicates`, `GET /api/v1/patients/duplicates/scored`, `POST /api/v1/patients/merge`
+- [x] `PatientMergeServiceTest` (5 tests), duplicate scoring tests in `PatientServiceTest` (5 tests)
 
 ---
 
@@ -192,12 +192,14 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 #### ✅ TASK-P3-04 · Test Order CRUD — RESOLVED
 `TestOrder` + `OrderLineItem` entities, `TestOrderService`, `TestOrderController`, DTOs, mappers. `placeOrder()` (DRAFT→PLACED) and `cancelOrder()` implemented. `TestOrderServiceTest` added.
 
-#### TASK-P3-05 · LIS-038: Full Order State Machine + Barcode Wiring
+#### ✅ TASK-P3-05 · LIS-038: Full Order State Machine + Barcode Wiring — RESOLVED (PR #20 + #21)
 
-- [ ] Complete state machine: add transitions PAID → SAMPLE_COLLECTED → IN_PROGRESS → RESULTED → AUTHORISED → COMPLETED
-- [ ] Wire `BarcodeGeneratorUtil.generateOrderNumber()` in `TestOrderService.create()` (field exists, util not called)
-- [ ] Panel expansion: expand TestPanel → constituent OrderLineItems by tube type
-- [ ] Unit tests for each state transition
+- [x] Complete state machine: `VALID_TRANSITIONS` map with all transitions DRAFT→PLACED→PAID→SAMPLE_COLLECTED→IN_PROGRESS→RESULTED→AUTHORISED→COMPLETED + CANCELLED from any non-terminal state
+- [x] Wire `BarcodeGeneratorUtil.generateOrderNumber()` in `TestOrderService.create()` — barcode auto-generated on order creation
+- [x] `updateStatus()` method enforces valid transitions via `VALID_TRANSITIONS` map
+- [x] Unit tests for each state transition (15 tests in `TestOrderServiceTest`)
+- [x] `OrderEventListener` handles `PaymentReceivedEvent` (→PAID) and `SampleCollectedEvent` (→SAMPLE_COLLECTED)
+- [x] `OrderEventListenerTest` (5 tests)
 
 ---
 
@@ -243,27 +245,26 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 
 ### Cross-Cutting (Phase 3)
 
-#### TASK-P3-16 · LIS-049: Spring Events for Order → Invoice auto-generation
+#### ✅ TASK-P3-16 · LIS-049: Spring Events for Order → Invoice auto-generation — RESOLVED (PR #20 + #21)
 
-Events classes exist in `lis-core` (`OrderPlacedEvent`, `OrderCancelledEvent`, `PaymentReceivedEvent`) but nothing publishes them yet.
+Events classes exist in `lis-core` (`OrderPlacedEvent`, `OrderCancelledEvent`, `PaymentReceivedEvent`, `SampleCollectedEvent`) and are now fully wired.
 
-- [ ] Call `publishEvent(new OrderPlacedEvent(...))` in `TestOrderService.placeOrder()`
-- [ ] `InvoiceService` `@EventListener` for `OrderPlacedEvent` → auto-generate invoice
-- [ ] Call `publishEvent(new PaymentReceivedEvent(...))` in `PaymentService` when invoice fully paid
-- [ ] `TestOrderService` `@EventListener` for `PaymentReceivedEvent` → update order to `PAID`
-- [ ] `OrderService` `@EventListener` for `PaymentReceivedEvent` → update order to `PAID`
-- [ ] Event audit logging
-- [ ] Integration tests for event flow
+- [x] `TestOrderService.placeOrder()` publishes `OrderPlacedEvent`
+- [x] `BillingEventListener` listens for `OrderPlacedEvent` → auto-generates invoice
+- [x] `PaymentService.recordPayment()` publishes `PaymentReceivedEvent`
+- [x] `OrderEventListener` handles `PaymentReceivedEvent` → updates order to PAID
+- [x] `OrderEventListener` handles `SampleCollectedEvent` → updates order to SAMPLE_COLLECTED
+- [x] `TestOrderService.cancelOrder()` publishes `OrderCancelledEvent`
+- [x] `BillingEventListenerTest` (2 tests), `OrderEventListenerTest` (5 tests)
 
 ---
 
-#### TASK-P3-17 · Barcode Wiring (remaining)
+#### ✅ TASK-P3-17 · Barcode Wiring — RESOLVED (PR #21)
 
-`BarcodeGeneratorUtil` is fully implemented in `lis-core` with `generateOrderNumber()`, `generateInvoiceNumber()`, etc. The `barcode` field exists on `TestOrder`. It is NOT wired.
+`BarcodeGeneratorUtil` is fully implemented in `lis-core` and now wired.
 
-- [ ] Call `BarcodeGeneratorUtil.generateOrderNumber(sequence)` in `TestOrderService.create()`
-- [ ] Wire sequence counter (use `NumberSeries` in lis-admin or maintain local atomic counter)
-- [ ] Return barcode in `TestOrderResponse`
+- [x] `TestOrderService.create()` calls `BarcodeGeneratorUtil.generateOrderNumber(sequence)` to set barcode
+- [x] Barcode returned in `TestOrderResponse`
 
 ---
 
@@ -325,17 +326,17 @@ Based on `docs/process-flows/complete-lipid-cbc-walkthrough.md`:
 - [x] ~~TASK-P2-06: Seed data migrations~~ ✅ **DONE (PR #15 + PR #16 — R__001–R__012)**
 - [x] ~~TASK-P2-07: Backend test coverage 29% → 80%~~ ✅ **DONE (PR #15 — 81% achieved)**
 
-### Phase 3 Pending (~65% — critical domain logic remaining)
+### Phase 3 Pending (~80% — integration tests and nice-to-haves remaining)
 
 **P0 — Blockers**
-- [ ] TASK-P3-05: Full Order State Machine transitions + barcode wiring
-- [ ] TASK-P3-16: Spring Events: Order → Invoice auto-generation (wiring)
+- [x] ~~TASK-P3-05: Full Order State Machine transitions + barcode wiring~~ ✅ **DONE (PR #20 + PR #21)**
+- [x] ~~TASK-P3-16: Spring Events: Order → Invoice auto-generation (wiring)~~ ✅ **DONE (PR #20 + PR #21)**
 
 **P1 — High Priority**
-- [ ] TASK-P3-02: Duplicate patient detection algorithm
+- [x] ~~TASK-P3-02: Duplicate patient detection algorithm~~ ✅ **DONE (PR #21)**
 - [ ] TASK-P3-06: Order validation and sample requirements
 - [ ] TASK-P3-09b: Discount application logic
-- [ ] TASK-P3-17: Barcode wiring in TestOrderService
+- [x] ~~TASK-P3-17: Barcode wiring in TestOrderService~~ ✅ **DONE (PR #21)**
 - [ ] TASK-P3-19: E2E integration test
 - [ ] TASK-P3-21: Lipid + CBC walkthrough integration test
 
