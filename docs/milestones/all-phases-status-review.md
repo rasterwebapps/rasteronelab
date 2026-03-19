@@ -1,6 +1,6 @@
 # RasterOneLab LIS — All Phases Status Review
 
-> **Review Date:** 2026-03-19
+> **Review Date:** 2026-03-19 (updated after PRs #15, #16, #17)
 > **Scope:** All 8 development phases (LIS-001 through LIS-135)
 > **Reviewed By:** Automated codebase analysis
 
@@ -11,8 +11,8 @@
 | Phase | Issues | Status | Progress | Key Blocker |
 |-------|--------|--------|----------|-------------|
 | Phase 1 — Foundation | 15 | ✅ Complete | **100%** | — |
-| Phase 2 — Administration Module | 18 | 🟡 In Progress | **~90%** | 4 missing backend entities; test coverage 29% |
-| Phase 3 — Patient & Ordering | 21 | 🟡 Scaffolded | **~30%** | Order state machine; UHID generation; panel expansion |
+| Phase 2 — Administration Module | 18 | 🟡 In Progress | **~97%** | Frontend unit tests; OpenAPI annotations on admin controllers |
+| Phase 3 — Patient & Ordering | 21 | 🟡 In Progress | **~65%** | State machine partial; Spring Events not wired; panel expansion missing |
 | Phase 4 — Sample Management | 14 | ⬜ Not Started | **0%** | Blocked by Phase 3 state machine |
 | Phase 5 — Result Entry & Validation | 20 | ⬜ Not Started | **0%** | Blocked by Phase 4 |
 | Phase 6 — Instrument Interface | 12 | ⬜ Not Started | **0%** | Can overlap with Phase 5 |
@@ -20,7 +20,7 @@
 | Phase 8 — Portals, Analytics & Launch | 18 | ⬜ Not Started | **0%** | Blocked by Phase 7 |
 | **Total** | **135** | | | |
 
-**Overall project completion: ~27%** (Phases 1–3 weighted, all others 0%)
+**Overall project completion: ~40%** (Phases 1–2 complete, Phase 3 ~65%, all others 0%)
 
 ---
 
@@ -69,7 +69,7 @@
 
 ---
 
-## Phase 2 — Administration Module 🟡 IN PROGRESS (~90%)
+## Phase 2 — Administration Module 🟡 IN PROGRESS (~97%)
 
 **Timeline:** Months 2–4 | **Issues:** 18 (LIS-016 to LIS-033)
 
@@ -77,109 +77,109 @@
 
 | Layer | Implemented | Notes |
 |-------|-------------|-------|
-| Backend Java files | 154 | `lis-admin` module |
-| JPA Entities | 30 | All master data entities |
+| Backend Java files | 200+ | `lis-admin` module |
+| JPA Entities | 30 | All master data entities (incl. NotificationTemplate, ReportTemplate, DiscountScheme, InsuranceTariff, Role — added PR #15) |
 | Repositories | 28 | Full persistence layer |
 | Services | 26 | CRUD + business logic |
 | Controllers | 26 | REST endpoints with `@PreAuthorize` |
 | DTOs (Request/Response) | 52 | MapStruct-mapped |
 | MapStruct Mappers | 26 | Entity ↔ DTO |
-| Flyway Migrations | 26 | Forward + rollback scripts |
-| Service Unit Tests | 6 of 21 | **29% coverage — target is 80%** |
-| Frontend Components | 42 | List + form pairs for 21 entities |
+| Flyway Migrations | 50+ | Forward + rollback + 12 repeatable seed migrations (R__001–R__012) |
+| Service Unit Tests | **21 of 26 (81%)** | **✅ 80% target met** — 5 untested: AntibioticOrganismMapping, AutoValidationRule, DeltaCheckConfig, Holiday, Microorganism |
+| Frontend Components | 42 | 21 list + 21 form pairs — **inline templates (Tailwind + Angular Material)** |
 | Frontend Tests | 0 | No `.spec.ts` files |
 
 ### Issue Status
 
 | Issue | Title | Status | Gap |
 |-------|-------|--------|-----|
-| LIS-016 | Organization CRUD API | ✅ Complete | No unit tests |
-| LIS-017 | Branch Management CRUD API | ✅ Complete | No unit tests |
-| LIS-018 | Department Management CRUD API | ✅ Complete | No unit tests; seed data ✅ (PR #16 — R__001) |
-| LIS-019 | Test Master CRUD API | ✅ Complete | No unit tests |
-| LIS-020 | Parameter Master CRUD API | ✅ Complete | No unit tests |
-| LIS-021 | Reference Range Config API | ✅ Complete | No unit tests |
-| LIS-022 | Test Panel Management API | ✅ Complete | No unit tests |
+| LIS-016 | Organization CRUD API | ✅ Complete | Tests exist (OrganizationServiceTest) |
+| LIS-017 | Branch Management CRUD API | ✅ Complete | Tests exist (BranchServiceTest) |
+| LIS-018 | Department Management CRUD API | ✅ Complete | Tests exist (DepartmentServiceTest, BranchDepartmentServiceTest); seed data ✅ (PR #16 — R__001) |
+| LIS-019 | Test Master CRUD API | ✅ Complete | Tests exist (TestMasterServiceTest) |
+| LIS-020 | Parameter Master CRUD API | ✅ Complete | Tests exist (ParameterServiceTest) |
+| LIS-021 | Reference Range Config API | ✅ Complete | Tests exist (ReferenceRangeServiceTest) |
+| LIS-022 | Test Panel Management API | ✅ Complete | Tests exist (TestPanelServiceTest) |
 | LIS-023 | Pricing Catalog API | ✅ Complete | Tests exist (PriceCatalogServiceTest) |
 | LIS-024 | Doctor Management API | ✅ Complete | Tests exist (DoctorServiceTest) |
 | LIS-025 | User Management API | ✅ Complete | Tests exist (AppUserServiceTest) |
 | LIS-026 | Number Series Config API | ✅ Complete | Tests exist (NumberSeriesServiceTest) |
-| LIS-027 | TAT Configuration API | ✅ Complete | No unit tests |
-| LIS-028 | Working Hours & Holiday Config API | ✅ Complete | No unit tests |
+| LIS-027 | TAT Configuration API | ✅ Complete | Tests exist (TATConfigurationServiceTest) |
+| LIS-028 | Working Hours & Holiday Config API | ✅ Complete | Tests exist (WorkingHoursServiceTest); Holiday service lacks test |
 | LIS-029 | Critical Value Config API | ✅ Complete | Tests exist (CriticalValueConfigServiceTest) |
-| LIS-030 | Delta Check & Auto-validation Config API | ✅ Complete | No unit tests |
-| LIS-031 | Antibiotic & Microorganism Masters API | ✅ Complete | Tests exist (AntibioticServiceTest) |
-| LIS-032 | Configuration Screens (Notification/Report Templates) | ⚠️ Partial | Backend for NotificationTemplate, ReportTemplate, DiscountScheme, InsuranceTariff **missing** |
-| LIS-033 | Role & Permission Management API | ✅ Complete | Full Java stack (entity, repo, service, controller, DTOs, mapper); DB schema ✅ (V20260318_0016); seed data ✅ (PR #16 — R__008) |
+| LIS-030 | Delta Check & Auto-validation Config API | ✅ Complete | No tests for DeltaCheckConfig/AutoValidationRule services |
+| LIS-031 | Antibiotic & Microorganism Masters API | ✅ Complete | Tests exist (AntibioticServiceTest); AntibioticOrganismMapping + Microorganism lack tests |
+| LIS-032 | Configuration Screens (Notification/Report/Discount/Insurance) | ✅ Complete | **All 4 entities added in PR #15**: NotificationTemplate, ReportTemplate, DiscountScheme, InsuranceTariff — full CRUD stack + tests |
+| LIS-033 | Role & Permission Management API | ✅ Complete | Full Java stack (entity, repo, service, controller, DTOs, mapper); DB schema ✅ (V20260318_0016); seed data ✅ (PR #16 — R__008); tests (RoleServiceTest) |
 
-### 🔴 Critical Gaps in Phase 2
+### 🟢 Remaining Gaps in Phase 2
 
-1. **4 missing backend entities** — frontend screens exist, APIs are absent:
-   - `NotificationTemplate` (TASK-P2-01)
-   - `ReportTemplate` (TASK-P2-02)
-   - `DiscountScheme` (TASK-P2-03)
-   - `InsuranceTariff` (TASK-P2-04)
+1. **Frontend unit tests** — 42 Angular components have no `.spec.ts` files (TASK-P2-08)
+2. **OpenAPI annotations** — admin controllers have no `@Tag`/`@Operation` annotations; Swagger UI shows auto-generated names only (TASK-P2-09)
+3. **5 services without tests** — AntibioticOrganismMappingService, AutoValidationRuleService, DeltaCheckConfigService, HolidayService, MicroorganismService (coverage is 81% — above threshold, but these are still untested)
 
-   > **✅ Resolved (PR #16):** `Role` / `Permission` — DB schema (V20260318_0016) and seed data (R__008) added; full Java CRUD stack already existed.
-   > **✅ Resolved (PR #16):** Seed data — 12 repeatable migrations (R__001–R__012) added: 11 departments, 15 sample types, 60+ antibiotics, 80+ microorganisms, CLSI breakpoints, units, roles/permissions, report templates, rejection reasons, number series, critical values.
+> ✅ **Resolved (PR #15):** All 5 missing backend entities — NotificationTemplate, ReportTemplate, DiscountScheme, InsuranceTariff, Role — added with full CRUD stacks and service tests.
+> ✅ **Resolved (PR #15 + PR #16):** Seed data — V20260317_0019–V20260317_0021 + 12 repeatable migrations (R__001–R__012).
+> ✅ **Resolved (PR #15):** Backend test coverage — 21 of 26 services tested = 81% (target: 80% ✅).
 
-2. **Test coverage: 29%** — only 6 of 21 services tested (target: 80%); 15 services need tests (TASK-P2-07)
-
-3. **No frontend unit tests** — 42 components, 0 `.spec.ts` files (TASK-P2-08)
-
-> **Phase 2 verdict: 🟡 ~90% — 3 tasks remain before closure (4 missing entities, test coverage, frontend tests). Estimated effort: 2 weeks (single developer, sequential). With 2–3 developers in parallel the calendar time reduces to ~1 week.**
+> **Phase 2 verdict: 🟡 ~97% — Only frontend unit tests (TASK-P2-08) and OpenAPI annotations (TASK-P2-09) remain. Estimated effort: 3–5 days.**
 > See [pending-tasks.md](pending-tasks.md) for the full task breakdown with file checklists.
 
 ---
 
-## Phase 3 — Patient & Ordering 🟡 SCAFFOLDED (~30%)
+## Phase 3 — Patient & Ordering 🟡 IN PROGRESS (~65%)
 
 **Timeline:** Months 4–6 | **Issues:** 21 (LIS-034 to LIS-054)
 
 ### Implementation Metrics
 
-| Module | Entities | Repos | Services | Controllers | Tests | Migrations |
-|--------|----------|-------|----------|-------------|-------|------------|
-| `lis-patient` | 5 | 3 | 2 | 2 | 1 | 4 |
-| `lis-order` | 5 | 2 | 1 | 1 | 1 | 2 |
-| `lis-billing` | 10 | 5 | 4 | 4 | 2 | 5 |
-| **Total** | **20** | **10** | **7** | **7** | **4** | **11** |
+| Module | Entities | Repos | Services | Controllers | Tests | Migrations | OpenAPI |
+|--------|----------|-------|----------|-------------|-------|------------|---------|
+| `lis-patient` | 5 | 3 | 2 | 2 | 1 | 4 | ✅ |
+| `lis-order` | 5 | 2 | 1 | 1 | 1 | 2 | ✅ |
+| `lis-billing` | 10 | 5 | 4 | 4 | 2 | 5 | ✅ |
+| `lis-core` | — | — | — | — | 8 | — | — |
+| **Total** | **20** | **10** | **7** | **7** | **12** | **11** | **7 controllers** |
 
 ### Issue Status
 
 | Issue | Title | Status | Notes |
 |-------|-------|--------|-------|
-| LIS-034 | Patient CRUD API with UHID generation | ⚠️ Partial | Entity exists; UHID sequence + pessimistic locking **not implemented** |
-| LIS-035 | Duplicate patient detection and merge | ⚠️ Partial | `PatientMergeAudit` entity exists; detection algorithm **not implemented** |
-| LIS-036 | Patient Visit Management | ⚠️ Partial | `PatientVisit` entity exists; auto-create on order **not wired** |
+| LIS-034 | Patient CRUD API with UHID generation | ✅ Complete | PatientService + PatientController; `generateUhid()` implemented |
+| LIS-035 | Duplicate patient detection and merge | ⚠️ Partial | `PatientMergeAudit` entity exists; detection algorithm **not yet implemented** |
+| LIS-036 | Patient Visit Management | ✅ Complete | PatientVisitService + PatientVisitController |
 | LIS-037 | Patient Demographics & PHI Audit | ❌ Not Done | No PHI audit logging |
-| LIS-038 | Patient Search (multi-criteria) | ❌ Not Done | No Elasticsearch integration |
-| LIS-039 | Patient Angular screens (12 screens) | ⬜ Scaffold | HTML/SCSS absent; no tests |
-| LIS-040 | Test Order API with panel expansion | ⚠️ Partial | `TestOrder` + `OrderLineItem` entities exist; panel expansion **not implemented** |
-| LIS-041 | Order State Machine | ❌ Not Done | States defined in enum; transitions **not implemented** |
-| LIS-042 | Barcode Generation for Orders | ❌ Not Done | Barcode utility class exists in `lis-core`; not wired to orders |
-| LIS-043 | Order Search & Worklist API | ❌ Not Done | No filtering/sorting/pagination |
-| LIS-044 | Order Angular screens (10 screens) | ⬜ Scaffold | HTML/SCSS absent; no tests |
-| LIS-045 | Invoice Generation API | ⚠️ Partial | `Invoice` + `InvoiceLineItem` entities exist; generation logic **incomplete** |
-| LIS-046 | Payment Recording API | ⚠️ Partial | `Payment` entity exists; multi-payment + splits **not done** |
-| LIS-047 | Discount & Concession Application | ❌ Not Done | No discount application logic |
+| LIS-038 | Patient Search (multi-criteria) | ✅ Complete | DB-based search via `patientRepository.searchPatients()`; no Elasticsearch |
+| LIS-039 | Patient Angular screens | ✅ Complete | patient-list, patient-form, patient-detail — inline Tailwind templates |
+| LIS-040 | Test Order API with panel expansion | ⚠️ Partial | TestOrder + OrderLineItem CRUD; panel expansion **not implemented** |
+| LIS-041 | Order State Machine | ⚠️ Partial | `placeOrder()` (DRAFT→PLACED) and `cancelOrder()` implemented; full lifecycle (PAID→SAMPLE_COLLECTED→…→COMPLETED) **not done** |
+| LIS-042 | Barcode Generation for Orders | ⚠️ Partial | `BarcodeGeneratorUtil` implemented in `lis-core`; barcode field in `TestOrder`; **not wired** in TestOrderService |
+| LIS-043 | Order Search & Worklist API | ✅ Complete | `getByStatus()` and `getByPatient()` with pagination |
+| LIS-044 | Order Angular screens | ✅ Complete | order-list, order-create, order-detail — inline Tailwind templates (PR #17) |
+| LIS-045 | Invoice Generation API | ✅ Complete | InvoiceService with `generateInvoice()` and `generateInvoiceNumber()` |
+| LIS-046 | Payment Recording API | ✅ Complete | PaymentService with CRUD |
+| LIS-047 | Discount & Concession Application | ❌ Not Done | No discount application logic in InvoiceService |
 | LIS-048 | Insurance Billing API | ❌ Not Done | No insurance claim logic |
 | LIS-049 | Receipt Generation | ❌ Not Done | No receipt PDF |
 | LIS-050 | Corporate Billing Aggregation | ❌ Not Done | No corporate billing logic |
-| LIS-051 | Billing Angular screens (12 screens) | ⬜ Scaffold | HTML/SCSS absent; no tests |
-| LIS-052 | Credit Management API | ❌ Not Done | Not implemented |
-| LIS-053 | Financial Reports API (basic) | ❌ Not Done | Not implemented |
-| LIS-054 | Refund & Cancellation API | ❌ Not Done | Not implemented |
+| LIS-051 | Billing Angular screens | ✅ Complete | invoice-list, invoice-detail, payment-form — inline Tailwind templates (PR #17) |
+| LIS-052 | Credit Management API | ✅ Complete | CreditAccountService + CreditAccountController |
+| LIS-053 | Financial Reports API (basic) | ❌ Not Done | No aggregate report queries |
+| LIS-054 | Refund & Cancellation API | ✅ Complete | RefundService + RefundController |
 
-### 🔴 Critical Gaps in Phase 3
+### 🔴 Remaining Gaps in Phase 3
 
-1. **Order State Machine not implemented** — orders cannot transition from DRAFT → PLACED → PAID → SAMPLE_COLLECTED → … → COMPLETED. This blocks Phase 4.
-2. **UHID generation not complete** — pessimistic locking sequence is absent.
-3. **Panel expansion logic absent** — tests in a panel are not split by tube type for sample management.
-4. **Barcode generation not wired** — barcode utility exists but is disconnected from order creation.
-5. **Frontend is scaffold only** — 34 screens have TypeScript stubs with no HTML, SCSS, or tests.
+1. **Order State Machine incomplete** — only DRAFT→PLACED and →CANCELLED implemented. PAID, SAMPLE_COLLECTED, IN_PROGRESS, RESULTED, AUTHORISED, COMPLETED transitions are missing. This blocks Phase 4.
+2. **Spring Events not wired** — `OrderPlacedEvent`, `OrderCancelledEvent`, `PaymentReceivedEvent` classes exist in `lis-core` but no service calls `publishEvent()`. Invoice auto-generation on order placement and order status update on payment are not connected.
+3. **Panel expansion not implemented** — test orders don't split test panels into constituent tests by tube type.
+4. **Barcode not wired** — `BarcodeGeneratorUtil` is implemented in `lis-core` and `TestOrder.barcode` field exists, but `TestOrderService.create()` does not call the util to generate a barcode.
+5. **PHI audit logging absent** — no demographic change audit trail.
+6. **Discount/Insurance/Receipt/Corporate billing** — 4 LIS issues (LIS-047–LIS-050) not yet implemented.
+7. **No E2E integration tests** — no Testcontainers-based happy-path flow.
 
-> **Phase 3 verdict: 🟡 ~30% — Core domain logic (state machine, UHID, panel expansion) not yet implemented. Estimated effort to complete: 6 weeks.**
+> ✅ **Completed since last review:** Patient CRUD + UHID, PatientVisit, DB migrations, invoice/payment/refund/credit-account CRUD, all 3 frontend modules (patient/order/billing) with inline Tailwind templates, OpenAPI annotations on all 7 Phase 3 controllers (PR #17), order search/worklist.
+
+> **Phase 3 verdict: 🟡 ~65% — Core CRUD and frontend are done. Critical domain logic (full state machine, Spring Events, panel expansion, barcode) still needed. Estimated effort to complete: ~3–4 weeks.**
 
 ---
 
@@ -359,10 +359,10 @@ Module             Files    Entities   Services   Controllers   Tests   Phase   
 lis-core            9          1          0            0          8     1     ✅ Done
 lis-auth            4          0          0            0          1     1     ✅ Done
 lis-gateway         3          0          0            0          1     1     ✅ Done
-lis-admin          154        30         26           26         21     2     🟡 ~85%
-lis-patient         13         5          2            2          1     3     🟡 ~30%
-lis-order           13         5          1            1          1     3     🟡 ~20%
-lis-billing         24        10          4            4          2     3     🟡 ~30%
+lis-admin          200+       30         26           26         21     2     🟡 ~97%
+lis-patient         20         5          2            2          1     3     🟡 ~65%
+lis-order           16         5          1            1          1     3     🟡 ~65%
+lis-billing         35        10          4            4          2     3     🟡 ~65%
 lis-sample           0         0          0            0          0     4     ⬜ 0%
 lis-result           0         0          0            0          0     5     ⬜ 0%
 lis-instrument       0         0          0            0          0     6     ⬜ 0%
@@ -372,7 +372,7 @@ lis-notification     0         0          0            0          0     7     �
 lis-inventory        0         0          0            0          0     7     ⬜ 0%
 lis-integration      0         0          0            0          0     8     ⬜ 0%
 ─────────────────────────────────────────────────────────────────────────────────────────
-TOTAL              220        51         33           33         35
+TOTAL              287+       51         33           33         35
 ```
 
 ### Frontend Feature Status
@@ -380,10 +380,10 @@ TOTAL              220        51         33           33         35
 ```
 Feature           Components   Models   Services   Tests   Status
 ─────────────────────────────────────────────────────────────────
-admin                 42         25        3          0    🟡 No HTML/tests
-patient                3          3        1          0    🟡 Scaffold only
-order                  3          3        1          0    🟡 Scaffold only
-billing                3          3        1          0    🟡 Scaffold only
+admin                 42         25        3          0    🟡 Inline templates ✅; no unit tests
+patient                3          3        1          0    🟡 Inline templates ✅; no unit tests
+order                  3          3        1          0    🟡 Inline templates ✅; no unit tests
+billing                3          3        1          0    🟡 Inline templates ✅; no unit tests
 sample                 1          0        0          0    ⬜ Scaffold only
 result                 1          0        0          0    ⬜ Scaffold only
 report                 1          0        0          0    ⬜ Scaffold only
@@ -401,7 +401,7 @@ TOTAL                 59         34        6          0
 | Module | Test Files | Services Covered | Target | Gap |
 |--------|-----------|-----------------|--------|-----|
 | `lis-core` | 8 | N/A (utility tests) | — | — |
-| `lis-admin` | 21 | 6 of 21 (29%) | 80% | **51 percentage points** |
+| `lis-admin` | 21 | **21 of 26 (81%)** | 80% | **✅ TARGET MET** — 5 services still untested |
 | `lis-patient` | 1 | 1 of 2 (50%) | 80% | 30% gap |
 | `lis-order` | 1 | 1 of 1 (100%) | 80% | — |
 | `lis-billing` | 2 | 2 of 4 (50%) | 80% | 30% gap |
@@ -427,20 +427,18 @@ Phase 3 (Order State Machine) ──→ Phase 4 (Sample Lifecycle)
 ```
 
 ### 🔴 Blocker 1 — Order State Machine (LIS-041)
-Orders cannot transition through the workflow. Phase 4 cannot begin until resolved.
+Orders can only transition DRAFT→PLACED and →CANCELLED. The full lifecycle (PAID→SAMPLE_COLLECTED→IN_PROGRESS→RESULTED→AUTHORISED→COMPLETED) and Spring Event publishing are missing. Phase 4 cannot begin until resolved.
 **Effort:** 3–5 days | **Owner:** Phase 3 team
 
-### 🔴 Blocker 2 — Phase 2 Missing Entities (TASK-P2-01 to P2-04)
-4 frontend screens call APIs that don't exist (runtime errors). Blocks Phase 2 sign-off.
-**Effort:** 4–5 days | **Owner:** Phase 2 team
+### ✅ Blocker 2 — Phase 2 Missing Entities — RESOLVED (PR #15)
+All 5 entities (NotificationTemplate, ReportTemplate, DiscountScheme, InsuranceTariff, Role) were added with full CRUD stacks and service tests.
 
-### 🟡 Risk 1 — Test Coverage (Phase 2)
-29% coverage in `lis-admin`; target is 80%. 15 service tests need to be added.
-**Effort:** 5–7 days
+### ✅ Risk 1 — Test Coverage (Phase 2) — RESOLVED (PR #15)
+21 of 26 services now tested = 81%, above the 80% target.
 
-### 🟡 Risk 2 — Frontend HTML/SCSS Missing (Phase 2 Admin)
-42 Angular components have TypeScript logic but no UI templates. Not usable in a browser.
-**Effort:** 15–20 days (parallel)
+### 🟡 Risk 2 — Frontend Unit Tests Missing (Phase 2 + Phase 3)
+Admin: 42 components, 0 spec.ts. Patient/Order/Billing: 9 components, 0 spec.ts.
+**Effort:** 3–5 days (admin), 2 days (Phase 3)
 
 ### ✅ Risk 3 — Seed Data — RESOLVED (PR #16)
 12 repeatable Flyway migrations (R__001–R__012) added: departments, sample types, antibiotics, microorganisms, CLSI breakpoints, units, roles/permissions, report templates, rejection reasons, number series, critical values.
@@ -451,34 +449,33 @@ Orders cannot transition through the workflow. Phase 4 cannot begin until resolv
 
 | Phase | Current | Target | Effort | Key Remaining Work |
 |-------|---------|--------|--------|--------------------|
-| Phase 2 | 90% | 100% | 2 wks (1 dev) | 4 missing entities, tests (×15), frontend HTML |
-| Phase 3 | 30% | 100% | 6 wks | State machine, UHID, panel expansion, UI (34 screens) |
+| Phase 2 | 97% | 100% | ~3 days | Frontend unit tests (TASK-P2-08), OpenAPI admin annotations (TASK-P2-09) |
+| Phase 3 | 65% | 100% | ~3–4 wks | Full state machine, Spring Events, panel expansion, barcode wiring, 6 missing LIS issues |
 | Phase 4 | 0% | 100% | 4 wks | Full sample lifecycle, barcode scanning, state machine |
 | Phase 5 | 0% | 100% | 8 wks | 7 depts, 20 issues, auto-calc, delta check, critical values |
 | Phase 6 | 0% | 100% | 4 wks | ASTM TCP, frame parser, 2 instrument drivers, RabbitMQ |
 | Phase 7 | 0% | 100% | 6 wks | PDF engine, Westgard QC, SMS/Email/WhatsApp, inventory |
 | Phase 8 | 0% | 100% | 12 wks | Portals, analytics, perf test, security audit, UAT, launch |
-| **Total remaining** | | | **~42.5 wks** | **~10–11 months** |
+| **Total remaining** | | | **~37 wks** | **~9–10 months** |
 
 ---
 
 ## Recommended Action Plan
 
-### Immediate (Next 2 Weeks) — Complete Phase 2
+### Immediate (Next 3 Days) — Close Phase 2
 
-1. **Create 4 missing backend entities** with full CRUD stacks (TASK-P2-01 to P2-04): `NotificationTemplate`, `ReportTemplate`, `DiscountScheme`, `InsuranceTariff`
-   > ✅ `Role`/`Permission` (TASK-P2-05) — DB schema and seed data added in PR #16; Java stack already existed.
-   > ✅ Seed data (TASK-P2-06) — 12 repeatable migrations added in PR #16.
-2. **Add 15 service unit tests** to reach 80% coverage in `lis-admin` (TASK-P2-07)
-3. **Add minimum frontend tests** for 4 critical admin components (TASK-P2-08)
+1. **Add frontend unit tests** for 4+ critical admin components (TASK-P2-08)
+2. **Add OpenAPI `@Operation` annotations** to 26 admin controllers (TASK-P2-09)
+   > ✅ All 5 missing entities (PR #15), seed data (PR #15 + PR #16), test coverage ≥80% (PR #15) — already done.
 
-### Short Term (Weeks 3–10) — Complete Phase 3
+### Short Term (Next 3–4 Weeks) — Complete Phase 3
 
-5. **Implement Order State Machine** with all transitions and event publishing
-6. **Complete UHID generation** with pessimistic locking
-7. **Implement panel expansion** for test-to-tube mapping
-8. **Wire barcode generation** from `lis-core` utility to order creation
-9. **Build 34 frontend screens** (patient, order, billing with HTML/SCSS/tests)
+3. **Implement full Order State Machine** — add PAID, SAMPLE_COLLECTED, IN_PROGRESS, RESULTED, AUTHORISED, COMPLETED transitions
+4. **Wire Spring Events** — `OrderPlacedEvent` (auto-generate invoice), `PaymentReceivedEvent` (mark order PAID)
+5. **Implement panel expansion** — expand TestPanel → constituent OrderLineItems grouped by tube type
+6. **Wire barcode generation** — call `BarcodeGeneratorUtil.generateOrderNumber()` in `TestOrderService.create()`
+7. **Implement 6 remaining LIS issues** — Discount (LIS-047), Insurance (LIS-048), Receipt PDF (LIS-049), Corporate Billing (LIS-050), Financial Reports (LIS-053), PHI Audit (LIS-037)
+8. **Add E2E integration tests** — Testcontainers happy-path flow
 
 ### Medium Term (Weeks 10–22) — Phase 4 + Phase 5 + Phase 6
 

@@ -4,14 +4,14 @@
 
 ## Current Project Status (as of March 2026)
 
-> **1 phase fully completed.** Phase 1 is ✅ done. Phase 2 is 🟡 ~90% done (seed data ✅ added in PR #16). Phases 3–8 not yet started or scaffolded.
+> **2 phases near-complete.** Phase 1 is ✅ done. Phase 2 is 🟡 ~97% done (all entities, 81% test coverage, seed data — PRs #15 & #16). Phase 3 is 🟡 ~65% done (backend CRUD + all frontend screens — PRs #12, #17). Phases 4–8 not yet started.
 > See the full analysis in [all-phases-status-review.md](all-phases-status-review.md).
 
 | Milestone | Phase | Timeline | Status | Issues | Progress |
 |-----------|-------|----------|--------|--------|---------|
 | [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | ✅ Complete | 15 | **100%** |
-| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | 🟡 In Progress | 18 | **~90%** |
-| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | 🟡 Scaffolded | 21 | **~30%** |
+| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | 🟡 In Progress | 18 | **~97%** |
+| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | 🟡 In Progress | 21 | **~65%** |
 | [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 | **0%** |
 | [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 | **0%** |
 | [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 | **0%** |
