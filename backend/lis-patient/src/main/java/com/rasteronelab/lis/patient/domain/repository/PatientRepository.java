@@ -46,10 +46,9 @@ public interface PatientRepository extends BranchAwareRepository<Patient> {
      * Find potential duplicate patients by matching first name, last name, phone, or date of birth.
      */
     @Query("SELECT p FROM Patient p WHERE p.branchId = :branchId AND p.isDeleted = false " +
-           "AND (LOWER(p.firstName) = LOWER(:firstName) AND LOWER(p.lastName) = LOWER(:lastName)) " +
-           "OR (p.branchId = :branchId AND p.isDeleted = false AND p.phone = :phone) " +
-           "OR (p.branchId = :branchId AND p.isDeleted = false AND p.dateOfBirth = :dob " +
-           "AND LOWER(p.firstName) = LOWER(:firstName))")
+           "AND ((LOWER(p.firstName) = LOWER(:firstName) AND LOWER(p.lastName) = LOWER(:lastName)) " +
+           "OR (p.phone = :phone) " +
+           "OR (p.dateOfBirth = :dob AND LOWER(p.firstName) = LOWER(:firstName)))")
     List<Patient> findDuplicates(@Param("branchId") UUID branchId,
                                  @Param("firstName") String firstName,
                                  @Param("lastName") String lastName,

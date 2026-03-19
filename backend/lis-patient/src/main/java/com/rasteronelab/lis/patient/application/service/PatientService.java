@@ -1,6 +1,5 @@
 package com.rasteronelab.lis.patient.application.service;
 
-import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;

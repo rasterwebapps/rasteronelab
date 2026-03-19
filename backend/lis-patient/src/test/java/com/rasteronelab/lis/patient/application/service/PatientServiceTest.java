@@ -24,7 +24,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -248,7 +247,7 @@ class PatientServiceTest {
         LocalDate dob = LocalDate.of(1990, 1, 1);
 
         when(patientRepository.findDuplicates(BRANCH_ID, firstName, lastName, phone, dob))
-                .thenReturn(Collections.emptyList());
+                .thenReturn(List.of());
 
         List<PatientResponse> result = patientService.findDuplicates(firstName, lastName, phone, dob);
 
