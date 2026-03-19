@@ -7,6 +7,8 @@ import com.rasteronelab.lis.core.event.OrderPlacedEvent;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.core.util.BarcodeGeneratorUtil;
 import com.rasteronelab.lis.order.api.dto.OrderLineItemRequest;
+import com.rasteronelab.lis.order.api.dto.OrderValidationResponse;
+import com.rasteronelab.lis.order.api.dto.SampleGroupResponse;
 import com.rasteronelab.lis.order.api.dto.TestOrderRequest;
 import com.rasteronelab.lis.order.api.dto.TestOrderResponse;
 import com.rasteronelab.lis.order.api.mapper.OrderLineItemMapper;
@@ -27,6 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -216,6 +221,112 @@ public class TestOrderService {
         BigDecimal unitPrice = lineItem.getUnitPrice() != null ? lineItem.getUnitPrice() : BigDecimal.ZERO;
         BigDecimal discount = lineItem.getDiscountAmount() != null ? lineItem.getDiscountAmount() : BigDecimal.ZERO;
         lineItem.setNetPrice(unitPrice.subtract(discount));
+    }
+
+    @Transactional(readOnly = true)
+    public OrderValidationResponse validateOrder(UUID id) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        TestOrder order = testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, branchId)
+                .orElseThrow(() -> new NotFoundException("TestOrder", id));
+
+        List<String> errors = new ArrayList<>();
+
+        if (order.getLineItems() == null || order.getLineItems().isEmpty()) {
+            errors.add("Order must have at least one line item");
+        }
+
+        if (order.getPatientId() == null) {
+            errors.add("Order must have a patient assigned");
+        }
+
+        boolean valid = errors.isEmpty();
+        List<SampleGroupResponse> sampleGroups = valid ? buildSampleGroups(order.getLineItems()) : List.of();
+
+        return OrderValidationResponse.builder()
+                .valid(valid)
+                .errors(errors)
+                .sampleGroups(sampleGroups)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SampleGroupResponse> getSampleGroups(UUID id) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        TestOrder order = testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, branchId)
+                .orElseThrow(() -> new NotFoundException("TestOrder", id));
+
+        return buildSampleGroups(order.getLineItems());
+    }
+
+    @Transactional(readOnly = true)
+    public Integer calculateTurnaroundTime(UUID id) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        TestOrder order = testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, branchId)
+                .orElseThrow(() -> new NotFoundException("TestOrder", id));
+
+        if (order.getLineItems() == null || order.getLineItems().isEmpty()) {
+            return 0;
+        }
+
+        return order.getLineItems().stream()
+                .filter(item -> item.getIsActive() != null && item.getIsActive())
+                .map(OrderLineItem::getTurnaroundTimeHours)
+                .filter(java.util.Objects::nonNull)
+                .max(Integer::compareTo)
+                .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TestOrderResponse> getPendingCollectionOrders(Pageable pageable) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        return testOrderRepository.findAllByBranchIdAndIsDeletedFalseAndStatus(branchId, OrderStatus.PAID, pageable)
+                .map(testOrderMapper::toResponse);
+    }
+
+    private List<SampleGroupResponse> buildSampleGroups(List<OrderLineItem> lineItems) {
+        if (lineItems == null || lineItems.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, List<OrderLineItem>> grouped = new LinkedHashMap<>();
+        for (OrderLineItem item : lineItems) {
+            if (item.getIsActive() == null || !item.getIsActive()) {
+                continue;
+            }
+            String key = normalizeGroupKey(item.getSampleType()) + "|" + normalizeGroupKey(item.getTubeType());
+            grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
+        }
+
+        List<SampleGroupResponse> result = new ArrayList<>();
+        for (Map.Entry<String, List<OrderLineItem>> entry : grouped.entrySet()) {
+            List<OrderLineItem> items = entry.getValue();
+            OrderLineItem first = items.get(0);
+
+            List<String> testCodes = new ArrayList<>();
+            List<String> testNames = new ArrayList<>();
+            String highestPriority = "ROUTINE";
+
+            for (OrderLineItem item : items) {
+                testCodes.add(item.getTestCode());
+                testNames.add(item.getTestName());
+                if (Boolean.TRUE.equals(item.getIsUrgent())) {
+                    highestPriority = "URGENT";
+                }
+            }
+
+            result.add(SampleGroupResponse.builder()
+                    .sampleType(first.getSampleType())
+                    .tubeType(first.getTubeType())
+                    .testCodes(testCodes)
+                    .testNames(testNames)
+                    .priority(highestPriority)
+                    .build());
+        }
+        return result;
+    }
+
+    private String normalizeGroupKey(String value) {
+        return value != null ? value : "";
     }
 
     public TestOrderService(TestOrderRepository testOrderRepository, TestOrderMapper testOrderMapper,

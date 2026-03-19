@@ -69,6 +69,9 @@ public class OrderLineItem extends BaseEntity {
     @Column(name = "remarks")
     private String remarks;
 
+    @Column(name = "turnaround_time_hours")
+    private Integer turnaroundTimeHours;
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
@@ -130,6 +133,10 @@ public class OrderLineItem extends BaseEntity {
 
     public String getRemarks() {
         return this.remarks;
+    }
+
+    public Integer getTurnaroundTimeHours() {
+        return this.turnaroundTimeHours;
     }
 
     public Boolean getIsActive() {
@@ -194,6 +201,10 @@ public class OrderLineItem extends BaseEntity {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public void setTurnaroundTimeHours(Integer turnaroundTimeHours) {
+        this.turnaroundTimeHours = turnaroundTimeHours;
     }
 
     public void setIsActive(Boolean isActive) {

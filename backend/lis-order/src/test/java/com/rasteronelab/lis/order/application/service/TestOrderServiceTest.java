@@ -4,6 +4,8 @@ import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.order.api.dto.OrderLineItemRequest;
+import com.rasteronelab.lis.order.api.dto.OrderValidationResponse;
+import com.rasteronelab.lis.order.api.dto.SampleGroupResponse;
 import com.rasteronelab.lis.order.api.dto.TestOrderRequest;
 import com.rasteronelab.lis.order.api.dto.TestOrderResponse;
 import com.rasteronelab.lis.order.api.mapper.OrderLineItemMapper;
@@ -21,11 +23,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -348,5 +356,149 @@ class TestOrderServiceTest {
         testOrderService.cancelOrder(id, "Test reason");
 
         verify(eventPublisher).publishEvent(any(com.rasteronelab.lis.core.event.OrderCancelledEvent.class));
+    }
+
+    @Test
+    @DisplayName("validateOrder should return valid when order has line items")
+    void validateOrder_shouldReturnValidWhenOrderHasLineItems() {
+        UUID id = UUID.randomUUID();
+        TestOrder order = new TestOrder();
+        order.setPatientId(UUID.randomUUID());
+
+        OrderLineItem lineItem = new OrderLineItem();
+        lineItem.setTestCode("CBC");
+        lineItem.setTestName("Complete Blood Count");
+        lineItem.setSampleType("Blood");
+        lineItem.setTubeType("EDTA");
+        lineItem.setIsActive(true);
+        order.getLineItems().add(lineItem);
+
+        when(testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, BRANCH_ID)).thenReturn(Optional.of(order));
+
+        OrderValidationResponse result = testOrderService.validateOrder(id);
+
+        assertThat(result.isValid()).isTrue();
+        assertThat(result.getErrors()).isEmpty();
+        assertThat(result.getSampleGroups()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("validateOrder should return invalid when no line items")
+    void validateOrder_shouldReturnInvalidWhenNoLineItems() {
+        UUID id = UUID.randomUUID();
+        TestOrder order = new TestOrder();
+        order.setPatientId(UUID.randomUUID());
+
+        when(testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, BRANCH_ID)).thenReturn(Optional.of(order));
+
+        OrderValidationResponse result = testOrderService.validateOrder(id);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getErrors()).contains("Order must have at least one line item");
+        assertThat(result.getSampleGroups()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("getSampleGroups should group by tube type")
+    void getSampleGroups_shouldGroupByTubeType() {
+        UUID id = UUID.randomUUID();
+        TestOrder order = new TestOrder();
+
+        OrderLineItem item1 = new OrderLineItem();
+        item1.setTestCode("CBC");
+        item1.setTestName("Complete Blood Count");
+        item1.setSampleType("Blood");
+        item1.setTubeType("EDTA");
+        item1.setIsActive(true);
+        item1.setIsUrgent(false);
+
+        OrderLineItem item2 = new OrderLineItem();
+        item2.setTestCode("ESR");
+        item2.setTestName("Erythrocyte Sedimentation Rate");
+        item2.setSampleType("Blood");
+        item2.setTubeType("EDTA");
+        item2.setIsActive(true);
+        item2.setIsUrgent(false);
+
+        OrderLineItem item3 = new OrderLineItem();
+        item3.setTestCode("PT");
+        item3.setTestName("Prothrombin Time");
+        item3.setSampleType("Blood");
+        item3.setTubeType("Citrate");
+        item3.setIsActive(true);
+        item3.setIsUrgent(true);
+
+        order.getLineItems().add(item1);
+        order.getLineItems().add(item2);
+        order.getLineItems().add(item3);
+
+        when(testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, BRANCH_ID)).thenReturn(Optional.of(order));
+
+        List<SampleGroupResponse> result = testOrderService.getSampleGroups(id);
+
+        assertThat(result).hasSize(2);
+
+        SampleGroupResponse edtaGroup = result.stream()
+                .filter(g -> "EDTA".equals(g.getTubeType()))
+                .findFirst().orElseThrow();
+        assertThat(edtaGroup.getSampleType()).isEqualTo("Blood");
+        assertThat(edtaGroup.getTestCodes()).containsExactly("CBC", "ESR");
+        assertThat(edtaGroup.getTestNames()).containsExactly("Complete Blood Count", "Erythrocyte Sedimentation Rate");
+
+        SampleGroupResponse citrateGroup = result.stream()
+                .filter(g -> "Citrate".equals(g.getTubeType()))
+                .findFirst().orElseThrow();
+        assertThat(citrateGroup.getTestCodes()).containsExactly("PT");
+        assertThat(citrateGroup.getPriority()).isEqualTo("URGENT");
+    }
+
+    @Test
+    @DisplayName("getPendingCollectionOrders should return PAID orders")
+    void getPendingCollectionOrders_shouldReturnPaidOrders() {
+        Pageable pageable = PageRequest.of(0, 10);
+        TestOrder order = new TestOrder();
+        order.setStatus(OrderStatus.PAID);
+        TestOrderResponse response = new TestOrderResponse();
+        response.setStatus("PAID");
+
+        Page<TestOrder> page = new PageImpl<>(List.of(order));
+
+        when(testOrderRepository.findAllByBranchIdAndIsDeletedFalseAndStatus(BRANCH_ID, OrderStatus.PAID, pageable))
+                .thenReturn(page);
+        when(testOrderMapper.toResponse(order)).thenReturn(response);
+
+        Page<TestOrderResponse> result = testOrderService.getPendingCollectionOrders(pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getStatus()).isEqualTo("PAID");
+    }
+
+    @Test
+    @DisplayName("calculateTurnaroundTime should return max TAT from active line items")
+    void calculateTurnaroundTime_shouldReturnMaxTat() {
+        UUID id = UUID.randomUUID();
+        TestOrder order = new TestOrder();
+
+        OrderLineItem item1 = new OrderLineItem();
+        item1.setTurnaroundTimeHours(24);
+        item1.setIsActive(true);
+
+        OrderLineItem item2 = new OrderLineItem();
+        item2.setTurnaroundTimeHours(48);
+        item2.setIsActive(true);
+
+        OrderLineItem item3 = new OrderLineItem();
+        item3.setTurnaroundTimeHours(72);
+        item3.setIsActive(false);
+
+        order.getLineItems().add(item1);
+        order.getLineItems().add(item2);
+        order.getLineItems().add(item3);
+
+        when(testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, BRANCH_ID)).thenReturn(Optional.of(order));
+
+        Integer tat = testOrderService.calculateTurnaroundTime(id);
+
+        assertThat(tat).isEqualTo(48);
     }
 }
