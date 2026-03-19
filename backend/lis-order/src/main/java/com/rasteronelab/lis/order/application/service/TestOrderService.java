@@ -2,6 +2,8 @@ package com.rasteronelab.lis.order.application.service;
 
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
+import com.rasteronelab.lis.core.event.OrderCancelledEvent;
+import com.rasteronelab.lis.core.event.OrderPlacedEvent;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.order.api.dto.OrderLineItemRequest;
 import com.rasteronelab.lis.order.api.dto.TestOrderRequest;
@@ -14,6 +16,7 @@ import com.rasteronelab.lis.order.domain.model.OrderStatus;
 import com.rasteronelab.lis.order.domain.model.Priority;
 import com.rasteronelab.lis.order.domain.model.TestOrder;
 import com.rasteronelab.lis.order.domain.repository.TestOrderRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -35,9 +40,20 @@ public class TestOrderService {
 
     private static final DateTimeFormatter ORDER_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
+    private static final Map<OrderStatus, Set<OrderStatus>> VALID_TRANSITIONS = Map.of(
+            OrderStatus.DRAFT, Set.of(OrderStatus.PLACED, OrderStatus.CANCELLED),
+            OrderStatus.PLACED, Set.of(OrderStatus.PAID, OrderStatus.CANCELLED),
+            OrderStatus.PAID, Set.of(OrderStatus.SAMPLE_COLLECTED, OrderStatus.CANCELLED),
+            OrderStatus.SAMPLE_COLLECTED, Set.of(OrderStatus.IN_PROGRESS, OrderStatus.CANCELLED),
+            OrderStatus.IN_PROGRESS, Set.of(OrderStatus.RESULTED, OrderStatus.CANCELLED),
+            OrderStatus.RESULTED, Set.of(OrderStatus.AUTHORISED, OrderStatus.CANCELLED),
+            OrderStatus.AUTHORISED, Set.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED)
+    );
+
     private final TestOrderRepository testOrderRepository;
     private final TestOrderMapper testOrderMapper;
     private final OrderLineItemMapper orderLineItemMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TestOrderResponse create(TestOrderRequest request) {
         UUID branchId = BranchContextHolder.getCurrentBranchId();
@@ -111,6 +127,10 @@ public class TestOrderService {
 
         order.setStatus(OrderStatus.PLACED);
         TestOrder saved = testOrderRepository.save(order);
+
+        eventPublisher.publishEvent(new OrderPlacedEvent(
+                saved.getId(), saved.getPatientId(), branchId));
+
         return testOrderMapper.toResponse(saved);
     }
 
@@ -135,6 +155,30 @@ public class TestOrderService {
             }
         }
 
+        TestOrder saved = testOrderRepository.save(order);
+
+        eventPublisher.publishEvent(new OrderCancelledEvent(
+                saved.getId(), branchId, reason));
+
+        return testOrderMapper.toResponse(saved);
+    }
+
+    public TestOrderResponse updateStatus(UUID id, OrderStatus newStatus) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        TestOrder order = testOrderRepository.findByIdAndBranchIdAndIsDeletedFalse(id, branchId)
+                .orElseThrow(() -> new NotFoundException("TestOrder", id));
+
+        OrderStatus currentStatus = order.getStatus();
+        Set<OrderStatus> allowed = VALID_TRANSITIONS.get(currentStatus);
+        if (allowed == null || !allowed.contains(newStatus)) {
+            throw new BusinessRuleException("LIS-ORD-003",
+                    "Invalid state transition from " + currentStatus + " to " + newStatus);
+        }
+
+        order.setStatus(newStatus);
+        if (newStatus == OrderStatus.COMPLETED) {
+            order.setCompletedAt(LocalDateTime.now());
+        }
         TestOrder saved = testOrderRepository.save(order);
         return testOrderMapper.toResponse(saved);
     }
@@ -169,10 +213,12 @@ public class TestOrderService {
         lineItem.setNetPrice(unitPrice.subtract(discount));
     }
 
-    public TestOrderService(TestOrderRepository testOrderRepository, TestOrderMapper testOrderMapper, OrderLineItemMapper orderLineItemMapper) {
+    public TestOrderService(TestOrderRepository testOrderRepository, TestOrderMapper testOrderMapper,
+                            OrderLineItemMapper orderLineItemMapper, ApplicationEventPublisher eventPublisher) {
         this.testOrderRepository = testOrderRepository;
         this.testOrderMapper = testOrderMapper;
         this.orderLineItemMapper = orderLineItemMapper;
+        this.eventPublisher = eventPublisher;
     }
 
 }

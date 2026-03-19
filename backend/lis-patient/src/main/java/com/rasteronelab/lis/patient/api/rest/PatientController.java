@@ -4,6 +4,7 @@ import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientResponse;
+import com.rasteronelab.lis.patient.application.service.PatientMergeService;
 import com.rasteronelab.lis.patient.application.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -41,6 +43,7 @@ import java.util.UUID;
 public class PatientController {
 
     private final PatientService patientService;
+    private final PatientMergeService patientMergeService;
 
     @PostMapping
     @Operation(summary = "Register a new patient", description = "Creates a new patient with auto-generated UHID")
@@ -120,8 +123,23 @@ public class PatientController {
         return ResponseEntity.ok(ApiResponse.success(duplicates));
     }
 
-    public PatientController(PatientService patientService) {
+    @PostMapping("/merge")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN')")
+    @Operation(summary = "Merge duplicate patients", description = "Merges a duplicate patient into the primary record")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Patients merged successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "Cannot merge patients")
+    })
+    public ResponseEntity<ApiResponse<String>> mergePatients(@RequestBody Map<String, UUID> body) {
+        UUID primaryId = body.get("primaryPatientId");
+        UUID mergedId = body.get("mergedPatientId");
+        patientMergeService.mergePatients(primaryId, mergedId);
+        return ResponseEntity.ok(ApiResponse.successMessage("Patients merged successfully"));
+    }
+
+    public PatientController(PatientService patientService, PatientMergeService patientMergeService) {
         this.patientService = patientService;
+        this.patientMergeService = patientMergeService;
     }
 
 }

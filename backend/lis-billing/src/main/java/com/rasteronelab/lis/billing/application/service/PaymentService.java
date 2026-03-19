@@ -10,7 +10,9 @@ import com.rasteronelab.lis.billing.domain.repository.InvoiceRepository;
 import com.rasteronelab.lis.billing.domain.repository.PaymentRepository;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
+import com.rasteronelab.lis.core.event.PaymentReceivedEvent;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,13 +38,16 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final InvoiceRepository invoiceRepository;
     private final PaymentMapper paymentMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PaymentService(PaymentRepository paymentRepository,
                           InvoiceRepository invoiceRepository,
-                          PaymentMapper paymentMapper) {
+                          PaymentMapper paymentMapper,
+                          ApplicationEventPublisher eventPublisher) {
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
         this.paymentMapper = paymentMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     public PaymentResponse recordPayment(PaymentRequest request) {
@@ -94,6 +99,14 @@ public class PaymentService {
 
         invoiceRepository.save(invoice);
         Payment saved = paymentRepository.save(payment);
+
+        // Publish event for cross-module communication (order status update)
+        boolean fullyPaid = newBalance.compareTo(BigDecimal.ZERO) <= 0;
+        if (invoice.getOrderId() != null) {
+            eventPublisher.publishEvent(new PaymentReceivedEvent(
+                    invoice.getId(), invoice.getOrderId(), branchId, request.getAmount(), fullyPaid));
+        }
+
         return paymentMapper.toResponse(saved);
     }
 

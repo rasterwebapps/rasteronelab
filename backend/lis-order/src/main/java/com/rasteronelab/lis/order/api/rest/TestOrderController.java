@@ -110,6 +110,21 @@ public class TestOrderController {
         return ResponseEntity.ok(ApiResponse.success("Order cancelled successfully", response));
     }
 
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'LAB_TECHNICIAN', 'PATHOLOGIST')")
+    @Operation(summary = "Update order status", description = "Transitions order to the specified status following valid state transitions")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Status updated"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "Invalid state transition")
+    })
+    public ResponseEntity<ApiResponse<TestOrderResponse>> updateStatus(
+            @Parameter(description = "Order UUID") @PathVariable UUID id,
+            @RequestBody Map<String, String> body) {
+        OrderStatus newStatus = OrderStatus.valueOf(body.get("status"));
+        TestOrderResponse response = testOrderService.updateStatus(id, newStatus);
+        return ResponseEntity.ok(ApiResponse.success("Order status updated", response));
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an order", description = "Soft-deletes a test order")
     public ResponseEntity<ApiResponse<Void>> delete(
