@@ -19,7 +19,6 @@
 - Spring Cloud Gateway (lis-gateway)
 - Flyway (DB migrations)
 - MapStruct 1.6 (DTO mapping)
-- Lombok (boilerplate reduction)
 - UUID Creator (UUID v7 generation)
 - Testcontainers (integration tests)
 - JUnit 5 + Mockito + AssertJ
@@ -42,7 +41,7 @@ When creating a new domain entity, follow these 10 steps in order:
 
 4. **Create Request DTO** (`api/dto/{Entity}Request.java`)
    - Add all user-provided fields with validation annotations
-   - Lombok: @Data @NoArgsConstructor @AllArgsConstructor @Builder
+   - Include: no-arg constructor, all-arg constructor, getters, setters, builder pattern
 
 5. **Create Response DTO** (`api/dto/{Entity}Response.java`)
    - Add all fields users need to see (including audit fields)
@@ -71,14 +70,11 @@ All entities MUST extend BaseEntity:
 ```java
 @Entity
 @Table(name = "patient")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Patient extends BaseEntity {
     // domain fields only — id, branchId, audit fields come from BaseEntity
     private String fullName;
     private String uhid;
-    // ...
+    // ... manual getters and setters
 }
 ```
 

@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.TestMasterService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/tests")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class TestMasterController {
 
     private final TestMasterService testMasterService;
@@ -83,4 +81,9 @@ public class TestMasterController {
         testMasterService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Test deleted successfully"));
     }
+
+    public TestMasterController(TestMasterService testMasterService) {
+        this.testMasterService = testMasterService;
+    }
+
 }

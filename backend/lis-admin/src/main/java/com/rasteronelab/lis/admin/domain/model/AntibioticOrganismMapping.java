@@ -8,8 +8,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
@@ -22,8 +20,6 @@ import java.util.UUID;
         @UniqueConstraint(name = "uq_antibiotic_organism",
                 columnNames = {"branch_id", "antibiotic_id", "microorganism_id"})
 })
-@Getter
-@Setter
 public class AntibioticOrganismMapping extends BaseEntity {
 
     @Column(name = "antibiotic_id", nullable = false, insertable = false, updatable = false)
@@ -45,4 +41,53 @@ public class AntibioticOrganismMapping extends BaseEntity {
 
     @Column(name = "is_default_panel", nullable = false)
     private Boolean isDefaultPanel = false;
+
+    public UUID getAntibioticId() {
+        return this.antibioticId;
+    }
+
+    public Antibiotic getAntibiotic() {
+        return this.antibiotic;
+    }
+
+    public UUID getMicroorganismId() {
+        return this.microorganismId;
+    }
+
+    public Microorganism getMicroorganism() {
+        return this.microorganism;
+    }
+
+    public String getSusceptibility() {
+        return this.susceptibility;
+    }
+
+    public Boolean getIsDefaultPanel() {
+        return this.isDefaultPanel;
+    }
+
+    public void setAntibioticId(UUID antibioticId) {
+        this.antibioticId = antibioticId;
+    }
+
+    public void setAntibiotic(Antibiotic antibiotic) {
+        this.antibiotic = antibiotic;
+    }
+
+    public void setMicroorganismId(UUID microorganismId) {
+        this.microorganismId = microorganismId;
+    }
+
+    public void setMicroorganism(Microorganism microorganism) {
+        this.microorganism = microorganism;
+    }
+
+    public void setSusceptibility(String susceptibility) {
+        this.susceptibility = susceptibility;
+    }
+
+    public void setIsDefaultPanel(Boolean isDefaultPanel) {
+        this.isDefaultPanel = isDefaultPanel;
+    }
+
 }

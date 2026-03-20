@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
@@ -19,8 +17,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "auto_validation_rule")
-@Getter
-@Setter
 public class AutoValidationRule extends BaseEntity {
 
     @Column(name = "parameter_id", insertable = false, updatable = false)
@@ -57,4 +53,93 @@ public class AutoValidationRule extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public UUID getParameterId() {
+        return this.parameterId;
+    }
+
+    public Parameter getParameter() {
+        return this.parameter;
+    }
+
+    public UUID getTestId() {
+        return this.testId;
+    }
+
+    public TestMaster getTest() {
+        return this.test;
+    }
+
+    public String getRuleName() {
+        return this.ruleName;
+    }
+
+    public String getRuleType() {
+        return this.ruleType;
+    }
+
+    public String getConditionExpression() {
+        return this.conditionExpression;
+    }
+
+    public String getActionOnPass() {
+        return this.actionOnPass;
+    }
+
+    public String getActionOnFail() {
+        return this.actionOnFail;
+    }
+
+    public Integer getPriority() {
+        return this.priority;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setParameterId(UUID parameterId) {
+        this.parameterId = parameterId;
+    }
+
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setTestId(UUID testId) {
+        this.testId = testId;
+    }
+
+    public void setTest(TestMaster test) {
+        this.test = test;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public void setRuleType(String ruleType) {
+        this.ruleType = ruleType;
+    }
+
+    public void setConditionExpression(String conditionExpression) {
+        this.conditionExpression = conditionExpression;
+    }
+
+    public void setActionOnPass(String actionOnPass) {
+        this.actionOnPass = actionOnPass;
+    }
+
+    public void setActionOnFail(String actionOnFail) {
+        this.actionOnFail = actionOnFail;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

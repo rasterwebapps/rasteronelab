@@ -7,8 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,8 +18,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "critical_value_config")
-@Getter
-@Setter
 public class CriticalValueConfig extends BaseEntity {
 
     @Column(name = "parameter_id", nullable = false, insertable = false, updatable = false)
@@ -45,4 +41,61 @@ public class CriticalValueConfig extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public UUID getParameterId() {
+        return this.parameterId;
+    }
+
+    public Parameter getParameter() {
+        return this.parameter;
+    }
+
+    public BigDecimal getLowThreshold() {
+        return this.lowThreshold;
+    }
+
+    public BigDecimal getHighThreshold() {
+        return this.highThreshold;
+    }
+
+    public Boolean getNotificationRequired() {
+        return this.notificationRequired;
+    }
+
+    public Boolean getAutoFlag() {
+        return this.autoFlag;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setParameterId(UUID parameterId) {
+        this.parameterId = parameterId;
+    }
+
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
+    }
+
+    public void setLowThreshold(BigDecimal lowThreshold) {
+        this.lowThreshold = lowThreshold;
+    }
+
+    public void setHighThreshold(BigDecimal highThreshold) {
+        this.highThreshold = highThreshold;
+    }
+
+    public void setNotificationRequired(Boolean notificationRequired) {
+        this.notificationRequired = notificationRequired;
+    }
+
+    public void setAutoFlag(Boolean autoFlag) {
+        this.autoFlag = autoFlag;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

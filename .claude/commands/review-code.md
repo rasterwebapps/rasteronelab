@@ -55,8 +55,8 @@ Review code against RasterOneLab LIS project standards.
 ### Code Quality
 - [ ] Constructor injection only (no `@Autowired` field injection)
 - [ ] `BigDecimal` for monetary and lab values (not `double`/`float`)
-- [ ] No `System.out.println` (use `@Slf4j`)
-- [ ] Lombok annotations used to reduce boilerplate
+- [ ] No `System.out.println` (use SLF4J Logger)
+- [ ] Manual getters/setters/constructors/builders (no Lombok)
 - [ ] Java 21 features used where appropriate (records, sealed classes, text blocks)
 
 ### Angular/TypeScript

@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.TATConfigurationService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config/tat")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class TATConfigurationController {
 
     private final TATConfigurationService tatConfigurationService;
@@ -82,4 +80,9 @@ public class TATConfigurationController {
         tatConfigurationService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("TAT configuration deleted successfully"));
     }
+
+    public TATConfigurationController(TATConfigurationService tatConfigurationService) {
+        this.tatConfigurationService = tatConfigurationService;
+    }
+
 }

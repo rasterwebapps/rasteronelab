@@ -42,7 +42,7 @@ public class Patient extends BaseEntity {
     // ✅ UUID primary key (auto-generated)
     // ✅ branchId MUST be present
     // ✅ No @JsonIgnore needed — entities NEVER returned in API
-    // ✅ Lombok: @Getter @Setter @NoArgsConstructor (NO @Data for entities)
+    // ✅ Manual getters and setters (NO Lombok)
     // ✅ Use BigDecimal for monetary values (NEVER double or float)
     // ✅ Use LocalDate/LocalDateTime (NEVER java.util.Date)
 }
@@ -53,12 +53,19 @@ public class Patient extends BaseEntity {
 ```java
 @Service
 @Transactional  // ← ALWAYS on service class (or individual methods)
-@RequiredArgsConstructor  // ← Constructor injection (NEVER @Autowired)
 public class PatientServiceImpl implements PatientUseCase {
     
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
     private final AuditService auditService;
+
+    public PatientServiceImpl(PatientRepository patientRepository,
+                              PatientMapper patientMapper,
+                              AuditService auditService) {
+        this.patientRepository = patientRepository;
+        this.patientMapper = patientMapper;
+        this.auditService = auditService;
+    }
     
     @Override
     @Transactional(readOnly = true)  // ← Read operations
@@ -77,7 +84,6 @@ public class PatientServiceImpl implements PatientUseCase {
 ```java
 @RestController
 @RequestMapping("/api/v1/patients")
-@RequiredArgsConstructor
 @Tag(name = "Patient", description = "Patient management APIs")
 public class PatientController {
 
@@ -118,8 +124,9 @@ float tax = (float)(amount * 0.18);
 ### Logging
 
 ```java
-@Slf4j  // Lombok
 public class PatientServiceImpl {
+
+    private static final Logger log = LoggerFactory.getLogger(PatientServiceImpl.class);
     
     // ✅ CORRECT
     log.info("Creating patient for branch {}", branchId);

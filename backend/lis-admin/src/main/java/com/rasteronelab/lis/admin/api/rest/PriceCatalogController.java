@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.PriceCatalogService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/price-catalog")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class PriceCatalogController {
 
     private final PriceCatalogService priceCatalogService;
@@ -90,4 +88,9 @@ public class PriceCatalogController {
         priceCatalogService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Price catalog entry deleted successfully"));
     }
+
+    public PriceCatalogController(PriceCatalogService priceCatalogService) {
+        this.priceCatalogService = priceCatalogService;
+    }
+
 }

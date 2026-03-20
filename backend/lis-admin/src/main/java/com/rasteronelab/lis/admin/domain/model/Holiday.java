@@ -4,8 +4,6 @@ import com.rasteronelab.lis.core.domain.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -15,8 +13,6 @@ import java.time.LocalDate;
  */
 @Entity
 @Table(name = "holiday")
-@Getter
-@Setter
 public class Holiday extends BaseEntity {
 
     @Column(name = "holiday_date", nullable = false)
@@ -30,4 +26,37 @@ public class Holiday extends BaseEntity {
 
     @Column(name = "is_half_day", nullable = false)
     private Boolean isHalfDay = false;
+
+    public LocalDate getHolidayDate() {
+        return this.holidayDate;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public Boolean getIsHalfDay() {
+        return this.isHalfDay;
+    }
+
+    public void setHolidayDate(LocalDate holidayDate) {
+        this.holidayDate = holidayDate;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setIsHalfDay(Boolean isHalfDay) {
+        this.isHalfDay = isHalfDay;
+    }
+
 }

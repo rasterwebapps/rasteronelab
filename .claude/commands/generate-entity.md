@@ -30,11 +30,11 @@ Generate a complete entity stack following RasterOneLab hexagonal architecture.
 ### 3. Request DTO (`api/dto/{EntityName}Request.java`)
 - All fields from entity (except audit fields)
 - Bean Validation annotations
-- Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- Manual no-arg constructor, all-arg constructor, getters, setters, builder pattern
 
 ### 4. Response DTO (`api/dto/{EntityName}Response.java`)
 - All entity fields including audit fields
-- Lombok `@Data`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@Builder`
+- Manual no-arg constructor, all-arg constructor, getters, setters, builder pattern
 
 ### 5. MapStruct Mapper (`api/mapper/{EntityName}Mapper.java`)
 - `@Mapper(componentModel = "spring", uses = {})`
@@ -80,7 +80,6 @@ Generate a complete entity stack following RasterOneLab hexagonal architecture.
 ```java
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@Getter @Setter
 public abstract class BaseEntity {
     @Id
     private UUID id = UuidCreator.getTimeOrderedEpoch(); // UUID v7
@@ -104,12 +103,13 @@ public abstract class BaseEntity {
     private Boolean isDeleted = false;
     
     private LocalDateTime deletedAt;
+
+    // Manual getters and setters for all fields
 }
 ```
 
 ### ApiResponse wrapper (reference)
 ```java
-@Data @Builder
 public class ApiResponse<T> {
     private boolean success;
     private String message;

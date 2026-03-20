@@ -4,18 +4,19 @@
 
 ## Current Project Status (as of March 2026)
 
-> **0 phases fully completed** — Phase 1 is actively in progress at ~65%.
+> **2 phases near-complete.** Phase 1 is ✅ done. Phase 2 is 🟡 ~97% done (all entities, 81% test coverage, seed data — PRs #15 & #16). Phase 3 is 🟡 ~65% done (backend CRUD + all frontend screens — PRs #12, #17). Phases 4–8 not yet started.
+> See the full analysis in [all-phases-status-review.md](all-phases-status-review.md).
 
 | Milestone | Phase | Timeline | Status | Issues | Progress |
 |-----------|-------|----------|--------|--------|---------|
-| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | 🟡 In Progress | 15 | ~65% |
-| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | ⬜ Not Started | 18 | 0% |
-| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | ⬜ Not Started | 21 | 0% |
-| [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 | 0% |
-| [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 | 0% |
-| [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 | 0% |
-| [Phase 7: Reports, QC & Notifications](phase-7-reports-qc-notifications.md) | PDF, QC, Alerts | Months 12-16 | ⬜ Not Started | 17 | 0% |
-| [Phase 8: Portals, Analytics & Launch](phase-8-portals-analytics.md) | Portals, Dashboards | Months 16-22 | ⬜ Not Started | 18 | 0% |
+| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | ✅ Complete | 15 | **100%** |
+| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | 🟡 In Progress | 18 | **~97%** |
+| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | 🟡 In Progress | 21 | **~65%** |
+| [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 | **0%** |
+| [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 | **0%** |
+| [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 | **0%** |
+| [Phase 7: Reports, QC & Notifications](phase-7-reports-qc-notifications.md) | PDF, QC, Alerts | Months 12-16 | ⬜ Not Started | 17 | **0%** |
+| [Phase 8: Portals, Analytics & Launch](phase-8-portals-analytics.md) | Portals, Dashboards | Months 16-22 | ⬜ Not Started | 18 | **0%** |
 
 **Total Issues: 135 (LIS-001 through LIS-135)**
 
@@ -28,16 +29,16 @@
 | LIS-003 | Global exception handler and custom exceptions | ✅ Done |
 | LIS-004 | BranchContextHolder and BranchInterceptor | ✅ Done |
 | LIS-005 | BranchAwareRepository base interface | ✅ Done |
-| LIS-006 | Keycloak realm with roles and custom claims | ⚠️ In Progress |
-| LIS-007 | Spring Security OAuth2 Resource Server | ⚠️ In Progress |
-| LIS-008 | Spring Cloud Gateway routing and JWT validation | ⚠️ In Progress |
-| LIS-009 | Angular 19 application with authentication flow | ⚠️ In Progress |
-| LIS-010 | Angular BranchInterceptor and BranchService | ⚠️ In Progress |
-| LIS-011 | Shared Angular layout and navigation components | ⚠️ In Progress |
+| LIS-006 | Keycloak realm with roles and custom claims | ✅ Done |
+| LIS-007 | Spring Security OAuth2 Resource Server | ✅ Done |
+| LIS-008 | Spring Cloud Gateway routing and JWT validation | ✅ Done |
+| LIS-009 | Angular 19 application with authentication flow | ✅ Done |
+| LIS-010 | Angular BranchInterceptor and BranchService | ✅ Done |
+| LIS-011 | Shared Angular layout and navigation components | ✅ Done |
 | LIS-012 | Docker Compose for all services | ✅ Done |
-| LIS-013 | CI/CD pipeline with Jenkins | ⚠️ In Progress |
+| LIS-013 | CI/CD pipeline with Jenkins | ✅ Done |
 | LIS-014 | Dockerfiles for backend and frontend | ✅ Done |
-| LIS-015 | Flyway migration framework and core tables | ⚠️ In Progress |
+| LIS-015 | Flyway migration framework and core tables | ✅ Done |
 
 ---
 
@@ -45,9 +46,9 @@
 
 | Milestone | Phase | Timeline | Status | Issues |
 |-----------|-------|----------|--------|--------|
-| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | 🟡 In Progress | 15 |
-| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | ⬜ Not Started | 18 |
-| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | ⬜ Not Started | 21 |
+| [Phase 1: Foundation](phase-1-foundation.md) | Infrastructure & Auth | Months 1-2 | ✅ Complete | 15 |
+| [Phase 2: Administration Module](phase-2-administration.md) | Master Data & Admin | Months 2-4 | 🟡 In Progress | 18 |
+| [Phase 3: Patient & Ordering](phase-3-patient-ordering.md) | Registration, Orders, Billing | Months 4-6 | 🟡 Scaffolded | 21 |
 | [Phase 4: Sample Management](phase-4-sample-management.md) | Sample Lifecycle | Months 6-8 | ⬜ Not Started | 14 |
 | [Phase 5: Result Entry & Validation](phase-5-result-entry.md) | All Departments | Months 8-12 | ⬜ Not Started | 20 |
 | [Phase 6: Instrument Interface](phase-6-instrument-interface.md) | ASTM/HL7 Integration | Months 10-13 | ⬜ Not Started | 12 |

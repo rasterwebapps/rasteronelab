@@ -10,7 +10,6 @@ import com.rasteronelab.lis.admin.domain.repository.TestMasterRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +24,6 @@ import java.util.UUID;
  * Test code must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class TestMasterService {
 
@@ -117,4 +115,11 @@ public class TestMasterService {
         testMaster.softDelete(currentUser);
         testMasterRepository.save(testMaster);
     }
+
+    public TestMasterService(TestMasterRepository testMasterRepository, DepartmentRepository departmentRepository, TestMasterMapper testMasterMapper) {
+        this.testMasterRepository = testMasterRepository;
+        this.departmentRepository = departmentRepository;
+        this.testMasterMapper = testMasterMapper;
+    }
+
 }

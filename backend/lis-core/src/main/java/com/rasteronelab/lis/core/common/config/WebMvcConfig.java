@@ -1,7 +1,6 @@
 package com.rasteronelab.lis.core.common.config;
 
 import com.rasteronelab.lis.core.infrastructure.BranchInterceptor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * excluding infrastructure paths (actuator, health, swagger, api-docs).
  */
 @Configuration
-@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final BranchInterceptor branchInterceptor;
@@ -27,4 +25,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/swagger-ui/**"
                 );
     }
+
+    public WebMvcConfig(BranchInterceptor branchInterceptor) {
+        this.branchInterceptor = branchInterceptor;
+    }
+
 }

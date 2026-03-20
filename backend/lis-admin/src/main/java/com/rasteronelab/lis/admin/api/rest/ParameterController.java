@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.ParameterService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/parameters")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class ParameterController {
 
     private final ParameterService parameterService;
@@ -74,4 +72,9 @@ public class ParameterController {
         parameterService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Parameter deleted successfully"));
     }
+
+    public ParameterController(ParameterService parameterService) {
+        this.parameterService = parameterService;
+    }
+
 }

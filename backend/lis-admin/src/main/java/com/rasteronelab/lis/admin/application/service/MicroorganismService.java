@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.MicroorganismRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Microorganism code must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class MicroorganismService {
 
@@ -102,4 +100,10 @@ public class MicroorganismService {
         microorganism.softDelete(currentUser);
         microorganismRepository.save(microorganism);
     }
+
+    public MicroorganismService(MicroorganismRepository microorganismRepository, MicroorganismMapper microorganismMapper) {
+        this.microorganismRepository = microorganismRepository;
+        this.microorganismMapper = microorganismMapper;
+    }
+
 }

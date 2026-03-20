@@ -11,7 +11,6 @@ import com.rasteronelab.lis.admin.domain.repository.TATConfigurationRepository;
 import com.rasteronelab.lis.admin.domain.repository.TestMasterRepository;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +25,6 @@ import java.util.UUID;
  * Validates test and department existence on create/update.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class TATConfigurationService {
 
@@ -130,4 +128,12 @@ public class TATConfigurationService {
         tatConfiguration.softDelete(currentUser);
         tatConfigurationRepository.save(tatConfiguration);
     }
+
+    public TATConfigurationService(TATConfigurationRepository tatConfigurationRepository, TestMasterRepository testMasterRepository, DepartmentRepository departmentRepository, TATConfigurationMapper tatConfigurationMapper) {
+        this.tatConfigurationRepository = tatConfigurationRepository;
+        this.testMasterRepository = testMasterRepository;
+        this.departmentRepository = departmentRepository;
+        this.tatConfigurationMapper = tatConfigurationMapper;
+    }
+
 }

@@ -9,7 +9,6 @@ import com.rasteronelab.lis.admin.domain.repository.DepartmentRepository;
 import com.rasteronelab.lis.admin.domain.repository.OrganizationRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Department code must be unique within an organization.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class DepartmentService {
 
@@ -93,4 +91,11 @@ public class DepartmentService {
         department.softDelete(currentUser);
         departmentRepository.save(department);
     }
+
+    public DepartmentService(DepartmentRepository departmentRepository, OrganizationRepository organizationRepository, DepartmentMapper departmentMapper) {
+        this.departmentRepository = departmentRepository;
+        this.organizationRepository = organizationRepository;
+        this.departmentMapper = departmentMapper;
+    }
+
 }

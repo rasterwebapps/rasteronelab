@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.HolidayRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Holiday date must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class HolidayService {
 
@@ -89,4 +87,10 @@ public class HolidayService {
         holiday.softDelete(currentUser);
         holidayRepository.save(holiday);
     }
+
+    public HolidayService(HolidayRepository holidayRepository, HolidayMapper holidayMapper) {
+        this.holidayRepository = holidayRepository;
+        this.holidayMapper = holidayMapper;
+    }
+
 }

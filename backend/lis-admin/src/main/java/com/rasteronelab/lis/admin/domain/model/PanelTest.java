@@ -9,8 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -28,8 +26,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "panel_test")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
 public class PanelTest {
 
     @Id
@@ -80,4 +76,101 @@ public class PanelTest {
         this.deletedAt = LocalDateTime.now();
         this.updatedBy = deletedBy;
     }
+
+    public UUID getId() {
+        return this.id;
+    }
+
+    public UUID getPanelId() {
+        return this.panelId;
+    }
+
+    public TestPanel getTestPanel() {
+        return this.testPanel;
+    }
+
+    public UUID getTestId() {
+        return this.testId;
+    }
+
+    public TestMaster getTestMaster() {
+        return this.testMaster;
+    }
+
+    public Integer getDisplayOrder() {
+        return this.displayOrder;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return this.updatedBy;
+    }
+
+    public Boolean getIsDeleted() {
+        return this.isDeleted;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return this.deletedAt;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setPanelId(UUID panelId) {
+        this.panelId = panelId;
+    }
+
+    public void setTestPanel(TestPanel testPanel) {
+        this.testPanel = testPanel;
+    }
+
+    public void setTestId(UUID testId) {
+        this.testId = testId;
+    }
+
+    public void setTestMaster(TestMaster testMaster) {
+        this.testMaster = testMaster;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
 }

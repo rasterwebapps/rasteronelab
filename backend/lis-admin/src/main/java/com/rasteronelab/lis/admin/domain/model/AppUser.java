@@ -2,8 +2,6 @@ package com.rasteronelab.lis.admin.domain.model;
 
 import com.rasteronelab.lis.core.domain.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Local application user entity synced with Keycloak.
@@ -11,8 +9,6 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "app_user")
-@Getter
-@Setter
 public class AppUser extends BaseEntity {
 
     @Column(name = "keycloak_user_id", nullable = false, unique = true, length = 100)
@@ -44,4 +40,85 @@ public class AppUser extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public String getKeycloakUserId() {
+        return this.keycloakUserId;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getFirstName() {
+        return this.firstName;
+    }
+
+    public String getLastName() {
+        return this.lastName;
+    }
+
+    public String getEmployeeId() {
+        return this.employeeId;
+    }
+
+    public String getDepartment() {
+        return this.department;
+    }
+
+    public String getDesignation() {
+        return this.designation;
+    }
+
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setKeycloakUserId(String keycloakUserId) {
+        this.keycloakUserId = keycloakUserId;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

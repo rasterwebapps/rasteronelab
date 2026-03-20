@@ -5,7 +5,6 @@ import com.rasteronelab.lis.admin.api.dto.BranchDepartmentResponse;
 import com.rasteronelab.lis.admin.application.service.BranchDepartmentService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +26,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/branch-departments")
 @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN')")
-@RequiredArgsConstructor
 public class BranchDepartmentController {
 
     private final BranchDepartmentService branchDepartmentService;
@@ -58,4 +56,9 @@ public class BranchDepartmentController {
         branchDepartmentService.unassign(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Department unassigned from branch successfully"));
     }
+
+    public BranchDepartmentController(BranchDepartmentService branchDepartmentService) {
+        this.branchDepartmentService = branchDepartmentService;
+    }
+
 }

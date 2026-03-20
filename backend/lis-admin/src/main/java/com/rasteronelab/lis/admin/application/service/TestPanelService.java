@@ -14,7 +14,6 @@ import com.rasteronelab.lis.admin.domain.repository.TestPanelRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,7 +30,6 @@ import java.util.UUID;
  * Panel code must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class TestPanelService {
 
@@ -215,4 +213,13 @@ public class TestPanelService {
         }
         return items;
     }
+
+    public TestPanelService(TestPanelRepository testPanelRepository, PanelTestRepository panelTestRepository, TestMasterRepository testMasterRepository, DepartmentRepository departmentRepository, TestPanelMapper testPanelMapper) {
+        this.testPanelRepository = testPanelRepository;
+        this.panelTestRepository = panelTestRepository;
+        this.testMasterRepository = testMasterRepository;
+        this.departmentRepository = departmentRepository;
+        this.testPanelMapper = testPanelMapper;
+    }
+
 }

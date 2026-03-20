@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.AppUserRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +21,6 @@ import java.util.UUID;
  * Username must be unique within a branch; keycloakUserId must be globally unique.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AppUserService {
 
@@ -113,4 +111,10 @@ public class AppUserService {
         appUser.softDelete(currentUser);
         appUserRepository.save(appUser);
     }
+
+    public AppUserService(AppUserRepository appUserRepository, AppUserMapper appUserMapper) {
+        this.appUserRepository = appUserRepository;
+        this.appUserMapper = appUserMapper;
+    }
+
 }

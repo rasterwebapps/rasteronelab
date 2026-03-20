@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.AntibioticRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Antibiotic code must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AntibioticService {
 
@@ -102,4 +100,10 @@ public class AntibioticService {
         antibiotic.softDelete(currentUser);
         antibioticRepository.save(antibiotic);
     }
+
+    public AntibioticService(AntibioticRepository antibioticRepository, AntibioticMapper antibioticMapper) {
+        this.antibioticRepository = antibioticRepository;
+        this.antibioticMapper = antibioticMapper;
+    }
+
 }

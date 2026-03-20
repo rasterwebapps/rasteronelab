@@ -24,10 +24,6 @@ dependencies {
     // Jackson for JSON
     api("com.fasterxml.jackson.core:jackson-databind")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-
-    // Lombok (already in subprojects, but explicit for IDE)
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
 }
 
 // No Spring Boot executable jar for core (it's a library)

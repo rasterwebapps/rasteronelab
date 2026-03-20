@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.HolidayService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/config/holidays")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class HolidayController {
 
     private final HolidayService holidayService;
@@ -68,4 +66,9 @@ public class HolidayController {
         holidayService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Holiday deleted successfully"));
     }
+
+    public HolidayController(HolidayService holidayService) {
+        this.holidayService = holidayService;
+    }
+
 }

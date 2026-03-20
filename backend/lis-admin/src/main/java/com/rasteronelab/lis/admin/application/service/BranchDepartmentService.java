@@ -11,7 +11,6 @@ import com.rasteronelab.lis.admin.domain.repository.BranchRepository;
 import com.rasteronelab.lis.admin.domain.repository.DepartmentRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import java.util.UUID;
  * Manages which departments are active per branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class BranchDepartmentService {
 
@@ -88,4 +86,12 @@ public class BranchDepartmentService {
         mapping.softDelete(currentUser);
         branchDepartmentRepository.save(mapping);
     }
+
+    public BranchDepartmentService(BranchDepartmentRepository branchDepartmentRepository, BranchRepository branchRepository, DepartmentRepository departmentRepository, BranchDepartmentMapper branchDepartmentMapper) {
+        this.branchDepartmentRepository = branchDepartmentRepository;
+        this.branchRepository = branchRepository;
+        this.departmentRepository = departmentRepository;
+        this.branchDepartmentMapper = branchDepartmentMapper;
+    }
+
 }

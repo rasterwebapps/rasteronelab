@@ -6,7 +6,6 @@ import com.rasteronelab.lis.admin.application.service.AppUserService;
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/users")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@RequiredArgsConstructor
 public class AppUserController {
 
     private final AppUserService appUserService;
@@ -74,4 +72,9 @@ public class AppUserController {
         appUserService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("User deleted successfully"));
     }
+
+    public AppUserController(AppUserService appUserService) {
+        this.appUserService = appUserService;
+    }
+
 }

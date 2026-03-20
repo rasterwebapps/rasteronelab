@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.NumberSeriesRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Entity type must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class NumberSeriesService {
 
@@ -89,4 +87,10 @@ public class NumberSeriesService {
         numberSeries.softDelete(currentUser);
         numberSeriesRepository.save(numberSeries);
     }
+
+    public NumberSeriesService(NumberSeriesRepository numberSeriesRepository, NumberSeriesMapper numberSeriesMapper) {
+        this.numberSeriesRepository = numberSeriesRepository;
+        this.numberSeriesMapper = numberSeriesMapper;
+    }
+
 }

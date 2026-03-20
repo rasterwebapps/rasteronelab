@@ -1,11 +1,8 @@
 package com.rasteronelab.lis.core.common.exception;
 
-import lombok.Getter;
-
 /**
  * Base exception for all LIS application exceptions.
  */
-@Getter
 public class LisException extends RuntimeException {
 
     private final String errorCode;
@@ -19,4 +16,9 @@ public class LisException extends RuntimeException {
         super(message, cause);
         this.errorCode = errorCode;
     }
+
+    public String getErrorCode() {
+        return this.errorCode;
+    }
+
 }

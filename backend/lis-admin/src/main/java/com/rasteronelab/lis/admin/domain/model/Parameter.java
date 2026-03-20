@@ -4,8 +4,6 @@ import com.rasteronelab.lis.core.domain.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Parameter entity (L3 branch-level).
@@ -14,8 +12,6 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "parameter")
-@Getter
-@Setter
 public class Parameter extends BaseEntity {
 
     @Column(name = "name", nullable = false)
@@ -53,4 +49,101 @@ public class Parameter extends BaseEntity {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public String getPrintName() {
+        return this.printName;
+    }
+
+    public String getUnit() {
+        return this.unit;
+    }
+
+    public String getDataType() {
+        return this.dataType;
+    }
+
+    public Integer getDecimalPlaces() {
+        return this.decimalPlaces;
+    }
+
+    public Integer getDisplayOrder() {
+        return this.displayOrder;
+    }
+
+    public String getMethod() {
+        return this.method;
+    }
+
+    public String getLoincCode() {
+        return this.loincCode;
+    }
+
+    public String getFormula() {
+        return this.formula;
+    }
+
+    public Boolean getIsCalculated() {
+        return this.isCalculated;
+    }
+
+    public Boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setPrintName(String printName) {
+        this.printName = printName;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setDecimalPlaces(Integer decimalPlaces) {
+        this.decimalPlaces = decimalPlaces;
+    }
+
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public void setLoincCode(String loincCode) {
+        this.loincCode = loincCode;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
+    public void setIsCalculated(Boolean isCalculated) {
+        this.isCalculated = isCalculated;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

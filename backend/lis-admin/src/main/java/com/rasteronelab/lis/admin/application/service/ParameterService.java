@@ -8,7 +8,6 @@ import com.rasteronelab.lis.admin.domain.repository.ParameterRepository;
 import com.rasteronelab.lis.core.common.exception.DuplicateResourceException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import java.util.UUID;
  * Parameter code must be unique within a branch.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class ParameterService {
 
@@ -95,4 +93,10 @@ public class ParameterService {
         parameter.softDelete(currentUser);
         parameterRepository.save(parameter);
     }
+
+    public ParameterService(ParameterRepository parameterRepository, ParameterMapper parameterMapper) {
+        this.parameterRepository = parameterRepository;
+        this.parameterMapper = parameterMapper;
+    }
+
 }

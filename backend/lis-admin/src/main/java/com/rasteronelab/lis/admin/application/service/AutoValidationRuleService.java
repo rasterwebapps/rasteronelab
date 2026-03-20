@@ -11,7 +11,6 @@ import com.rasteronelab.lis.admin.domain.repository.ParameterRepository;
 import com.rasteronelab.lis.admin.domain.repository.TestMasterRepository;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +26,6 @@ import java.util.UUID;
  * Validates parameter and test existence when provided.
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AutoValidationRuleService {
 
@@ -143,4 +141,12 @@ public class AutoValidationRuleService {
         return testMasterRepository.findByIdAndBranchIdAndIsDeletedFalse(testId, branchId)
                 .orElseThrow(() -> new NotFoundException("TestMaster", testId));
     }
+
+    public AutoValidationRuleService(AutoValidationRuleRepository autoValidationRuleRepository, ParameterRepository parameterRepository, TestMasterRepository testMasterRepository, AutoValidationRuleMapper autoValidationRuleMapper) {
+        this.autoValidationRuleRepository = autoValidationRuleRepository;
+        this.parameterRepository = parameterRepository;
+        this.testMasterRepository = testMasterRepository;
+        this.autoValidationRuleMapper = autoValidationRuleMapper;
+    }
+
 }
