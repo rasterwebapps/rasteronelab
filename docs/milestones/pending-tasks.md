@@ -1,8 +1,8 @@
 # RasterOneLab LIS — Pending Task List (Phases 1–3)
 
-> **Review Date:** 2026-03-19 (updated after PRs #15, #16, #17, #21)
+> **Review Date:** 2026-03-20 (updated after PRs #15, #16, #17, #18, #20, #21, #22)
 > **Scope:** Phases 1, 2, and 3 only
-> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 🟡 ~80%
+> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 🟡 ~95%
 
 ---
 
@@ -12,8 +12,8 @@
 |-------|-------------|------|---------|---------|
 | Phase 1 — Foundation | 15 | 15 | **0** | — |
 | Phase 2 — Administration | 18 | 17 | **1 (frontend tests)** | — |
-| Phase 3 — Patient & Ordering | 21 | 17 | **4 partial/missing** | — |
-| **Total** | **54** | **49** | **5** | — |
+| Phase 3 — Patient & Ordering | 21 | 19 | **2 (E2E integration tests)** | — |
+| **Total** | **54** | **51** | **3** | — |
 
 ---
 
@@ -163,9 +163,9 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 
 ---
 
-## 🟡 Phase 3 — Patient & Ordering (~80% — Integration tests and validation remaining)
+## 🟡 Phase 3 — Patient & Ordering (~95% — E2E integration tests remaining)
 
-> **Context (as of 2026-03-19):** lis-patient, lis-order, lis-billing backend CRUD is fully implemented; all 3 frontend modules have inline-template components (PR #17); all 7 Phase 3 controllers have OpenAPI annotations (PR #17); DB migrations are complete. Full order state machine with VALID_TRANSITIONS map implemented (PR #20). Spring Events wired: OrderPlacedEvent→BillingEventListener auto-generates invoice, PaymentReceivedEvent→OrderEventListener transitions to PAID, SampleCollectedEvent→transitions to SAMPLE_COLLECTED (PR #20 + #21). Barcode generation wired in TestOrderService.create() (PR #21). Weighted duplicate patient scoring algorithm implemented (PR #21). Remaining gaps: order validation/sample grouping, discount application logic, E2E integration tests.
+> **Context (as of 2026-03-20):** lis-patient, lis-order, lis-billing backend CRUD is fully implemented; all 3 frontend modules have inline-template components (PR #17); all 7 Phase 3 controllers have OpenAPI annotations (PR #17); DB migrations are complete. Full order state machine with VALID_TRANSITIONS map implemented (PR #20). Spring Events wired: OrderPlacedEvent→BillingEventListener auto-generates invoice, PaymentReceivedEvent→OrderEventListener transitions to PAID, SampleCollectedEvent→transitions to SAMPLE_COLLECTED (PR #20 + #21). Barcode generation wired in TestOrderService.create() (PR #21). Weighted duplicate patient scoring algorithm implemented (PR #21). Order validation, sample grouping, and TAT calculation implemented (PR #22). Discount application (PERCENTAGE and FLAT) and outstanding invoice tracking implemented (PR #22). Only E2E integration tests remain.
 
 ### Backend — Patient Module (`lis-patient`)
 
@@ -203,12 +203,14 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 
 ---
 
-#### TASK-P3-06 · LIS-039: Order Validation and Sample Requirements
+#### ✅ TASK-P3-06 · LIS-039: Order Validation and Sample Requirements — RESOLVED (PR #22)
 
-- [ ] Sample grouping logic: group order line items by sample type and tube type
-- [ ] TAT calculation per test based on `TATConfiguration`
-- [ ] Pending collection list generation per tube type
-- [ ] Unit tests for validation scenarios
+- [x] `validateOrder(UUID id)` method in `TestOrderService` — validates order has at least one line item
+- [x] `buildSampleGroups()` — groups order line items by tube type, providing pending collection list per tube
+- [x] `getSampleGroups(UUID id)` endpoint — returns sample grouping breakdown
+- [x] `OrderValidationResponse` DTO with `valid`, `errors`, `sampleGroups` fields
+- [x] `SampleGroupResponse` DTO with `tubeType`, `colour`, `lineItemCount`, `testNames`
+- [x] Unit tests: `validateOrder_shouldReturnValidWhenOrderHasLineItems`, `validateOrder_shouldReturnInvalidWhenNoLineItems`, `getSampleGroups_shouldGroupByTubeType`
 
 ---
 
@@ -223,10 +225,14 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 #### ✅ TASK-P3-09 · Refund + Credit Management — RESOLVED
 `Refund` entity, `RefundService`, `RefundController`; `CreditAccount` entity, `CreditAccountService`, `CreditAccountController`. Flyway migrations present.
 
-#### TASK-P3-09b · Discount Application (remaining)
+#### ✅ TASK-P3-09b · Discount Application — RESOLVED (PR #22)
 
-- [ ] Discount application: apply `DiscountScheme` to invoice — no discount logic in `InvoiceService`
-- [ ] Outstanding invoice tracking: `GET /api/v1/invoices/outstanding`
+- [x] `applyDiscount(UUID invoiceId, String discountType, BigDecimal discountValue, String reason)` — applies PERCENTAGE or FLAT discount to invoice
+- [x] `applyDiscountScheme(DiscountApplicationRequest request)` — applies discount scheme with validation (cannot discount PAID invoices, discount cannot exceed subtotal)
+- [x] `DiscountApplicationRequest` DTO with `invoiceId`, `discountType`, `discountValue`
+- [x] `OutstandingInvoiceResponse` DTO — aggregated outstanding balance per patient
+- [x] `getOutstandingInvoices(UUID patientId)` — returns outstanding invoice list with total balance
+- [x] Unit tests: `applyDiscount_shouldUpdateTotals`, `applyDiscountScheme_shouldApplyPercentageDiscount`, `applyDiscountScheme_shouldApplyFlatDiscount`, `applyDiscountScheme_shouldThrowWhenInvoicePaid`, `applyDiscountScheme_shouldThrowWhenDiscountExceedsSubtotal`
 
 ---
 
@@ -326,18 +332,18 @@ Based on `docs/process-flows/complete-lipid-cbc-walkthrough.md`:
 - [x] ~~TASK-P2-06: Seed data migrations~~ ✅ **DONE (PR #15 + PR #16 — R__001–R__012)**
 - [x] ~~TASK-P2-07: Backend test coverage 29% → 80%~~ ✅ **DONE (PR #15 — 81% achieved)**
 
-### Phase 3 Pending (~80% — integration tests and nice-to-haves remaining)
+### Phase 3 Pending (~95% — E2E integration tests remaining)
 
-**P0 — Blockers**
+**P0 — All Blockers Resolved ✅**
 - [x] ~~TASK-P3-05: Full Order State Machine transitions + barcode wiring~~ ✅ **DONE (PR #20 + PR #21)**
 - [x] ~~TASK-P3-16: Spring Events: Order → Invoice auto-generation (wiring)~~ ✅ **DONE (PR #20 + PR #21)**
 
 **P1 — High Priority**
 - [x] ~~TASK-P3-02: Duplicate patient detection algorithm~~ ✅ **DONE (PR #21)**
-- [ ] TASK-P3-06: Order validation and sample requirements
-- [ ] TASK-P3-09b: Discount application logic
+- [x] ~~TASK-P3-06: Order validation and sample requirements~~ ✅ **DONE (PR #22)**
+- [x] ~~TASK-P3-09b: Discount application logic~~ ✅ **DONE (PR #22)**
 - [x] ~~TASK-P3-17: Barcode wiring in TestOrderService~~ ✅ **DONE (PR #21)**
-- [ ] TASK-P3-19: E2E integration test
+- [ ] TASK-P3-19: E2E integration test (Patient → Order → Invoice → Payment)
 - [ ] TASK-P3-21: Lipid + CBC walkthrough integration test
 
 **P2 — Nice to Have**
@@ -366,32 +372,34 @@ Based on `docs/process-flows/complete-lipid-cbc-walkthrough.md`:
 
 ## 🗓️ Suggested Sprint Plan
 
-### Sprint 1 (Days 1-3): Close Phase 2
+### Sprint 1 (Days 1-3): Close Phase 2 and Phase 3
 
 | Task | Owner | Effort |
 |------|-------|--------|
 | ~~TASK-P2-01 to P2-07~~ | ✅ Done (PRs #15, #16) | — |
-| TASK-P2-08 (Frontend tests) | Frontend Dev | 3 days |
-| **Sprint 1 Total** | | **~3 frontend days** |
+| ~~TASK-P3-05, P3-06, P3-09b, P3-16, P3-17, P3-02~~ | ✅ Done (PRs #20, #21, #22) | — |
+| TASK-P2-08 (Frontend unit tests for admin) | Frontend Dev | 3 days |
+| TASK-P3-19 (E2E integration test with Testcontainers) | Backend Dev | 3 days |
+| TASK-P3-21 (Lipid + CBC walkthrough integration test) | Backend Dev | 2 days |
+| **Sprint 1 Total** | | **~8 days** |
 
-### Sprint 2 (Week 2-3): Complete Phase 3 Core Domain Logic
+### Sprint 2 (Week 2-3): Phase 7 Core Domain Logic (Reports, QC, Notifications)
 
 | Task | Owner | Effort |
 |------|-------|--------|
-| TASK-P3-05 (Full state machine + barcode) | Backend Dev | 3 days |
-| TASK-P3-16 (Spring Events wiring) | Backend Dev | 2 days |
-| TASK-P3-17 (Barcode wiring) | Backend Dev | 1 day |
-| TASK-P3-02 (Duplicate detection algorithm) | Backend Dev | 2 days |
-| TASK-P3-06 (Order validation) | Backend Dev | 2 days |
-| TASK-P3-09b (Discount logic) | Backend Dev | 2 days |
+| lis-report: PDF generation engine (JasperReports/iText) | Backend Dev | 4 days |
+| lis-qc: QCService + Westgard rules + QCController | Backend Dev | 3 days |
+| lis-notification: SMS/Email/WhatsApp notification service | Backend Dev | 3 days |
+| lis-report: Angular frontend components | Frontend Dev | 3 days |
+| lis-qc: Levey-Jennings chart Angular component | Frontend Dev | 2 days |
 | TASK-P2-09 to P2-12 (polish) | Both | 3 days |
-| **Sprint 2 Total** | | **~15 backend days** |
+| **Sprint 2 Total** | | **~18 days** |
 
-### Sprint 3 (Week 4-5): Phase 3 Integration Tests + Remaining Issues
+### Sprint 3 (Week 4-6): Phase 6 (Instrument Interface) + Phase 7 completion
 
 | Task Group | Owner | Effort |
 |------------|-------|--------|
-| TASK-P3-19 (E2E integration test) | Backend Dev | 3 days |
-| TASK-P3-21 (Lipid + CBC walkthrough) | Backend Dev | 2 days |
-| PHI audit, Discount, Insurance, Receipt, Corporate, Financial reports | Backend Dev | 5 days |
-| **Sprint 3 Total** | | **~10 backend days** |
+| lis-instrument: ASTM E1381/E1394 interface | Backend Dev | 5 days |
+| lis-inventory: Reagent management | Backend Dev | 4 days |
+| Phase 7 frontend + tests | Frontend Dev | 5 days |
+| **Sprint 3 Total** | | **~14 days** |
