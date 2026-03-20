@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface QCResultRepository extends BranchAwareRepository<QCResult, UUID> {
+public interface QCResultRepository extends BranchAwareRepository<QCResult> {
 
     Page<QCResult> findByBranchIdAndQcLotIdAndIsDeletedFalse(
             UUID branchId, UUID qcLotId, Pageable pageable);
