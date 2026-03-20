@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface QCLotRepository extends BranchAwareRepository<QCLot, UUID> {
+public interface QCLotRepository extends BranchAwareRepository<QCLot> {
 
     Optional<QCLot> findByBranchIdAndLotNumberAndIsDeletedFalse(UUID branchId, String lotNumber);
 
