@@ -1,0 +1,45 @@
+name: Stale branches and PRs
+
+on:
+  schedule:
+    # Run every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    name: Mark stale issues and PRs
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # PRs with no activity for 30 days → stale
+          days-before-stale: 30
+          # Stale PRs with no activity for 7 more days → closed
+          days-before-close: 7
+
+          stale-pr-message: >
+            This pull request has been open for 30 days with no recent activity.
+            If it is still relevant, please rebase it onto `main`, address any
+            review comments, and leave a comment. Otherwise it will be closed
+            automatically in 7 days.
+
+          close-pr-message: >
+            This pull request has been closed automatically due to 37 days of
+            inactivity. The branch can be deleted. If you still need the changes,
+            please open a new PR against the latest `main`.
+
+          stale-pr-label: stale
+          close-pr-label: auto-closed
+
+          # Exempt PRs labelled 'do-not-close' or marked as drafts
+          exempt-pr-labels: do-not-close,wip
+          exempt-draft-pr: true
+
+          # Do not touch issues via this workflow
+          days-before-issue-stale: -1
+          days-before-issue-close: -1

@@ -210,3 +210,30 @@ Current state  ─► Close Phase 3 ─► Close Phase 2 ─► Phase 6 (Instrum
 ```
 
 **Estimated remaining work:** ~9-10 months at full team capacity
+
+---
+
+## 🌿 Branch & PR Health
+
+> **Full analysis:** [docs/milestones/branch-pr-status.md](milestones/branch-pr-status.md)
+
+| Status | Count | Action |
+|--------|-------|--------|
+| Merged PRs (main) | 23 | ✅ Done |
+| Open PRs | 2 | ⚠️ See below |
+| Stale `copilot/*` branches (no PR) | 21 | 🗑 Recommend deletion |
+
+### Open PRs
+
+| PR | Branch | Status | Recommendation |
+|----|--------|--------|---------------|
+| #1 | `copilot/complete-phase-2-tasks` | Stale — superseded by PRs #8, #9, #15, #16 | Close + delete branch |
+| #2 | `copilot/review-project-branch-pr-status` | In progress (this PR) | Merge when CI passes |
+
+### Why Branches Accumulated Without PRs
+
+1. **No `.github/` infrastructure** existed — no CI, no PR template, no branch-protection rules.
+2. **Parallel agent sessions** created duplicate branches for the same phase.
+3. **No stale-branch automation** meant old branches were never pruned.
+
+**Fix (added in this PR):** `.github/workflows/ci.yml` (CI gate), `.github/workflows/stale.yml` (auto-close stale PRs), and `.github/pull_request_template.md` (PR checklist). Enable **branch protection on `main`** in GitHub Settings to require PRs with passing CI before any merge.
