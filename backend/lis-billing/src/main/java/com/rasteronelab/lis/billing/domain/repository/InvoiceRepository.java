@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,4 +25,6 @@ public interface InvoiceRepository extends BranchAwareRepository<Invoice> {
     Page<Invoice> findAllByPatientIdAndBranchIdAndIsDeletedFalse(UUID patientId, UUID branchId, Pageable pageable);
 
     Page<Invoice> findAllByStatusAndBranchIdAndIsDeletedFalse(InvoiceStatus status, UUID branchId, Pageable pageable);
+
+    List<Invoice> findByBranchIdAndPatientIdAndStatusAndIsDeletedFalse(UUID branchId, UUID patientId, InvoiceStatus status);
 }

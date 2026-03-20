@@ -2,6 +2,8 @@ package com.rasteronelab.lis.order.api.rest;
 
 import com.rasteronelab.lis.core.api.ApiResponse;
 import com.rasteronelab.lis.core.api.PagedResponse;
+import com.rasteronelab.lis.order.api.dto.OrderValidationResponse;
+import com.rasteronelab.lis.order.api.dto.SampleGroupResponse;
 import com.rasteronelab.lis.order.api.dto.TestOrderRequest;
 import com.rasteronelab.lis.order.api.dto.TestOrderResponse;
 import com.rasteronelab.lis.order.application.service.TestOrderService;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -131,6 +134,56 @@ public class TestOrderController {
             @Parameter(description = "Order UUID") @PathVariable UUID id) {
         testOrderService.delete(id);
         return ResponseEntity.ok(ApiResponse.successMessage("Order deleted successfully"));
+    }
+
+    @GetMapping("/{id}/validate")
+    @Operation(summary = "Validate an order", description = "Validates order has required line items and returns sample grouping information")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Validation result returned"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'RECEPTIONIST', 'LAB_TECHNICIAN')")
+    public ResponseEntity<ApiResponse<OrderValidationResponse>> validateOrder(
+            @Parameter(description = "Order UUID") @PathVariable UUID id) {
+        OrderValidationResponse response = testOrderService.validateOrder(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{id}/sample-groups")
+    @Operation(summary = "Get sample groups for an order", description = "Groups tests by sample type and tube type for efficient sample collection")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Sample groups returned"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'RECEPTIONIST', 'LAB_TECHNICIAN')")
+    public ResponseEntity<ApiResponse<List<SampleGroupResponse>>> getSampleGroups(
+            @Parameter(description = "Order UUID") @PathVariable UUID id) {
+        List<SampleGroupResponse> response = testOrderService.getSampleGroups(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/{id}/turnaround-time")
+    @Operation(summary = "Calculate turnaround time", description = "Returns the maximum turnaround time in hours across all active line items")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "TAT calculated"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'RECEPTIONIST', 'LAB_TECHNICIAN')")
+    public ResponseEntity<ApiResponse<Integer>> getTurnaroundTime(
+            @Parameter(description = "Order UUID") @PathVariable UUID id) {
+        Integer tat = testOrderService.calculateTurnaroundTime(id);
+        return ResponseEntity.ok(ApiResponse.success(tat));
+    }
+
+    @GetMapping("/pending-collection")
+    @Operation(summary = "Get pending collection orders", description = "Returns orders with PAID status awaiting sample collection")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Pending collection orders returned")
+    })
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'RECEPTIONIST', 'LAB_TECHNICIAN')")
+    public ResponseEntity<ApiResponse<PagedResponse<TestOrderResponse>>> getPendingCollectionOrders(Pageable pageable) {
+        Page<TestOrderResponse> page = testOrderService.getPendingCollectionOrders(pageable);
+        return ResponseEntity.ok(ApiResponse.success(PagedResponse.of(page)));
     }
 
     public TestOrderController(TestOrderService testOrderService) {

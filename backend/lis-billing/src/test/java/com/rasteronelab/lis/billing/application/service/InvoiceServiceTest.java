@@ -1,8 +1,10 @@
 package com.rasteronelab.lis.billing.application.service;
 
+import com.rasteronelab.lis.billing.api.dto.DiscountApplicationRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceLineItemRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceResponse;
+import com.rasteronelab.lis.billing.api.dto.OutstandingInvoiceResponse;
 import com.rasteronelab.lis.billing.api.mapper.InvoiceLineItemMapper;
 import com.rasteronelab.lis.billing.api.mapper.InvoiceMapper;
 import com.rasteronelab.lis.billing.domain.model.Invoice;
@@ -24,6 +26,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -170,5 +173,153 @@ class InvoiceServiceTest {
         assertThat(invoice.getIsDeleted()).isTrue();
         assertThat(invoice.getDeletedAt()).isNotNull();
         verify(invoiceRepository).save(invoice);
+    }
+
+    @Test
+    @DisplayName("applyDiscountScheme should apply percentage discount correctly")
+    void applyDiscountScheme_shouldApplyPercentageDiscount() {
+        UUID invoiceId = UUID.randomUUID();
+        Invoice invoice = new Invoice();
+        invoice.setSubtotal(new BigDecimal("1000.00"));
+        invoice.setTaxAmount(new BigDecimal("50.00"));
+        invoice.setPaidAmount(BigDecimal.ZERO);
+        invoice.setStatus(InvoiceStatus.GENERATED);
+
+        Invoice saved = new Invoice();
+        InvoiceResponse response = new InvoiceResponse();
+
+        when(invoiceRepository.findByIdAndBranchIdAndIsDeletedFalse(invoiceId, BRANCH_ID))
+                .thenReturn(Optional.of(invoice));
+        when(invoiceRepository.save(invoice)).thenReturn(saved);
+        when(invoiceMapper.toResponse(saved)).thenReturn(response);
+
+        DiscountApplicationRequest request = DiscountApplicationRequest.builder()
+                .invoiceId(invoiceId)
+                .discountType("PERCENTAGE")
+                .discountValue(new BigDecimal("10"))
+                .discountReason("Loyalty discount")
+                .build();
+
+        invoiceService.applyDiscountScheme(request);
+
+        // 10% of 1000 = 100 discount; total = 1000 - 100 + 50 = 950
+        assertThat(invoice.getDiscountAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(invoice.getTotalAmount()).isEqualByComparingTo(new BigDecimal("950.00"));
+        assertThat(invoice.getBalanceAmount()).isEqualByComparingTo(new BigDecimal("950.00"));
+        assertThat(invoice.getDiscountType()).isEqualTo("PERCENTAGE");
+        assertThat(invoice.getDiscountReason()).isEqualTo("Loyalty discount");
+        verify(invoiceRepository).save(invoice);
+    }
+
+    @Test
+    @DisplayName("applyDiscountScheme should apply flat discount correctly")
+    void applyDiscountScheme_shouldApplyFlatDiscount() {
+        UUID invoiceId = UUID.randomUUID();
+        Invoice invoice = new Invoice();
+        invoice.setSubtotal(new BigDecimal("1000.00"));
+        invoice.setTaxAmount(BigDecimal.ZERO);
+        invoice.setPaidAmount(new BigDecimal("200.00"));
+        invoice.setStatus(InvoiceStatus.GENERATED);
+
+        Invoice saved = new Invoice();
+        InvoiceResponse response = new InvoiceResponse();
+
+        when(invoiceRepository.findByIdAndBranchIdAndIsDeletedFalse(invoiceId, BRANCH_ID))
+                .thenReturn(Optional.of(invoice));
+        when(invoiceRepository.save(invoice)).thenReturn(saved);
+        when(invoiceMapper.toResponse(saved)).thenReturn(response);
+
+        DiscountApplicationRequest request = DiscountApplicationRequest.builder()
+                .invoiceId(invoiceId)
+                .discountType("FLAT")
+                .discountValue(new BigDecimal("150.00"))
+                .discountReason("Promo code")
+                .build();
+
+        invoiceService.applyDiscountScheme(request);
+
+        // Flat 150 discount; total = 1000 - 150 + 0 = 850; balance = 850 - 200 = 650
+        assertThat(invoice.getDiscountAmount()).isEqualByComparingTo(new BigDecimal("150.00"));
+        assertThat(invoice.getTotalAmount()).isEqualByComparingTo(new BigDecimal("850.00"));
+        assertThat(invoice.getBalanceAmount()).isEqualByComparingTo(new BigDecimal("650.00"));
+        assertThat(invoice.getDiscountType()).isEqualTo("FLAT");
+        verify(invoiceRepository).save(invoice);
+    }
+
+    @Test
+    @DisplayName("applyDiscountScheme should throw when invoice is PAID")
+    void applyDiscountScheme_shouldThrowWhenInvoicePaid() {
+        UUID invoiceId = UUID.randomUUID();
+        Invoice invoice = new Invoice();
+        invoice.setStatus(InvoiceStatus.PAID);
+
+        when(invoiceRepository.findByIdAndBranchIdAndIsDeletedFalse(invoiceId, BRANCH_ID))
+                .thenReturn(Optional.of(invoice));
+
+        DiscountApplicationRequest request = DiscountApplicationRequest.builder()
+                .invoiceId(invoiceId)
+                .discountType("FLAT")
+                .discountValue(new BigDecimal("50.00"))
+                .build();
+
+        assertThatThrownBy(() -> invoiceService.applyDiscountScheme(request))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("Cannot apply discount");
+    }
+
+    @Test
+    @DisplayName("applyDiscountScheme should throw when discount exceeds subtotal")
+    void applyDiscountScheme_shouldThrowWhenDiscountExceedsSubtotal() {
+        UUID invoiceId = UUID.randomUUID();
+        Invoice invoice = new Invoice();
+        invoice.setSubtotal(new BigDecimal("100.00"));
+        invoice.setTaxAmount(BigDecimal.ZERO);
+        invoice.setPaidAmount(BigDecimal.ZERO);
+        invoice.setStatus(InvoiceStatus.GENERATED);
+
+        when(invoiceRepository.findByIdAndBranchIdAndIsDeletedFalse(invoiceId, BRANCH_ID))
+                .thenReturn(Optional.of(invoice));
+
+        DiscountApplicationRequest request = DiscountApplicationRequest.builder()
+                .invoiceId(invoiceId)
+                .discountType("FLAT")
+                .discountValue(new BigDecimal("200.00"))
+                .discountReason("Too large")
+                .build();
+
+        assertThatThrownBy(() -> invoiceService.applyDiscountScheme(request))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("exceeds invoice subtotal");
+    }
+
+    @Test
+    @DisplayName("getOutstandingByPatient should return correct totals")
+    void getOutstandingByPatient_shouldReturnCorrectTotals() {
+        UUID patientId = UUID.randomUUID();
+
+        Invoice inv1 = new Invoice();
+        inv1.setInvoiceNumber("INV-001");
+        inv1.setTotalAmount(new BigDecimal("500.00"));
+        inv1.setBalanceAmount(new BigDecimal("300.00"));
+        inv1.setDueDate(LocalDate.now().plusDays(30));
+
+        Invoice inv2 = new Invoice();
+        inv2.setInvoiceNumber("INV-002");
+        inv2.setTotalAmount(new BigDecimal("200.00"));
+        inv2.setBalanceAmount(new BigDecimal("200.00"));
+        inv2.setDueDate(LocalDate.now().plusDays(15));
+
+        when(invoiceRepository.findByBranchIdAndPatientIdAndStatusAndIsDeletedFalse(
+                BRANCH_ID, patientId, InvoiceStatus.GENERATED))
+                .thenReturn(List.of(inv1, inv2));
+
+        OutstandingInvoiceResponse result = invoiceService.getOutstandingByPatient(patientId);
+
+        assertThat(result.getPatientId()).isEqualTo(patientId);
+        assertThat(result.getTotalOutstanding()).isEqualByComparingTo(new BigDecimal("500.00"));
+        assertThat(result.getInvoiceCount()).isEqualTo(2);
+        assertThat(result.getInvoices()).hasSize(2);
+        assertThat(result.getInvoices().get(0).getInvoiceNumber()).isEqualTo("INV-001");
+        assertThat(result.getInvoices().get(1).getBalanceAmount()).isEqualByComparingTo(new BigDecimal("200.00"));
     }
 }

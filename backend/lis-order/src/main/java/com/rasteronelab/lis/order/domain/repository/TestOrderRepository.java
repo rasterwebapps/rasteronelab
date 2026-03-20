@@ -25,4 +25,6 @@ public interface TestOrderRepository extends BranchAwareRepository<TestOrder> {
     boolean existsByOrderNumberAndBranchIdAndIsDeletedFalse(String orderNumber, UUID branchId);
 
     long countByBranchIdAndIsDeletedFalseAndOrderDateBetween(UUID branchId, LocalDateTime from, LocalDateTime to);
+
+    Page<TestOrder> findAllByBranchIdAndIsDeletedFalseAndStatus(UUID branchId, OrderStatus status, Pageable pageable);
 }

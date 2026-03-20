@@ -1,8 +1,10 @@
 package com.rasteronelab.lis.billing.application.service;
 
+import com.rasteronelab.lis.billing.api.dto.DiscountApplicationRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceLineItemRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceResponse;
+import com.rasteronelab.lis.billing.api.dto.OutstandingInvoiceResponse;
 import com.rasteronelab.lis.billing.api.mapper.InvoiceLineItemMapper;
 import com.rasteronelab.lis.billing.api.mapper.InvoiceMapper;
 import com.rasteronelab.lis.billing.domain.model.Invoice;
@@ -20,9 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for Invoice operations.
@@ -154,6 +159,79 @@ public class InvoiceService {
 
         Invoice saved = invoiceRepository.save(invoice);
         return invoiceMapper.toResponse(saved);
+    }
+
+    public InvoiceResponse applyDiscountScheme(DiscountApplicationRequest request) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+        Invoice invoice = invoiceRepository.findByIdAndBranchIdAndIsDeletedFalse(request.getInvoiceId(), branchId)
+                .orElseThrow(() -> new NotFoundException("Invoice", request.getInvoiceId()));
+
+        if (invoice.getStatus() == InvoiceStatus.PAID || invoice.getStatus() == InvoiceStatus.CANCELLED) {
+            throw new BusinessRuleException("LIS-BIL-001",
+                    "Cannot apply discount to invoice with status: " + invoice.getStatus());
+        }
+
+        BigDecimal subtotal = invoice.getSubtotal() != null ? invoice.getSubtotal() : BigDecimal.ZERO;
+        BigDecimal discountAmount;
+
+        String discountType = request.getDiscountType();
+        if ("PERCENTAGE".equalsIgnoreCase(discountType)) {
+            discountAmount = subtotal.multiply(request.getDiscountValue())
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        } else if ("FLAT".equalsIgnoreCase(discountType)) {
+            discountAmount = request.getDiscountValue();
+        } else {
+            throw new BusinessRuleException("LIS-BIL-003",
+                    "Invalid discount type: " + discountType + ". Must be PERCENTAGE or FLAT");
+        }
+
+        if (discountAmount.compareTo(subtotal) > 0) {
+            throw new BusinessRuleException("LIS-BIL-002",
+                    "Discount amount " + discountAmount + " exceeds invoice subtotal " + subtotal);
+        }
+
+        invoice.setDiscountAmount(discountAmount);
+        invoice.setDiscountType(discountType.toUpperCase());
+        invoice.setDiscountReason(request.getDiscountReason());
+
+        BigDecimal taxAmount = invoice.getTaxAmount() != null ? invoice.getTaxAmount() : BigDecimal.ZERO;
+        BigDecimal totalAmount = subtotal.subtract(discountAmount).add(taxAmount);
+        invoice.setTotalAmount(totalAmount);
+
+        BigDecimal paidAmount = invoice.getPaidAmount() != null ? invoice.getPaidAmount() : BigDecimal.ZERO;
+        invoice.setBalanceAmount(totalAmount.subtract(paidAmount));
+
+        Invoice saved = invoiceRepository.save(invoice);
+        return invoiceMapper.toResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public OutstandingInvoiceResponse getOutstandingByPatient(UUID patientId) {
+        UUID branchId = BranchContextHolder.getCurrentBranchId();
+
+        List<Invoice> outstandingInvoices = invoiceRepository
+                .findByBranchIdAndPatientIdAndStatusAndIsDeletedFalse(branchId, patientId, InvoiceStatus.GENERATED);
+
+        BigDecimal totalOutstanding = outstandingInvoices.stream()
+                .map(inv -> inv.getBalanceAmount() != null ? inv.getBalanceAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<OutstandingInvoiceResponse.InvoiceSummary> summaries = outstandingInvoices.stream()
+                .map(inv -> OutstandingInvoiceResponse.InvoiceSummary.builder()
+                        .id(inv.getId())
+                        .invoiceNumber(inv.getInvoiceNumber())
+                        .totalAmount(inv.getTotalAmount())
+                        .balanceAmount(inv.getBalanceAmount())
+                        .dueDate(inv.getDueDate())
+                        .build())
+                .collect(Collectors.toList());
+
+        return OutstandingInvoiceResponse.builder()
+                .patientId(patientId)
+                .totalOutstanding(totalOutstanding)
+                .invoiceCount(outstandingInvoices.size())
+                .invoices(summaries)
+                .build();
     }
 
     public void delete(UUID id) {

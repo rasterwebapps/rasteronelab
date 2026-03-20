@@ -1,7 +1,9 @@
 package com.rasteronelab.lis.billing.api.rest;
 
+import com.rasteronelab.lis.billing.api.dto.DiscountApplicationRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceRequest;
 import com.rasteronelab.lis.billing.api.dto.InvoiceResponse;
+import com.rasteronelab.lis.billing.api.dto.OutstandingInvoiceResponse;
 import com.rasteronelab.lis.billing.application.service.InvoiceService;
 import com.rasteronelab.lis.billing.domain.model.InvoiceStatus;
 import com.rasteronelab.lis.core.api.ApiResponse;
@@ -97,6 +99,36 @@ public class InvoiceController {
             @RequestParam(required = false) String reason) {
         InvoiceResponse response = invoiceService.applyDiscount(id, discountType, amount, reason);
         return ResponseEntity.ok(ApiResponse.success("Discount applied successfully", response));
+    }
+
+    @PostMapping("/{id}/apply-discount")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'BILLING_STAFF')")
+    @Operation(summary = "Apply discount scheme to invoice",
+               description = "Applies a discount scheme with PERCENTAGE or FLAT calculation to an invoice")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Discount scheme applied successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Invoice not found"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "Business rule violation")
+    })
+    public ResponseEntity<ApiResponse<InvoiceResponse>> applyDiscountScheme(
+            @Parameter(description = "Invoice UUID") @PathVariable UUID id,
+            @Valid @RequestBody DiscountApplicationRequest request) {
+        request.setInvoiceId(id);
+        InvoiceResponse response = invoiceService.applyDiscountScheme(request);
+        return ResponseEntity.ok(ApiResponse.success("Discount scheme applied successfully", response));
+    }
+
+    @GetMapping("/outstanding/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'ADMIN', 'BILLING_STAFF')")
+    @Operation(summary = "Get outstanding invoices by patient",
+               description = "Returns total outstanding balance and invoice summaries for a patient")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Outstanding invoices retrieved successfully")
+    })
+    public ResponseEntity<ApiResponse<OutstandingInvoiceResponse>> getOutstandingByPatient(
+            @Parameter(description = "Patient UUID") @PathVariable UUID patientId) {
+        OutstandingInvoiceResponse response = invoiceService.getOutstandingByPatient(patientId);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @DeleteMapping("/{id}")
