@@ -145,7 +145,7 @@ export class SampleRejectComponent implements OnInit {
     this.sampleService.rejectSample(id, {
       rejectedBy:           v.rejectedBy!,
       rejectionReason:      v.rejectionReason as RejectionReason,
-      comments:             v.comments ?? undefined,
+      comments:             v.comments || undefined,
       recollectionRequired: v.recollectionRequired ?? true,
     }).subscribe({
       next: () => {
