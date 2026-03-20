@@ -14,6 +14,10 @@ export const SAMPLE_ROUTES: Routes = [
     loadComponent: () => import('./components/pending-receipt/pending-receipt.component').then(m => m.PendingReceiptComponent),
   },
   {
+    path: 'pending-collection',
+    loadComponent: () => import('./components/pending-collection/pending-collection.component').then(m => m.PendingCollectionComponent),
+  },
+  {
     path: ':id',
     loadComponent: () => import('./components/sample-detail/sample-detail.component').then(m => m.SampleDetailComponent),
   },
@@ -32,6 +36,14 @@ export const SAMPLE_ROUTES: Routes = [
   {
     path: ':id/transfer',
     loadComponent: () => import('./components/sample-transfer/sample-transfer.component').then(m => m.SampleTransferComponent),
+  },
+  {
+    path: ':id/reject',
+    loadComponent: () => import('./components/sample-reject/sample-reject.component').then(m => m.SampleRejectComponent),
+  },
+  {
+    path: ':id/storage',
+    loadComponent: () => import('./components/sample-storage/sample-storage.component').then(m => m.SampleStorageComponent),
   },
 ];
 
