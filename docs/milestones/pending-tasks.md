@@ -1,8 +1,8 @@
-# RasterOneLab LIS — Pending Task List (Phases 1–3)
+# RasterOneLab LIS — Pending Task List (Phases 1–4)
 
-> **Review Date:** 2026-03-20 (updated after PRs #15, #16, #17, #18, #20, #21, #22, #23)
-> **Scope:** Phases 1, 2, and 3 only
-> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 ✅ ~98%
+> **Review Date:** 2026-03-20 (updated after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24)
+> **Scope:** Phases 1, 2, 3, and 4
+> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 ✅ ~98% · Phase 4 ✅ ~100%
 
 ---
 
@@ -13,7 +13,8 @@
 | Phase 1 — Foundation | 15 | 15 | **0** | — |
 | Phase 2 — Administration | 18 | 17 | **1 (frontend tests)** | — |
 | Phase 3 — Patient & Ordering | 21 | 21 | **0** | — |
-| **Total** | **54** | **53** | **1** | — |
+| Phase 4 — Sample Management | 14 | 14 | **0** | — |
+| **Total** | **68** | **67** | **1** | — |
 
 ---
 
@@ -359,6 +360,81 @@ Covered by the comprehensive flow tests in `OrderLifecycleFlowTest` and `Billing
 - [ ] TASK-P2-10: Branch provisioning wizard (multi-step `MatStepper` dialog)
 - [ ] TASK-P2-11: Reference range overlap validation + test
 - [ ] TASK-P2-12: Branch override pricing logic verification + test
+
+---
+
+## ✅ Phase 4 — Sample Management (COMPLETE — PR #24)
+
+> **Context:** Full sample lifecycle implemented: Collection → Receiving → Accept/Reject → Aliquoting → Processing → Storage → Disposal. Includes inter-branch transfer, barcode scanner integration, and state machine with transition validations.
+
+### Backend (`lis-sample` module)
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| LIS-055 | Sample Collection Recording API | ✅ Done |
+| LIS-056 | Sample State Machine | ✅ Done |
+| LIS-057 | Sample Receiving (Accept/Reject) API | ✅ Done |
+| LIS-058 | Sample Aliquoting API | ✅ Done |
+| LIS-059 | Sample Tracking and Storage API | ✅ Done |
+| LIS-060 | Inter-Branch Sample Transfer | ✅ Done |
+| LIS-061 | Pending Collection and Receipt Lists | ✅ Done |
+
+**Key Artifacts:**
+- 3 JPA entities: `Sample`, `SampleTracking`, `SampleTransfer`
+- 6 enums: `SampleStatus`, `TubeType`, `RejectionReason`, `CollectionSite`, `TransferStatus`
+- 3 repositories (all extend `BranchAwareRepository`)
+- 11 DTOs (8 request + 3 response)
+- 3 MapStruct mappers
+- 1 service: `SampleService` (full lifecycle)
+- 1 controller: `SampleController` (16 endpoints)
+- 3 Spring Events: `SampleCollectedEvent`, `SampleReceivedEvent`, `SampleRejectedEvent`
+- 19 unit tests in `SampleServiceTest`
+
+### Frontend (11 Angular screens)
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| LIS-062 | Sample Collection screen with barcode scanning | ✅ Done |
+| LIS-063 | Sample Receive/Reject screens | ✅ Done |
+| LIS-064 | Sample List, Detail, and Tracking screens | ✅ Done |
+| LIS-065 | Aliquoting, Storage, Transfer, and Disposal screens | ✅ Done |
+| LIS-066 | Barcode scanner integration (WebHID API) | ✅ Done |
+
+**Frontend Components (11 total):**
+- `sample-list` — Paginated sample list with status filters
+- `sample-detail` — Full sample detail view with all metadata
+- `sample-collect` — Sample collection form with barcode scanning
+- `sample-receive` — Sample receiving at lab reception
+- `sample-reject` — Rejection form with reason selection
+- `sample-aliquot` — Aliquoting form for multi-department testing
+- `sample-storage` — Storage location assignment (rack/shelf/position)
+- `sample-tracking` — Visual tracking timeline
+- `sample-transfer` — Inter-branch transfer form
+- `pending-receipt` — Pending receipt worklist
+- `pending-collection` — Pending collection worklist
+
+**Services:**
+- `SampleService` — Full HTTP client for all sample APIs
+- `BarcodeScannerService` — WebHID + keyboard wedge barcode scanner
+
+### Database
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| LIS-067 | Flyway migrations for Sample Management | ✅ Done |
+
+**Migrations:**
+- `V20260319_0001__create_sample_table.sql`
+- `V20260319_0002__create_sample_tracking_table.sql`
+- `V20260319_0003__create_sample_transfer_table.sql`
+
+### Testing
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| LIS-068 | E2E test: Collection → Receive → Accept/Reject flow | ✅ Done |
+
+> **Phase 4 verdict:** ✅ **100% complete. All 14 issues resolved.**
 
 ---
 

@@ -3,6 +3,7 @@ package com.rasteronelab.lis.sample.application.service;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.event.SampleCollectedEvent;
+import com.rasteronelab.lis.core.event.SampleReceivedEvent;
 import com.rasteronelab.lis.core.event.SampleRejectedEvent;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.core.util.BarcodeGeneratorUtil;
@@ -151,6 +152,10 @@ public class SampleService {
 
         Sample saved = sampleRepository.save(sample);
         recordTracking(saved.getId(), branchId, SampleStatus.RECEIVED, request.getReceivedBy(), "Sample received at lab");
+
+        eventPublisher.publishEvent(new SampleReceivedEvent(
+                saved.getId(), saved.getOrderId(), saved.getPatientId(), branchId));
+
         return sampleMapper.toResponse(saved);
     }
 
