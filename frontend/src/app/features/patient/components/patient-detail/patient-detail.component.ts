@@ -286,15 +286,15 @@ import { TestResult, RESULT_STATUS_COLORS, ResultStatus } from '../../../result/
                     </ng-container>
                     <ng-container matColumnDef="totalAmount">
                       <th mat-header-cell *matHeaderCellDef>Total</th>
-                      <td mat-cell *matCellDef="let row">{{ row.totalAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td mat-cell *matCellDef="let row">{{ row.totalAmount | currency:'INR':'symbol':'1.2-2' }}</td>
                     </ng-container>
                     <ng-container matColumnDef="paidAmount">
                       <th mat-header-cell *matHeaderCellDef>Paid</th>
-                      <td mat-cell *matCellDef="let row">{{ row.paidAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td mat-cell *matCellDef="let row">{{ row.paidAmount | currency:'INR':'symbol':'1.2-2' }}</td>
                     </ng-container>
                     <ng-container matColumnDef="balanceAmount">
                       <th mat-header-cell *matHeaderCellDef>Balance</th>
-                      <td mat-cell *matCellDef="let row">{{ row.balanceAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td mat-cell *matCellDef="let row">{{ row.balanceAmount | currency:'INR':'symbol':'1.2-2' }}</td>
                     </ng-container>
                     <ng-container matColumnDef="invoiceStatus">
                       <th mat-header-cell *matHeaderCellDef>Status</th>

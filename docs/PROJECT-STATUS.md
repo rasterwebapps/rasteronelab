@@ -1,7 +1,7 @@
 # RasterOneLab LIS — Project Status
 
-> **Last Updated:** 2026-03-23
-> **Assessment Basis:** Code inspection of `/backend`, `/frontend`, `/infrastructure` directories after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24
+> **Last Updated:** 2026-03-23 (frontend screen review)
+> **Assessment Basis:** Code inspection of `/backend`, `/frontend`, `/infrastructure` directories after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24, and frontend screen completion audit
 
 ---
 
@@ -177,13 +177,17 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 | Shared components, directives, pipes | ✅ Complete | RBAC directive, pipes |
 | Layout (sidebar, top-bar, breadcrumb) | ✅ Complete | Angular Material responsive shell |
 | `features/admin/` | ✅ ~97% | 42 components (all entities covered); no unit tests |
-| `features/patient/` | ✅ Complete | patient-list, patient-form, patient-detail; service + model |
+| `features/patient/` | ✅ Complete | patient-list, patient-form, patient-detail (all 5 tabs complete: demographics, visit history, orders, lab results, billing) |
 | `features/order/` | ✅ Complete | order-list, order-create, order-detail; service + model |
 | `features/billing/` | ✅ Complete | invoice-list, invoice-detail, payment-form; service + model |
 | `features/sample/` | ✅ Complete | 8 components (collect, receive, aliquot, track, transfer, detail) |
 | `features/result/` | ✅ Complete | 5 components (worklist, entry, detail, authorization, list) |
-| `features/report/`, `features/qc/` | ⬜ Stub | Phase 7 |
-| All other feature modules | ⬜ Not started | Phases 6–8 |
+| `features/report/` | 🟡 ~40% | report-list with sign/deliver actions; model + service wired; PDF engine pending |
+| `features/dashboard/` | 🟡 Functional | Quick access cards, module status overview, recent results & pending orders |
+| `features/qc/` | ⬜ Stub | Phase 7 — domain layer only; informative status page |
+| `features/inventory/` | ⬜ Stub | Phase 7 — not started; informative status page |
+| `features/doctor-portal/` | ⬜ Stub | Phase 8 — not started; informative status page |
+| `features/patient-portal/` | ⬜ Stub | Phase 8 — not started; informative status page |
 
 ### Infrastructure (`/infrastructure`)
 

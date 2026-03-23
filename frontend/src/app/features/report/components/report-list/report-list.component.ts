@@ -1,9 +1,11 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,10 +20,10 @@ import { NotificationService } from '@core/services/notification.service';
   selector: 'app-report-list',
   standalone: true,
   imports: [
-    DatePipe,
+    ReactiveFormsModule, DatePipe,
     MatTableModule, MatPaginatorModule, MatFormFieldModule,
-    MatInputModule, MatButtonModule, MatButtonToggleModule, MatIconModule,
-    MatChipsModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatInputModule, MatSelectModule, MatButtonModule, MatButtonToggleModule,
+    MatIconModule, MatChipsModule, MatProgressSpinnerModule, MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -127,24 +129,118 @@ import { NotificationService } from '@core/services/notification.service';
         showFirstLastButtons
       />
     </div>
+
+    <!-- Sign Form -->
+    @if (showSignForm() && selectedReport()) {
+      <mat-card class="mt-4 border border-purple-200">
+        <mat-card-header>
+          <mat-card-title>Sign Report — {{ selectedReport()!.reportNumber }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="mt-4">
+          <form [formGroup]="signForm" (ngSubmit)="submitSign()">
+            <mat-form-field appearance="outline" class="w-full mb-3">
+              <mat-label>Signed By</mat-label>
+              <input matInput formControlName="signedBy" placeholder="Enter your full name" />
+              @if (signForm.controls.signedBy.hasError('required')) {
+                <mat-error>Signatory name is required</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Notes (optional)</mat-label>
+              <textarea matInput formControlName="notes" rows="2"
+                placeholder="Any additional sign-off notes"></textarea>
+            </mat-form-field>
+            <div class="flex justify-end gap-3 mt-2">
+              <button mat-button type="button" (click)="cancelAction()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="signForm.invalid || actionLoading()">
+                <mat-icon>edit_note</mat-icon> Sign Report
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Deliver Form -->
+    @if (showDeliverForm() && selectedReport()) {
+      <mat-card class="mt-4 border border-green-200">
+        <mat-card-header>
+          <mat-card-title>Deliver Report — {{ selectedReport()!.reportNumber }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="mt-4">
+          <form [formGroup]="deliverForm" (ngSubmit)="submitDeliver()">
+            <mat-form-field appearance="outline" class="w-full mb-3">
+              <mat-label>Delivery Channel</mat-label>
+              <mat-select formControlName="deliveryChannel">
+                <mat-option value="EMAIL">Email</mat-option>
+                <mat-option value="SMS">SMS</mat-option>
+                <mat-option value="PRINT">Print</mat-option>
+                <mat-option value="PORTAL">Patient Portal</mat-option>
+              </mat-select>
+              @if (deliverForm.controls.deliveryChannel.hasError('required')) {
+                <mat-error>Delivery channel is required</mat-error>
+              }
+            </mat-form-field>
+            @if (deliverForm.controls.deliveryChannel.value === 'EMAIL') {
+              <mat-form-field appearance="outline" class="w-full mb-3">
+                <mat-label>Recipient Email</mat-label>
+                <input matInput formControlName="recipientEmail" type="email"
+                  placeholder="patient@example.com" />
+              </mat-form-field>
+            }
+            @if (deliverForm.controls.deliveryChannel.value === 'SMS') {
+              <mat-form-field appearance="outline" class="w-full mb-3">
+                <mat-label>Recipient Phone</mat-label>
+                <input matInput formControlName="recipientPhone"
+                  placeholder="+91 98765 43210" />
+              </mat-form-field>
+            }
+            <div class="flex justify-end gap-3 mt-2">
+              <button mat-button type="button" (click)="cancelAction()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="deliverForm.invalid || actionLoading()">
+                <mat-icon>send</mat-icon> Deliver Report
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
   `,
 })
 export class ReportListComponent implements OnInit {
   private readonly reportService = inject(ReportService);
   private readonly notif = inject(NotificationService);
+  private readonly fb = inject(FormBuilder);
 
   readonly reports = signal<LabReport[]>([]);
   readonly loading = signal(false);
+  readonly actionLoading = signal(false);
   readonly totalElements = signal(0);
   readonly pageSize = signal(20);
   readonly currentPage = signal(0);
   readonly searchTerm = signal('');
   readonly statusFilter = signal<string>('ALL');
+  readonly showSignForm = signal(false);
+  readonly showDeliverForm = signal(false);
+  readonly selectedReport = signal<LabReport | null>(null);
 
   readonly displayedColumns = [
     'reportNumber', 'patientName', 'departmentName', 'reportType',
     'reportStatus', 'generatedAt', 'actions',
   ];
+
+  readonly signForm = this.fb.nonNullable.group({
+    signedBy: ['', Validators.required],
+    notes: [''],
+  });
+
+  readonly deliverForm = this.fb.nonNullable.group({
+    deliveryChannel: ['', Validators.required],
+    recipientEmail: [''],
+    recipientPhone: [''],
+  });
 
   ngOnInit(): void {
     this.loadReports();
@@ -193,26 +289,62 @@ export class ReportListComponent implements OnInit {
   }
 
   onSign(report: LabReport): void {
-    const signedBy = prompt('Enter your name to sign this report:');
-    if (!signedBy?.trim()) return;
-    this.reportService.sign(report.id, { signedBy: signedBy.trim() }).subscribe({
-      next: () => {
-        this.notif.showSuccess(`Report ${report.reportNumber} signed successfully`);
-        this.loadReports();
-      },
-      error: () => this.notif.showError('Failed to sign report'),
-    });
+    this.selectedReport.set(report);
+    this.signForm.reset();
+    this.showSignForm.set(true);
+    this.showDeliverForm.set(false);
   }
 
   onDeliver(report: LabReport): void {
-    const channel = prompt('Enter delivery channel (EMAIL / SMS / PRINT):');
-    if (!channel?.trim()) return;
-    this.reportService.deliver(report.id, { deliveryChannel: channel.trim().toUpperCase() }).subscribe({
+    this.selectedReport.set(report);
+    this.deliverForm.reset();
+    this.showDeliverForm.set(true);
+    this.showSignForm.set(false);
+  }
+
+  cancelAction(): void {
+    this.showSignForm.set(false);
+    this.showDeliverForm.set(false);
+    this.selectedReport.set(null);
+  }
+
+  submitSign(): void {
+    if (this.signForm.invalid || !this.selectedReport()) return;
+    const { signedBy, notes } = this.signForm.getRawValue();
+    this.actionLoading.set(true);
+    this.reportService.sign(this.selectedReport()!.id, { signedBy, notes: notes || undefined }).subscribe({
       next: () => {
-        this.notif.showSuccess(`Report ${report.reportNumber} delivered successfully`);
+        this.notif.showSuccess(`Report ${this.selectedReport()!.reportNumber} signed successfully`);
+        this.cancelAction();
         this.loadReports();
+        this.actionLoading.set(false);
       },
-      error: () => this.notif.showError('Failed to deliver report'),
+      error: () => {
+        this.notif.showError('Failed to sign report');
+        this.actionLoading.set(false);
+      },
+    });
+  }
+
+  submitDeliver(): void {
+    if (this.deliverForm.invalid || !this.selectedReport()) return;
+    const { deliveryChannel, recipientEmail, recipientPhone } = this.deliverForm.getRawValue();
+    this.actionLoading.set(true);
+    this.reportService.deliver(this.selectedReport()!.id, {
+      deliveryChannel,
+      recipientEmail: recipientEmail || undefined,
+      recipientPhone: recipientPhone || undefined,
+    }).subscribe({
+      next: () => {
+        this.notif.showSuccess(`Report ${this.selectedReport()!.reportNumber} delivered via ${deliveryChannel}`);
+        this.cancelAction();
+        this.loadReports();
+        this.actionLoading.set(false);
+      },
+      error: () => {
+        this.notif.showError('Failed to deliver report');
+        this.actionLoading.set(false);
+      },
     });
   }
 
