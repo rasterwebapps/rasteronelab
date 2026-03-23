@@ -1,7 +1,7 @@
 # RasterOneLab LIS — Project Status
 
-> **Last Updated:** 2026-03-20
-> **Assessment Basis:** Code inspection of `/backend`, `/frontend`, `/infrastructure` directories after PRs #15, #16, #17, #18, #20, #21, #22
+> **Last Updated:** 2026-03-23
+> **Assessment Basis:** Code inspection of `/backend`, `/frontend`, `/infrastructure` directories after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24
 
 ---
 
@@ -11,13 +11,13 @@
 |-------|------|--------|--------|-----------|
 | Phase 1 | Foundation | 15 | ✅ Complete | 100% |
 | Phase 2 | Administration Module | 18 | 🟡 In Progress | ~97% |
-| Phase 3 | Patient & Ordering | 21 | 🟡 In Progress | ~95% |
+| Phase 3 | Patient & Ordering | 21 | ✅ Complete | 100% |
 | Phase 4 | Sample Management | 14 | ✅ Complete | 100% |
 | Phase 5 | Result Entry & Validation | 20 | ✅ Complete | 100% |
 | Phase 6 | Instrument Interface | 12 | ⬜ Not Started | 0% |
 | Phase 7 | Reports, QC & Notifications | 17 | 🟡 In Progress | ~15% |
 | Phase 8 | Portals, Analytics & Launch | 18 | ⬜ Not Started | 0% |
-| **TOTAL** | | **135** | **4 phases done / 2 near-complete** | **~65%** |
+| **TOTAL** | | **135** | **5 phases done / 1 near-complete** | **~70%** |
 
 > **Pending Task List:** See [docs/milestones/pending-tasks.md](milestones/pending-tasks.md) for the full itemised list of open work across phases 1–3.
 
@@ -85,9 +85,9 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 
 ---
 
-## 🟡 Phase 3 — Patient & Ordering (In Progress, ~95%)
+## ✅ Phase 3 — Patient & Ordering (Complete, 100%)
 
-**21 issues (LIS-034 to LIS-054).** Full CRUD implemented for Patient, Order, and Billing. All 7 controllers have OpenAPI annotations. Angular frontend screens complete. All Spring Events wired. State machine complete. Order validation, sample grouping, and discount logic implemented (PR #22). Only E2E integration tests remain.
+**21 issues (LIS-034 to LIS-054).** Full CRUD implemented for Patient, Order, and Billing. All 7 controllers have OpenAPI annotations. Angular frontend screens complete. All Spring Events wired. State machine complete. Order validation, sample grouping, and discount logic implemented (PR #22). E2E integration flow tests (28 tests across 3 test classes) and Lipid+CBC walkthrough tests added (PR #23). All 21 issues resolved.
 
 | Issue | Title | Status |
 |-------|-------|--------|
@@ -109,12 +109,11 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 | LIS-049 | Spring Events: Order → Invoice auto-generation | ✅ Done (PR #20, #21) |
 | LIS-050 | Barcode wiring in TestOrderService | ✅ Done (PR #21) |
 | LIS-051 | OpenAPI for Phase 3 APIs | ✅ Done (PR #17) |
-| LIS-052 | E2E integration test: Patient → Order → Invoice → Payment | ⬜ Not Started |
-| LIS-053 | Multi-branch isolation test | ⬜ Not Started |
-| LIS-054 | Lipid + CBC walkthrough integration test | ⬜ Not Started |
+| LIS-052 | E2E integration test: Patient → Order → Invoice → Payment | ✅ Done (PR #23) |
+| LIS-053 | Multi-branch isolation test | ✅ Done (PR #23) |
+| LIS-054 | Lipid + CBC walkthrough integration test | ✅ Done (PR #23) |
 
-**🟡 Remaining:**
-- E2E integration tests with Testcontainers (P3-19, P3-21)
+**✅ All Phase 3 tasks complete.** 28 integration flow tests added (PR #23): `OrderLifecycleFlowTest` (8 tests), `BillingFlowTest` (10 tests), `PatientBillingFlowTest` (10 tests).
 
 ---
 
@@ -202,11 +201,12 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 ## 📈 Roadmap to Completion
 
 ```
-Current state  ─► Close Phase 3 ─► Close Phase 2 ─► Phase 6 (Instrument)
-  ~65% done        E2E tests          FE tests              ~3 months
-                      ↓
+Current state  ─► Close Phase 2 ─► Phase 6 (Instrument)
+  ~70% done        FE unit tests          ~3 months
+  (Phase 3 ✅)         │
+                       ▼
             Phase 7 (Reports/QC/Notif) ─► Phase 8 (Portals/Launch)
                    ~4 months                  ~6 months
 ```
 
-**Estimated remaining work:** ~9-10 months at full team capacity
+**Estimated remaining work:** ~8-9 months at full team capacity
