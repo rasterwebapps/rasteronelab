@@ -3,6 +3,7 @@ package com.rasteronelab.lis.sample.application.service;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.event.SampleCollectedEvent;
+import com.rasteronelab.lis.core.event.SampleReceivedEvent;
 import com.rasteronelab.lis.core.event.SampleRejectedEvent;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.sample.api.dto.AliquotRequest;
@@ -168,6 +169,12 @@ class SampleServiceTest {
         assertThat(result).isEqualTo(response);
         assertThat(sample.getStatus()).isEqualTo(SampleStatus.RECEIVED);
         assertThat(sample.getTatStartedAt()).isNotNull();
+
+        ArgumentCaptor<SampleReceivedEvent> eventCaptor = ArgumentCaptor.forClass(SampleReceivedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getSampleId()).isEqualTo(sample.getId());
+        assertThat(eventCaptor.getValue().getOrderId()).isEqualTo(ORDER_ID);
+        assertThat(eventCaptor.getValue().getBranchId()).isEqualTo(BRANCH_ID);
     }
 
     @Test
