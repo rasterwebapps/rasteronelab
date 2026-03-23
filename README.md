@@ -60,7 +60,22 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-### 2. Run Backend + Frontend Together
+### 2. Compile the Project
+
+```bash
+# Backend - compile all Java modules
+cd backend
+./gradlew clean build
+
+# Frontend - install dependencies and build the Angular app
+cd ../frontend
+npm ci
+npm run build
+```
+
+If you only want to compile the project, start with the commands above. For running the full application locally, you also need the Docker infrastructure, the gateway, and the backend modules you want to use.
+
+### 3. Run Backend + Frontend Together
 
 ```bash
 # Terminal 1 - API gateway (frontend proxies /api here)
@@ -71,12 +86,12 @@ cd backend
 ./gradlew :lis-patient:bootRun
 ```
 
-### 3. Run Frontend
+### 4. Run Frontend
 
 ```bash
 # Terminal 3 - Angular app
 cd frontend
-npm ci
+npm ci # Skip this if you already ran it during the compile step above
 ng serve
 # Open http://localhost:4200
 ```
