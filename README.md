@@ -91,7 +91,7 @@ cd backend
 ```bash
 # Terminal 3 - Angular app
 cd frontend
-npm ci # Skip this if you already ran it during the compile step above
+npm ci
 ng serve
 # Open http://localhost:4200
 ```
