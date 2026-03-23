@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,16 +9,24 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PatientService } from '../../services/patient.service';
 import { Patient, PatientVisit } from '../../models/patient.model';
+import { OrderService } from '../../../order/services/order.service';
+import { BillingService } from '../../../billing/services/billing.service';
+import { ResultService } from '../../../result/services/result.service';
+import { TestOrder, OrderStatus } from '../../../order/models/order.model';
+import { Invoice, InvoiceStatus } from '../../../billing/models/billing.model';
+import { TestResult, RESULT_STATUS_COLORS, ResultStatus } from '../../../result/models/result.model';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
   imports: [
-    RouterLink, MatCardModule, MatTabsModule, MatButtonModule,
+    RouterLink, CurrencyPipe, DatePipe,
+    MatCardModule, MatTabsModule, MatButtonModule,
     MatIconModule, MatChipsModule, MatDividerModule,
-    MatProgressSpinnerModule, MatTableModule,
+    MatProgressSpinnerModule, MatTableModule, MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -150,23 +159,170 @@ import { Patient, PatientVisit } from '../../models/patient.model';
         </mat-tab>
 
         <mat-tab label="Orders">
-          <div class="text-center py-8 text-gray-400 mt-4">
-            <mat-icon class="!text-5xl mb-2">science</mat-icon>
-            <p>Order history coming soon</p>
+          <div class="mt-4">
+            <mat-card>
+              <mat-card-content>
+                @if (loadingOrders()) {
+                  <div class="flex justify-center p-8">
+                    <mat-spinner diameter="40" />
+                  </div>
+                } @else if (orders().length > 0) {
+                  <table mat-table [dataSource]="orders()" class="w-full">
+                    <ng-container matColumnDef="orderNumber">
+                      <th mat-header-cell *matHeaderCellDef>Order #</th>
+                      <td mat-cell *matCellDef="let row" class="font-medium">{{ row.orderNumber }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="orderDate">
+                      <th mat-header-cell *matHeaderCellDef>Date</th>
+                      <td mat-cell *matCellDef="let row">{{ row.orderDate | date:'dd MMM yyyy' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let row">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getOrderStatusClass(row.status)">
+                          {{ row.status }}
+                        </span>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="priority">
+                      <th mat-header-cell *matHeaderCellDef>Priority</th>
+                      <td mat-cell *matCellDef="let row">{{ row.priority }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let row">
+                        <a mat-icon-button [routerLink]="['/order', row.id]" matTooltip="View Order">
+                          <mat-icon>visibility</mat-icon>
+                        </a>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="orderColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: orderColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="text-center py-8 text-gray-400">
+                    <mat-icon class="!text-5xl mb-2">science</mat-icon>
+                    <p>No orders found for this patient</p>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
           </div>
         </mat-tab>
 
-        <mat-tab label="Reports">
-          <div class="text-center py-8 text-gray-400 mt-4">
-            <mat-icon class="!text-5xl mb-2">description</mat-icon>
-            <p>Reports coming soon</p>
+        <mat-tab label="Lab Results">
+          <div class="mt-4">
+            <mat-card>
+              <mat-card-content>
+                @if (loadingResults()) {
+                  <div class="flex justify-center p-8">
+                    <mat-spinner diameter="40" />
+                  </div>
+                } @else if (results().length > 0) {
+                  <table mat-table [dataSource]="results()" class="w-full">
+                    <ng-container matColumnDef="testCode">
+                      <th mat-header-cell *matHeaderCellDef>Code</th>
+                      <td mat-cell *matCellDef="let row" class="font-medium">{{ row.testCode }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="testName">
+                      <th mat-header-cell *matHeaderCellDef>Test Name</th>
+                      <td mat-cell *matCellDef="let row">{{ row.testName }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="resultStatus">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let row">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getResultStatusClass(row.status)">
+                          {{ row.status }}
+                        </span>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="enteredAt">
+                      <th mat-header-cell *matHeaderCellDef>Entered At</th>
+                      <td mat-cell *matCellDef="let row">{{ row.enteredAt ? (row.enteredAt | date:'dd MMM yyyy') : '-' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="authorizedAt">
+                      <th mat-header-cell *matHeaderCellDef>Authorized At</th>
+                      <td mat-cell *matCellDef="let row">{{ row.authorizedAt ? (row.authorizedAt | date:'dd MMM yyyy') : '-' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="resultActions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let row">
+                        <a mat-icon-button [routerLink]="['/result', row.id]" matTooltip="View Result">
+                          <mat-icon>visibility</mat-icon>
+                        </a>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="resultColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: resultColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="text-center py-8 text-gray-400">
+                    <mat-icon class="!text-5xl mb-2">description</mat-icon>
+                    <p>No lab results found for this patient</p>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
           </div>
         </mat-tab>
 
         <mat-tab label="Billing">
-          <div class="text-center py-8 text-gray-400 mt-4">
-            <mat-icon class="!text-5xl mb-2">receipt_long</mat-icon>
-            <p>Billing history coming soon</p>
+          <div class="mt-4">
+            <mat-card>
+              <mat-card-content>
+                @if (loadingInvoices()) {
+                  <div class="flex justify-center p-8">
+                    <mat-spinner diameter="40" />
+                  </div>
+                } @else if (invoices().length > 0) {
+                  <table mat-table [dataSource]="invoices()" class="w-full">
+                    <ng-container matColumnDef="invoiceNumber">
+                      <th mat-header-cell *matHeaderCellDef>Invoice #</th>
+                      <td mat-cell *matCellDef="let row" class="font-medium">{{ row.invoiceNumber }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="invoiceDate">
+                      <th mat-header-cell *matHeaderCellDef>Date</th>
+                      <td mat-cell *matCellDef="let row">{{ row.invoiceDate | date:'dd MMM yyyy' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="totalAmount">
+                      <th mat-header-cell *matHeaderCellDef>Total</th>
+                      <td mat-cell *matCellDef="let row">{{ row.totalAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="paidAmount">
+                      <th mat-header-cell *matHeaderCellDef>Paid</th>
+                      <td mat-cell *matCellDef="let row">{{ row.paidAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="balanceAmount">
+                      <th mat-header-cell *matHeaderCellDef>Balance</th>
+                      <td mat-cell *matCellDef="let row">{{ row.balanceAmount | currency:'USD':'symbol':'1.2-2' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="invoiceStatus">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let row">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium" [class]="getInvoiceStatusClass(row.status)">
+                          {{ row.status }}
+                        </span>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="billingActions">
+                      <th mat-header-cell *matHeaderCellDef>Actions</th>
+                      <td mat-cell *matCellDef="let row">
+                        <a mat-icon-button [routerLink]="['/billing', row.id]" matTooltip="View Invoice">
+                          <mat-icon>visibility</mat-icon>
+                        </a>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="invoiceColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: invoiceColumns"></tr>
+                  </table>
+                } @else {
+                  <div class="text-center py-8 text-gray-400">
+                    <mat-icon class="!text-5xl mb-2">receipt_long</mat-icon>
+                    <p>No billing history found for this patient</p>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
           </div>
         </mat-tab>
       </mat-tab-group>
@@ -175,19 +331,34 @@ import { Patient, PatientVisit } from '../../models/patient.model';
 })
 export class PatientDetailComponent implements OnInit {
   private readonly patientService = inject(PatientService);
+  private readonly orderService = inject(OrderService);
+  private readonly billingService = inject(BillingService);
+  private readonly resultService = inject(ResultService);
   private readonly route = inject(ActivatedRoute);
 
   readonly patient = signal<Patient | null>(null);
   readonly visits = signal<PatientVisit[]>([]);
+  readonly orders = signal<TestOrder[]>([]);
+  readonly invoices = signal<Invoice[]>([]);
+  readonly results = signal<TestResult[]>([]);
   readonly loading = signal(false);
+  readonly loadingOrders = signal(false);
+  readonly loadingInvoices = signal(false);
+  readonly loadingResults = signal(false);
 
   readonly visitColumns = ['visitNumber', 'visitDate', 'visitType', 'clinicalNotes'];
+  readonly orderColumns = ['orderNumber', 'orderDate', 'status', 'priority', 'actions'];
+  readonly resultColumns = ['testCode', 'testName', 'resultStatus', 'enteredAt', 'authorizedAt', 'resultActions'];
+  readonly invoiceColumns = ['invoiceNumber', 'invoiceDate', 'totalAmount', 'paidAmount', 'balanceAmount', 'invoiceStatus', 'billingActions'];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadPatient(id);
       this.loadVisits(id);
+      this.loadOrders(id);
+      this.loadResults(id);
+      this.loadInvoices(id);
     }
   }
 
@@ -208,11 +379,77 @@ export class PatientDetailComponent implements OnInit {
     });
   }
 
+  private loadOrders(patientId: string): void {
+    this.loadingOrders.set(true);
+    this.orderService.getByPatient(patientId).subscribe({
+      next: (response) => {
+        this.orders.set(response.data ?? []);
+        this.loadingOrders.set(false);
+      },
+      error: () => this.loadingOrders.set(false),
+    });
+  }
+
+  private loadInvoices(patientId: string): void {
+    this.loadingInvoices.set(true);
+    this.billingService.getInvoicesByPatient(patientId).subscribe({
+      next: (response) => {
+        this.invoices.set(response.data ?? []);
+        this.loadingInvoices.set(false);
+      },
+      error: () => this.loadingInvoices.set(false),
+    });
+  }
+
+  private loadResults(patientId: string): void {
+    this.loadingResults.set(true);
+    this.resultService.getByPatient(patientId).subscribe({
+      next: (response) => {
+        this.results.set(response.data ?? []);
+        this.loadingResults.set(false);
+      },
+      error: () => this.loadingResults.set(false),
+    });
+  }
+
   formatAge(patient: Patient): string {
     const parts: string[] = [];
     if (patient.ageYears != null && patient.ageYears > 0) parts.push(`${patient.ageYears}Y`);
     if (patient.ageMonths != null && patient.ageMonths > 0) parts.push(`${patient.ageMonths}M`);
     if (patient.ageDays != null && patient.ageDays > 0) parts.push(`${patient.ageDays}D`);
     return parts.length > 0 ? parts.join(' ') : '-';
+  }
+
+  private static readonly ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
+    DRAFT:            'bg-gray-100 text-gray-700',
+    PLACED:           'bg-blue-100 text-blue-700',
+    PAID:             'bg-green-100 text-green-700',
+    SAMPLE_COLLECTED: 'bg-cyan-100 text-cyan-700',
+    IN_PROGRESS:      'bg-yellow-100 text-yellow-700',
+    RESULTED:         'bg-purple-100 text-purple-700',
+    AUTHORISED:       'bg-indigo-100 text-indigo-700',
+    COMPLETED:        'bg-green-100 text-green-700',
+    CANCELLED:        'bg-red-100 text-red-700',
+  };
+
+  private static readonly INVOICE_STATUS_COLORS: Record<InvoiceStatus, string> = {
+    DRAFT:         'bg-gray-100 text-gray-700',
+    GENERATED:     'bg-blue-100 text-blue-700',
+    PARTIALLY_PAID:'bg-yellow-100 text-yellow-700',
+    PAID:          'bg-green-100 text-green-700',
+    REFUNDED:      'bg-orange-100 text-orange-700',
+    CANCELLED:     'bg-red-100 text-red-700',
+  };
+
+  getOrderStatusClass(status: OrderStatus): string {
+    return PatientDetailComponent.ORDER_STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-700';
+  }
+
+  getInvoiceStatusClass(status: InvoiceStatus): string {
+    return PatientDetailComponent.INVOICE_STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-700';
+  }
+
+  getResultStatusClass(status: ResultStatus): string {
+    return RESULT_STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-700';
   }
 }
