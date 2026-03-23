@@ -3,6 +3,8 @@ package com.rasteronelab.lis.patient.application.service;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.common.exception.NotFoundException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
+import com.rasteronelab.lis.patient.api.dto.PatientMergeAuditResponse;
+import com.rasteronelab.lis.patient.api.mapper.PatientMergeAuditMapper;
 import com.rasteronelab.lis.patient.domain.model.Patient;
 import com.rasteronelab.lis.patient.domain.model.PatientMergeAudit;
 import com.rasteronelab.lis.patient.domain.repository.PatientMergeAuditRepository;
@@ -26,11 +28,14 @@ public class PatientMergeService {
 
     private final PatientRepository patientRepository;
     private final PatientMergeAuditRepository mergeAuditRepository;
+    private final PatientMergeAuditMapper mergeAuditMapper;
 
     public PatientMergeService(PatientRepository patientRepository,
-                               PatientMergeAuditRepository mergeAuditRepository) {
+                               PatientMergeAuditRepository mergeAuditRepository,
+                               PatientMergeAuditMapper mergeAuditMapper) {
         this.patientRepository = patientRepository;
         this.mergeAuditRepository = mergeAuditRepository;
+        this.mergeAuditMapper = mergeAuditMapper;
     }
 
     /**
@@ -41,7 +46,7 @@ public class PatientMergeService {
      * @param mergedPatientId   the ID of the duplicate patient to merge
      * @return the merge audit record
      */
-    public PatientMergeAudit mergePatients(UUID primaryPatientId, UUID mergedPatientId) {
+    public PatientMergeAuditResponse mergePatients(UUID primaryPatientId, UUID mergedPatientId) {
         UUID branchId = BranchContextHolder.getCurrentBranchId();
 
         if (primaryPatientId.equals(mergedPatientId)) {
@@ -98,17 +103,20 @@ public class PatientMergeService {
         audit.setMergedAt(LocalDateTime.now());
         audit.setMergeDetails(mergeDetails);
 
-        return mergeAuditRepository.save(audit);
+        return mergeAuditMapper.toResponse(mergeAuditRepository.save(audit));
     }
 
     /**
      * Gets the merge history for a patient.
      */
     @Transactional(readOnly = true)
-    public List<PatientMergeAudit> getMergeHistory(UUID primaryPatientId) {
+    public List<PatientMergeAuditResponse> getMergeHistory(UUID primaryPatientId) {
         UUID branchId = BranchContextHolder.getCurrentBranchId();
         return mergeAuditRepository.findAllByPrimaryPatientIdAndBranchIdAndIsDeletedFalse(
-                primaryPatientId, branchId);
+                primaryPatientId, branchId)
+                .stream()
+                .map(mergeAuditMapper::toResponse)
+                .toList();
     }
 
     private String buildMergeDetails(Patient primary, Patient merged) {

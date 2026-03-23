@@ -3,8 +3,10 @@ package com.rasteronelab.lis.patient.application.service;
 import com.rasteronelab.lis.core.common.exception.BusinessRuleException;
 import com.rasteronelab.lis.core.infrastructure.BranchContextHolder;
 import com.rasteronelab.lis.patient.api.dto.DuplicateCheckRequest;
+import com.rasteronelab.lis.patient.api.dto.PatientMergeAuditResponse;
 import com.rasteronelab.lis.patient.api.dto.PatientRequest;
 import com.rasteronelab.lis.patient.api.dto.PatientResponse;
+import com.rasteronelab.lis.patient.api.mapper.PatientMergeAuditMapper;
 import com.rasteronelab.lis.patient.api.mapper.PatientMapper;
 import com.rasteronelab.lis.patient.domain.model.Gender;
 import com.rasteronelab.lis.patient.domain.model.Patient;
@@ -58,13 +60,16 @@ class PatientBillingFlowTest {
     @Mock
     private PatientMergeAuditRepository mergeAuditRepository;
 
+    @Mock
+    private PatientMergeAuditMapper mergeAuditMapper;
+
     private PatientService patientService;
     private PatientMergeService patientMergeService;
 
     @BeforeEach
     void setUp() {
         patientService = new PatientService(patientRepository, patientMapper, 40);
-        patientMergeService = new PatientMergeService(patientRepository, mergeAuditRepository);
+        patientMergeService = new PatientMergeService(patientRepository, mergeAuditRepository, mergeAuditMapper);
         BranchContextHolder.setCurrentBranchId(BRANCH_ID);
         SecurityContextHolder.getContext().setAuthentication(
                 new TestingAuthenticationToken("admin", null));
@@ -186,14 +191,16 @@ class PatientBillingFlowTest {
                 "john@example.com", "A+");
 
         PatientMergeAudit audit = new PatientMergeAudit();
+        PatientMergeAuditResponse auditResponse = new PatientMergeAuditResponse();
 
         when(patientRepository.findByIdAndBranchIdAndIsDeletedFalse(primaryId, BRANCH_ID))
                 .thenReturn(Optional.of(primary));
         when(patientRepository.findByIdAndBranchIdAndIsDeletedFalse(mergedId, BRANCH_ID))
                 .thenReturn(Optional.of(merged));
         when(mergeAuditRepository.save(any(PatientMergeAudit.class))).thenReturn(audit);
+        when(mergeAuditMapper.toResponse(audit)).thenReturn(auditResponse);
 
-        PatientMergeAudit result = patientMergeService.mergePatients(primaryId, mergedId);
+        PatientMergeAuditResponse result = patientMergeService.mergePatients(primaryId, mergedId);
 
         // Primary should pick up missing email and blood group from merged
         assertThat(primary.getEmail()).isEqualTo("john@example.com");
@@ -228,12 +235,14 @@ class PatientBillingFlowTest {
                 "merged@example.com", "A+");
 
         PatientMergeAudit audit = new PatientMergeAudit();
+        PatientMergeAuditResponse auditResponse = new PatientMergeAuditResponse();
 
         when(patientRepository.findByIdAndBranchIdAndIsDeletedFalse(primaryId, BRANCH_ID))
                 .thenReturn(Optional.of(primary));
         when(patientRepository.findByIdAndBranchIdAndIsDeletedFalse(mergedId, BRANCH_ID))
                 .thenReturn(Optional.of(merged));
         when(mergeAuditRepository.save(any(PatientMergeAudit.class))).thenReturn(audit);
+        when(mergeAuditMapper.toResponse(audit)).thenReturn(auditResponse);
 
         patientMergeService.mergePatients(primaryId, mergedId);
 
