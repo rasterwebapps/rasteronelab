@@ -50,7 +50,7 @@
 ### 1. Clone & Setup Infrastructure
 
 ```bash
-git clone https://github.com/rasterdevapps/rasteronelab.git
+git clone https://github.com/rasterwebapps/rasteronelab.git
 cd rasteronelab
 
 # Start all infrastructure services
@@ -60,23 +60,28 @@ cp .env.example .env
 docker-compose up -d
 ```
 
-### 2. Run Backend
+### 2. Run Backend + Frontend Together
 
 ```bash
+# Terminal 1 - API gateway (frontend proxies /api here)
 cd backend
 ./gradlew :lis-gateway:bootRun
-# Or run individual modules
+
+# Terminal 2 - one or more backend modules you are working on
 ./gradlew :lis-patient:bootRun
 ```
 
 ### 3. Run Frontend
 
 ```bash
+# Terminal 3 - Angular app
 cd frontend
-npm install
+npm ci
 ng serve
 # Open http://localhost:4200
 ```
+
+The Angular dev server uses `frontend/proxy.conf.json`, so requests to `/api` are forwarded to the gateway at `http://localhost:8080`. In local development, keep the infrastructure, gateway, at least one backend module, and the frontend running at the same time.
 
 ## 📁 Project Structure
 

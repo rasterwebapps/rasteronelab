@@ -13,7 +13,7 @@
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/AkshayKumarC132/rasteronelab.git
+git clone https://github.com/rasterwebapps/rasteronelab.git
 cd rasteronelab
 ```
 
@@ -60,11 +60,11 @@ cd backend
 # Build all modules
 ./gradlew clean build
 
-# Run a specific service (e.g., patient service)
-./gradlew :lis-patient:bootRun
-
-# Run the API gateway
+# Terminal 1 - run the API gateway
 ./gradlew :lis-gateway:bootRun
+
+# Terminal 2 - run a specific backend service (example: patient service)
+./gradlew :lis-patient:bootRun
 
 # Run tests
 ./gradlew test
@@ -78,6 +78,7 @@ Backend services start on ports 8081–8090. The API gateway runs on port 8080.
 ## 4. Start Frontend
 
 ```bash
+# Terminal 3 - start the Angular app
 cd frontend
 
 # Install dependencies
@@ -88,6 +89,17 @@ ng serve
 ```
 
 The Angular dev server starts at **http://localhost:4200** and proxies API requests to the gateway.
+
+### Running frontend and backend together
+
+For local development, keep these processes running at the same time:
+
+1. Docker infrastructure from `infrastructure/docker`
+2. API gateway on `http://localhost:8080`
+3. At least one backend module you are actively using (for example `:lis-patient:bootRun`)
+4. Angular frontend on `http://localhost:4200`
+
+The frontend forwards `/api` traffic to the gateway using `frontend/proxy.conf.json`, so the gateway must be running before you start testing screens that call the backend.
 
 ## 5. Default Credentials
 
