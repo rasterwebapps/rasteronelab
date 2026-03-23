@@ -78,7 +78,7 @@ interface ModuleStatus {
                   </span>
                 </div>
                 <div class="text-xs text-gray-500 mt-0.5">
-                  Phase {{ mod.phase }}@if (mod.detail) { · {{ mod.detail }}}
+                  Phase {{ mod.phase }} @if (mod.detail) { · {{ mod.detail }}}
                 </div>
               </div>
             </div>
