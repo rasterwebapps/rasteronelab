@@ -1,8 +1,8 @@
 # RasterOneLab LIS — Pending Task List (Phases 1–4)
 
-> **Review Date:** 2026-03-20 (updated after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24)
+> **Review Date:** 2026-03-23 (updated after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24)
 > **Scope:** Phases 1, 2, 3, and 4
-> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 ✅ ~98% · Phase 4 ✅ ~100%
+> **Overall Phase Status:** Phase 1 ✅ Done · Phase 2 🟡 ~97% · Phase 3 ✅ 100% · Phase 4 ✅ 100%
 
 ---
 
@@ -164,7 +164,7 @@ Services still without tests: AntibioticOrganismMappingService, AutoValidationRu
 
 ---
 
-## ✅ Phase 3 — Patient & Ordering (~98% — COMPLETE)
+## ✅ Phase 3 — Patient & Ordering (100% — COMPLETE)
 
 > **Context (as of 2026-03-20):** lis-patient, lis-order, lis-billing backend CRUD is fully implemented; all 3 frontend modules have inline-template components (PR #17); all 7 Phase 3 controllers have OpenAPI annotations (PR #17); DB migrations are complete. Full order state machine with VALID_TRANSITIONS map implemented (PR #20). Spring Events wired: OrderPlacedEvent→BillingEventListener auto-generates invoice, PaymentReceivedEvent→OrderEventListener transitions to PAID, SampleCollectedEvent→transitions to SAMPLE_COLLECTED (PR #20 + #21). Barcode generation wired in TestOrderService.create() (PR #21). Weighted duplicate patient scoring algorithm implemented (PR #21). Order validation, sample grouping, and TAT calculation implemented (PR #22). Discount application (PERCENTAGE and FLAT) and outstanding invoice tracking implemented (PR #22). Integration flow tests added: OrderLifecycleFlowTest (8 tests), BillingFlowTest (10 tests), PatientBillingFlowTest (10 tests) (PR #23). Build failure fixed: lis-qc BranchAwareRepository type arguments (PR #23).
 
