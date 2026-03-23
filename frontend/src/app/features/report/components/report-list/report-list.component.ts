@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCardModule } from '@angular/material/card';
 import { ReportService } from '../../report.service';
 import { LabReport, ReportStatus, REPORT_STATUS_COLORS } from '../../report.model';
 import { NotificationService } from '@core/services/notification.service';
@@ -23,7 +24,7 @@ import { NotificationService } from '@core/services/notification.service';
     ReactiveFormsModule, DatePipe,
     MatTableModule, MatPaginatorModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatButtonModule, MatButtonToggleModule,
-    MatIconModule, MatChipsModule, MatProgressSpinnerModule, MatTooltipModule,
+    MatIconModule, MatChipsModule, MatProgressSpinnerModule, MatTooltipModule, MatCardModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
