@@ -1,0 +1,678 @@
+# ===========================
+# RasterOneLab LIS — Application Services
+# ===========================
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.services.yml up -d
+#
+# This file adds all backend microservices and the frontend to the
+# infrastructure stack defined in docker-compose.yml.
+
+services:
+  # ===========================
+  # API Gateway (Spring Cloud Gateway)
+  # ===========================
+  lis-gateway:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-gateway
+        PORT: 8080
+    image: rasteronelab/lis-gateway:${APP_VERSION:-latest}
+    container_name: lis-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost}
+      - PATIENT_SERVICE_URL=${PATIENT_SERVICE_URL:-http://lis-patient:8081}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL:-http://lis-order:8082}
+      - SAMPLE_SERVICE_URL=${SAMPLE_SERVICE_URL:-http://lis-sample:8083}
+      - RESULT_SERVICE_URL=${RESULT_SERVICE_URL:-http://lis-result:8084}
+      - REPORT_SERVICE_URL=${REPORT_SERVICE_URL:-http://lis-report:8085}
+      - BILLING_SERVICE_URL=${BILLING_SERVICE_URL:-http://lis-billing:8086}
+      - ADMIN_SERVICE_URL=${ADMIN_SERVICE_URL:-http://lis-admin:8090}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://lis-auth:8093}
+    depends_on:
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-patient — Patient Registration & Demographics
+  # ===========================
+  lis-patient:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-patient
+        PORT: 8081
+    image: rasteronelab/lis-patient:${APP_VERSION:-latest}
+    container_name: lis-patient
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-order — Test Order Management
+  # ===========================
+  lis-order:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-order
+        PORT: 8082
+    image: rasteronelab/lis-order:${APP_VERSION:-latest}
+    container_name: lis-order
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-sample — Sample Collection & Tracking
+  # ===========================
+  lis-sample:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-sample
+        PORT: 8083
+    image: rasteronelab/lis-sample:${APP_VERSION:-latest}
+    container_name: lis-sample
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-result — Result Entry & Validation
+  # ===========================
+  lis-result:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-result
+        PORT: 8084
+    image: rasteronelab/lis-result:${APP_VERSION:-latest}
+    container_name: lis-result
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-report — PDF Report Generation
+  # ===========================
+  lis-report:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-report
+        PORT: 8085
+    image: rasteronelab/lis-report:${APP_VERSION:-latest}
+    container_name: lis-report
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin123}
+      - MINIO_BUCKET=lis-reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-billing — Invoicing & Payments
+  # ===========================
+  lis-billing:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-billing
+        PORT: 8086
+    image: rasteronelab/lis-billing:${APP_VERSION:-latest}
+    container_name: lis-billing
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-inventory — Reagents & Consumables
+  # ===========================
+  lis-inventory:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-inventory
+        PORT: 8087
+    image: rasteronelab/lis-inventory:${APP_VERSION:-latest}
+    container_name: lis-inventory
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-instrument — ASTM/HL7 Instrument Interface
+  # ===========================
+  lis-instrument:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-instrument
+        PORT: 8088
+    image: rasteronelab/lis-instrument:${APP_VERSION:-latest}
+    container_name: lis-instrument
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-qc — Quality Control (Westgard, EQA)
+  # ===========================
+  lis-qc:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-qc
+        PORT: 8089
+    image: rasteronelab/lis-qc:${APP_VERSION:-latest}
+    container_name: lis-qc
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8089/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-admin — Master Data & Configuration
+  # ===========================
+  lis-admin:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-admin
+        PORT: 8090
+    image: rasteronelab/lis-admin:${APP_VERSION:-latest}
+    container_name: lis-admin
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-notification — SMS, Email, WhatsApp Alerts
+  # ===========================
+  lis-notification:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-notification
+        PORT: 8091
+    image: rasteronelab/lis-notification:${APP_VERSION:-latest}
+    container_name: lis-notification
+    ports:
+      - "8091:8091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER:-}
+      - TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8091/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-integration — HL7 FHIR & External Systems
+  # ===========================
+  lis-integration:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-integration
+        PORT: 8092
+    image: rasteronelab/lis-integration:${APP_VERSION:-latest}
+    container_name: lis-integration
+    ports:
+      - "8092:8092"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-lisdb}
+      - DB_USER=${DB_USER:-lisadmin}
+      - DB_PASSWORD=${DB_PASSWORD:-lispassword}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=${RABBITMQ_USER:-lisuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-lispassword}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8092/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # lis-auth — Keycloak OAuth2 Adapter
+  # ===========================
+  lis-auth:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+      args:
+        MODULE: lis-auth
+        PORT: 8093
+    image: rasteronelab/lis-auth:${APP_VERSION:-latest}
+    container_name: lis-auth
+    ports:
+      - "8093:8093"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8093/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ===========================
+  # Frontend — Angular 19 SPA (Nginx)
+  # ===========================
+  # Serves the Angular SPA and proxies /api/ to the gateway.
+  # In production, place the infrastructure/nginx/nginx.conf reverse proxy
+  # in front of this container for rate limiting and TLS termination.
+  lis-frontend:
+    build:
+      context: ../../frontend
+      dockerfile: ../infrastructure/docker/Dockerfile.frontend
+    image: rasteronelab/lis-frontend:${APP_VERSION:-latest}
+    container_name: lis-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      lis-gateway:
+        condition: service_healthy
+    networks:
+      - lis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
