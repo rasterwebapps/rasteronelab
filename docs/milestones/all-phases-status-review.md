@@ -1,6 +1,6 @@
 # RasterOneLab LIS — All Phases Status Review
 
-> **Review Date:** 2026-03-23 (updated after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24)
+> **Review Date:** 2026-03-25 (Phase 6 placed On Hold; Phase 7 set as active focus)
 > **Scope:** All 8 development phases (LIS-001 through LIS-135)
 > **Reviewed By:** Automated codebase analysis
 
@@ -15,12 +15,12 @@
 | Phase 3 — Patient & Ordering | 21 | ✅ Complete | **100%** | — |
 | Phase 4 — Sample Management | 14 | ✅ Complete | **100%** | — |
 | Phase 5 — Result Entry & Validation | 20 | ✅ Complete | **100%** | — |
-| Phase 6 — Instrument Interface | 12 | ⬜ Not Started | **0%** | Can start in parallel with Phase 7 |
-| Phase 7 — Reports, QC & Notifications | 17 | 🟡 In Progress | **~15%** | lis-report basic, lis-qc domain only; PDF engine + Notifications pending |
+| Phase 6 — Instrument Interface | 12 | ⏸️ On Hold | **0%** | Deferred — Phase 7 is the active focus |
+| Phase 7 — Reports, QC & Notifications | 17 | 🟢 Active | **~15%** | lis-report basic, lis-qc domain only; PDF engine + Notifications pending |
 | Phase 8 — Portals, Analytics & Launch | 18 | ⬜ Not Started | **0%** | Blocked by Phase 7 |
 | **Total** | **135** | | | |
 
-**Overall project completion: ~70%** (Phases 1, 3, 4, 5 complete; Phase 2 near-complete at ~97%; Phase 7 started ~15%)
+**Overall project completion: ~70%** (Phases 1, 3, 4, 5 complete; Phase 2 near-complete at ~97%; Phase 7 active at ~15%; Phase 6 On Hold)
 
 ---
 
@@ -228,9 +228,11 @@ All critical domain logic — order state machine, Spring Events wiring, barcode
 
 ---
 
-## Phase 6 — Instrument Interface ⬜ NOT STARTED (0%)
+## Phase 6 — Instrument Interface ⏸️ ON HOLD (0%)
 
 **Timeline:** Months 10–13 | **Issues:** 12 (LIS-089 to LIS-100)
+
+> ⏸️ **Status: ON HOLD** — Decision made 2026-03-25. Phase 6 is deferred until Phase 7 (Reports, QC & Notifications) reaches completion. All ASTM/instrument work will resume in the medium term. See the action plan below.
 
 ### Planned Deliverables
 
@@ -252,8 +254,8 @@ All critical domain logic — order state machine, Spring Events wiring, barcode
 **Backend module:** `lis-instrument` (currently empty — 0 files)
 **Frontend:** Scaffolded (`frontend/src/app/features/`)
 
-> **Phase 6 verdict: ⬜ 0% — Can overlap with Phase 5 (starts month 10). Requires ASTM protocol expertise.**
-> **Estimated effort: 4 weeks.**
+> **Phase 6 verdict: ⏸️ ON HOLD — Deferred until Phase 7 completes. Requires ASTM protocol expertise when resumed.**
+> **Estimated effort when resumed: 4 weeks.**
 
 ---
 
@@ -410,10 +412,10 @@ TOTAL                 70         41       8           0
 
 ```
 Phase 3 ✅ ──────────── Phase 2 (FE tests) ─┐
-                                              ├──→ Phase 7 (Reports, QC, Notifications)
+                                              ├──→ Phase 7 (Reports, QC, Notifications) 🟢 ACTIVE
 Phase 4 ✅ ────────────────────────────────── ┘         │
 Phase 5 ✅                                              │
-Phase 6 (Instruments, can overlap) ──────────────────── ┘
+Phase 6 ⏸️ ON HOLD (resume after Phase 7) ────────── ─ ┘
                                                    Phase 8 (Portals, Analytics, Launch)
 ```
 
@@ -443,7 +445,7 @@ Admin: 42 components, 0 spec.ts. Patient/Order/Billing: 9 components, 0 spec.ts.
 | Phase 3 | 100% | — | ✅ Done | — |
 | Phase 4 | 100% | — | ✅ Done | — |
 | Phase 5 | 100% | — | ✅ Done | — |
-| Phase 6 | 0% | 100% | 4 wks | ASTM TCP, frame parser, 2 instrument drivers, RabbitMQ |
+| Phase 6 | 0% | 100% | 4 wks (On Hold) | ASTM TCP, frame parser, 2 instrument drivers, RabbitMQ — **deferred** |
 | Phase 7 | 15% | 100% | 5–6 wks | PDF engine, Westgard QC rules, SMS/Email/WhatsApp, inventory |
 | Phase 8 | 0% | 100% | 12 wks | Portals, analytics, perf test, security audit, UAT, launch |
 | **Total remaining** | | | **~24 wks** | **~6 months** |
@@ -465,9 +467,11 @@ Admin: 42 components, 0 spec.ts. Patient/Order/Billing: 9 components, 0 spec.ts.
 6. **Implement lis-notification** — SMS/Email/WhatsApp service wired to RabbitMQ
 7. **Build lis-inventory** — reagent stock management with QC lot tracking
 
-### Medium Term (Weeks 5–10) — Phase 6 (Instrument Interface)
+### Medium Term (Weeks 5–10) — Phase 6 (Instrument Interface) ⏸️ ON HOLD
 
-8. **ASTM E1381/E1394 instrument interface** (LIS-089 to LIS-100) — Netty TCP, frame parser, drivers for Roche Cobas and Sysmex XN-1000
+> **Phase 6 is currently On Hold.** It will be re-activated after Phase 7 reaches completion.
+
+8. **ASTM E1381/E1394 instrument interface** (LIS-089 to LIS-100) — Netty TCP, frame parser, drivers for Roche Cobas and Sysmex XN-1000 — **Deferred**
 
 ### Long Term (Months 3–6) — Phase 8 (Portals, Analytics, Launch)
 
