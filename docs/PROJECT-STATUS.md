@@ -1,6 +1,6 @@
 # RasterOneLab LIS — Project Status
 
-> **Last Updated:** 2026-03-23 (frontend screen review)
+> **Last Updated:** 2026-03-25 (Phase 6 placed On Hold; Phase 7 set as active focus)
 > **Assessment Basis:** Code inspection of `/backend`, `/frontend`, `/infrastructure` directories after PRs #15, #16, #17, #18, #20, #21, #22, #23, #24, and frontend screen completion audit
 
 ---
@@ -14,8 +14,8 @@
 | Phase 3 | Patient & Ordering | 21 | ✅ Complete | 100% |
 | Phase 4 | Sample Management | 14 | ✅ Complete | 100% |
 | Phase 5 | Result Entry & Validation | 20 | ✅ Complete | 100% |
-| Phase 6 | Instrument Interface | 12 | ⬜ Not Started | 0% |
-| Phase 7 | Reports, QC & Notifications | 17 | 🟡 In Progress | ~15% |
+| Phase 6 | Instrument Interface | 12 | ⏸️ On Hold | 0% |
+| Phase 7 | Reports, QC & Notifications | 17 | 🟢 Active | ~15% |
 | Phase 8 | Portals, Analytics & Launch | 18 | ⬜ Not Started | 0% |
 | **TOTAL** | | **135** | **5 phases done / 1 near-complete** | **~70%** |
 
@@ -129,7 +129,7 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 
 ---
 
-## 🟡 Phase 7 — Reports, QC & Notifications (In Progress, ~15%)
+## 🟢 Phase 7 — Reports, QC & Notifications (Active — ~15%)
 
 **Partial implementation via PR #22:**
 - `lis-report`: LabReport entity, ReportService, ReportController (generate/sign/deliver endpoints), 4 DTOs, 1 mapper, 1 repository, 9 unit tests
@@ -138,11 +138,18 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 
 ---
 
-## ⬜ Phases 6 and 8 — Not Started
+## ⏸️ Phase 6 — On Hold
+
+> **Decision (2026-03-25):** Phase 6 (Instrument Interface) is placed **On Hold**. Development focus is on Phase 7 (Reports, QC & Notifications). Phase 6 will be re-activated after Phase 7 reaches completion.
 
 | Phase | Issues | Modules |
 |-------|--------|---------|
 | Phase 6 — Instrument Interface | LIS-089 to LIS-100 | `lis-instrument` |
+
+## ⬜ Phase 8 — Not Started
+
+| Phase | Issues | Modules |
+|-------|--------|---------|
 | Phase 8 — Portals, Analytics & Launch | LIS-118 to LIS-135 | `lis-integration`, portals, k8s |
 
 ---
@@ -165,7 +172,7 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 | `lis-report` | 12 Java + 1 test file | 🟡 ~40% | LabReport entity, ReportService, ReportController, 9 tests; PDF engine pending |
 | `lis-qc` | 10 Java | 🟡 ~25% | QCLot/QCResult domain models; service/controller pending |
 | `lis-notification` | Stub | ⬜ Stub | Phase 7 |
-| `lis-instrument` | Stub | ⬜ Stub | Phase 6 |
+| `lis-instrument` | Stub | ⏸️ On Hold | Phase 6 — deferred |
 | `lis-integration` | Stub | ⬜ Stub | Phase 8 |
 | `lis-inventory` | Stub | ⬜ Stub | Phase 7 |
 
@@ -205,12 +212,11 @@ See [phase-2-status-review.md](milestones/phase-2-status-review.md) and [pending
 ## 📈 Roadmap to Completion
 
 ```
-Current state  ─► Close Phase 2 ─► Phase 6 (Instrument)
-  ~70% done        FE unit tests          ~3 months
-  (Phase 3 ✅)         │
-                       ▼
-            Phase 7 (Reports/QC/Notif) ─► Phase 8 (Portals/Launch)
-                   ~4 months                  ~6 months
+Current state  ─► Close Phase 2 ─► Phase 7 (Reports/QC/Notif) ─► Phase 8 (Portals/Launch)
+   ~70% done        FE unit tests          ~4 months                    ~6 months
+   (Phase 3 ✅)
+
+Phase 6 (Instrument Interface) ─► ⏸️ ON HOLD — to be resumed after Phase 7
 ```
 
 **Estimated remaining work:** ~8-9 months at full team capacity

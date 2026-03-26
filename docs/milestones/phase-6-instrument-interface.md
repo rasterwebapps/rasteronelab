@@ -1,5 +1,7 @@
 # Phase 6: Instrument Interface (Months 10-13)
 
+> ⏸️ **STATUS: ON HOLD** — Decision made 2026-03-25. Phase 6 is deferred until Phase 7 (Reports, QC & Notifications) reaches completion. No active development work should begin on this phase. All issues (LIS-089 to LIS-100) remain open for future scheduling.
+
 > ASTM E1381/E1394 bidirectional communication with lab instruments.
 
 ## Milestone Goals

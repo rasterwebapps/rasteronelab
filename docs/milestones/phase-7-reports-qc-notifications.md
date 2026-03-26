@@ -1,5 +1,7 @@
 # Phase 7: Reports, QC & Notifications (Months 12-16)
 
+> 🟢 **STATUS: ACTIVE** — Phase 7 is the current development focus as of 2026-03-25. Phase 6 has been placed On Hold. Work should begin immediately with LIS-115 (Flyway migrations) followed by LIS-101 (PDF Report Engine).
+
 > PDF reports, quality control with Westgard rules, and multi-channel notifications.
 
 ## Milestone Goals
