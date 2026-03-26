@@ -21,7 +21,14 @@ lis-dev/           # Development namespace
 | lis-result | 8084 | 2+ |
 | lis-report | 8085 | 1+ |
 | lis-billing | 8086 | 2+ |
+| lis-inventory | 8087 | 1+ |
+| lis-instrument | 8088 | 1+ |
+| lis-qc | 8089 | 1+ |
 | lis-admin | 8090 | 1+ |
+| lis-notification | 8091 | 1+ |
+| lis-integration | 8092 | 1+ |
+| lis-auth | 8093 | 2+ |
+| lis-frontend | 80 | 2+ |
 
 ## Quick Deploy
 

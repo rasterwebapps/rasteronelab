@@ -34,7 +34,12 @@ services:
       - RESULT_SERVICE_URL=${RESULT_SERVICE_URL:-http://lis-result:8084}
       - REPORT_SERVICE_URL=${REPORT_SERVICE_URL:-http://lis-report:8085}
       - BILLING_SERVICE_URL=${BILLING_SERVICE_URL:-http://lis-billing:8086}
+      - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL:-http://lis-inventory:8087}
+      - INSTRUMENT_SERVICE_URL=${INSTRUMENT_SERVICE_URL:-http://lis-instrument:8088}
+      - QC_SERVICE_URL=${QC_SERVICE_URL:-http://lis-qc:8089}
       - ADMIN_SERVICE_URL=${ADMIN_SERVICE_URL:-http://lis-admin:8090}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL:-http://lis-notification:8091}
+      - INTEGRATION_SERVICE_URL=${INTEGRATION_SERVICE_URL:-http://lis-integration:8092}
       - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://lis-auth:8093}
     depends_on:
       redis:

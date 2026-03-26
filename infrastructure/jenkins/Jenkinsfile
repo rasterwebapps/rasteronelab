@@ -75,9 +75,25 @@ pipeline {
             }
         }
 
+        stage('Checkstyle') {
+            steps {
+                dir('backend') {
+                    sh './gradlew checkstyleMain checkstyleTest --no-daemon --build-cache'
+                }
+            }
+            post {
+                always {
+                    recordIssues(tools: [checkStyle(pattern: 'backend/**/build/reports/checkstyle/*.xml')])
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
             when {
-                branch 'main'
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
             }
             steps {
                 withSonarQubeEnv(env.SONARQUBE_SERVER) {
@@ -97,14 +113,35 @@ pipeline {
             }
             steps {
                 script {
-                    def modules = ['lis-patient', 'lis-sample', 'lis-order', 'lis-result',
-                                   'lis-report', 'lis-billing', 'lis-admin', 'lis-gateway', 'lis-auth']
+                    // All 14 backend service modules with their assigned ports
+                    def modules = [
+                        'lis-gateway'     : 8080,
+                        'lis-patient'     : 8081,
+                        'lis-order'       : 8082,
+                        'lis-sample'      : 8083,
+                        'lis-result'      : 8084,
+                        'lis-report'      : 8085,
+                        'lis-billing'     : 8086,
+                        'lis-inventory'   : 8087,
+                        'lis-instrument'  : 8088,
+                        'lis-qc'          : 8089,
+                        'lis-admin'       : 8090,
+                        'lis-notification': 8091,
+                        'lis-integration' : 8092,
+                        'lis-auth'        : 8093
+                    ]
 
-                    modules.each { module ->
+                    def targetModules = modules
+                    if (params.MODULE != 'all') {
+                        targetModules = modules.subMap([params.MODULE])
+                    }
+
+                    targetModules.each { module, port ->
                         sh """
                             docker build \
                                 --file infrastructure/docker/Dockerfile.backend \
                                 --build-arg MODULE=${module} \
+                                --build-arg PORT=${port} \
                                 --tag ${DOCKER_REGISTRY}/${APP_NAME}/${module}:${env.IMAGE_TAG} \
                                 --tag ${DOCKER_REGISTRY}/${APP_NAME}/${module}:latest \
                                 backend/
@@ -112,13 +149,15 @@ pipeline {
                     }
 
                     // Frontend
-                    sh """
-                        docker build \
-                            --file infrastructure/docker/Dockerfile.frontend \
-                            --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG} \
-                            --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:latest \
-                            frontend/
-                    """
+                    if (params.MODULE == 'all' || params.MODULE == 'frontend') {
+                        sh """
+                            docker build \
+                                --file infrastructure/docker/Dockerfile.frontend \
+                                --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG} \
+                                --tag ${DOCKER_REGISTRY}/${APP_NAME}/frontend:latest \
+                                frontend/
+                        """
+                    }
                 }
             }
         }
@@ -129,15 +168,32 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-registry', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "docker login ${DOCKER_REGISTRY} -u ${DOCKER_USER} -p ${DOCKER_PASS}"
-                    sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/lis-gateway:${env.IMAGE_TAG}"
-                    sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG}"
-                    // Push all module images
-                    sh """
-                        for module in lis-patient lis-sample lis-order lis-result lis-report lis-billing lis-admin; do
-                            docker push ${DOCKER_REGISTRY}/${APP_NAME}/\${module}:${env.IMAGE_TAG}
-                        done
-                    """
+                    sh "echo \${DOCKER_PASS} | docker login ${DOCKER_REGISTRY} -u \${DOCKER_USER} --password-stdin"
+
+                    script {
+                        def allModules = [
+                            'lis-gateway', 'lis-patient', 'lis-order', 'lis-sample',
+                            'lis-result', 'lis-report', 'lis-billing', 'lis-inventory',
+                            'lis-instrument', 'lis-qc', 'lis-admin', 'lis-notification',
+                            'lis-integration', 'lis-auth'
+                        ]
+
+                        def targetModules = allModules
+                        if (params.MODULE != 'all' && params.MODULE != 'frontend') {
+                            targetModules = [params.MODULE]
+                        }
+
+                        targetModules.each { module ->
+                            sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/${module}:${env.IMAGE_TAG}"
+                            sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/${module}:latest"
+                        }
+
+                        // Push frontend image
+                        if (params.MODULE == 'all' || params.MODULE == 'frontend') {
+                            sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/frontend:${env.IMAGE_TAG}"
+                            sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}/frontend:latest"
+                        }
+                    }
                 }
             }
         }
@@ -149,17 +205,48 @@ pipeline {
                     anyOf {
                         branch 'main'
                         branch 'develop'
+                        branch 'release/*'
                     }
                 }
             }
             steps {
                 script {
-                    def namespace = params.ENVIRONMENT == 'production' ? 'lis-prod' : 'lis-dev'
-                    sh """
-                        kubectl --namespace=${namespace} set image deployment/lis-gateway \
-                            gateway=${DOCKER_REGISTRY}/${APP_NAME}/lis-gateway:${env.IMAGE_TAG}
-                        kubectl --namespace=${namespace} rollout status deployment/lis-gateway
-                    """
+                    def namespace
+                    switch (params.ENVIRONMENT) {
+                        case 'production':
+                            namespace = 'lis-prod'
+                            break
+                        case 'staging':
+                            namespace = 'lis-staging'
+                            break
+                        default:
+                            namespace = 'lis-dev'
+                    }
+
+                    def deployments = [
+                        'lis-gateway', 'lis-patient', 'lis-order', 'lis-sample',
+                        'lis-result', 'lis-report', 'lis-billing', 'lis-inventory',
+                        'lis-instrument', 'lis-qc', 'lis-admin', 'lis-notification',
+                        'lis-integration', 'lis-auth', 'lis-frontend'
+                    ]
+
+                    if (params.MODULE != 'all') {
+                        deployments = [params.MODULE]
+                    }
+
+                    deployments.each { svc ->
+                        def image = svc == 'lis-frontend' ? 'frontend' : svc
+                        def container = svc.replace('lis-', '')
+                        sh """
+                            kubectl --namespace=${namespace} set image deployment/${svc} \
+                                ${container}=${DOCKER_REGISTRY}/${APP_NAME}/${image}:${env.IMAGE_TAG}
+                        """
+                    }
+
+                    // Wait for rollouts to complete
+                    deployments.each { svc ->
+                        sh "kubectl --namespace=${namespace} rollout status deployment/${svc} --timeout=300s"
+                    }
                 }
             }
         }
@@ -175,7 +262,12 @@ pipeline {
         failure {
             emailext(
                 subject: "❌ LIS Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Build failed. Check: ${env.BUILD_URL}",
+                body: """Build failed for ${APP_NAME}.
+                    |Job: ${env.JOB_NAME}
+                    |Build: #${env.BUILD_NUMBER}
+                    |Branch: ${env.BRANCH_NAME}
+                    |Commit: ${env.GIT_COMMIT_SHORT}
+                    |Console: ${env.BUILD_URL}console""".stripMargin(),
                 to: "${env.CHANGE_AUTHOR_EMAIL}"
             )
         }
