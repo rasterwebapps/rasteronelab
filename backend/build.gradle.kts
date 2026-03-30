@@ -1,10 +1,12 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.api.plugins.quality.CheckstyleExtension
 
 plugins {
     id("java")
     id("org.springframework.boot") version "3.4.1" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
+    id("org.sonarqube") version "6.0.1.5171"
 }
 
 group = "com.rasteronelab.lis"
@@ -20,6 +22,7 @@ java {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "jacoco")
+    apply(plugin = "checkstyle")
     apply(plugin = "io.spring.dependency-management")
 
     group = "com.rasteronelab.lis"
@@ -86,6 +89,13 @@ subprojects {
         }
     }
 
+    configure<CheckstyleExtension> {
+        toolVersion = "10.21.1"
+        configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+        isIgnoreFailures = false
+        maxWarnings = 0
+    }
+
     tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
         dependsOn(tasks.named("jacocoTestReport"))
         violationRules {
@@ -103,4 +113,24 @@ configure(
     subprojects.filter { it.name != "lis-core" }
 ) {
     apply(plugin = "org.springframework.boot")
+}
+
+// SonarQube — aggregate analysis at root project level
+sonarqube {
+    properties {
+        property("sonar.projectKey", "rasteronelab-lis")
+        property("sonar.projectName", "RasterOneLab LIS")
+        property("sonar.projectVersion", version.toString())
+        property("sonar.sourceEncoding", "UTF-8")
+        property("sonar.java.coveragePlugin", "jacoco")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            subprojects.joinToString(",") { "${it.buildDir}/reports/jacoco/test/jacocoTestReport.xml" }
+        )
+        property(
+            "sonar.junit.reportPaths",
+            subprojects.joinToString(",") { "${it.buildDir}/test-results/test" }
+        )
+        property("sonar.exclusions", "**/generated/**,**/dto/**,**/*Mapper*.java,**/*Application.java")
+    }
 }

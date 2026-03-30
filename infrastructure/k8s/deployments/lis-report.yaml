@@ -1,0 +1,149 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lis-report
+  labels:
+    app: lis-report
+    app.kubernetes.io/name: lis-report
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lis-report
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lis-report
+        app.kubernetes.io/name: lis-report
+        app.kubernetes.io/part-of: rasteronelab-lis
+    spec:
+      imagePullSecrets:
+        - name: lis-docker-registry-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: report
+          image: registry.rasterdevapps.com/rasteronelab-lis/lis-report:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: REDIS_PORT
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lis-redis-secret
+                  key: REDIS_PASSWORD
+            - name: KEYCLOAK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: KEYCLOAK_URL
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: lis-keycloak-secret
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: DB_URL
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lis-db-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lis-db-secret
+                  key: DB_PASSWORD
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: RABBITMQ_PORT
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lis-rabbitmq-secret
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lis-rabbitmq-secret
+                  key: RABBITMQ_PASSWORD
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: MINIO_ENDPOINT
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lis-minio-secret
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lis-minio-secret
+                  key: MINIO_SECRET_KEY
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8085
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8085
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL

@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lis-frontend
+  labels:
+    app: lis-frontend
+    app.kubernetes.io/name: lis-frontend
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  type: ClusterIP
+  selector:
+    app: lis-frontend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80

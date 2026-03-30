@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lis-billing
+  labels:
+    app: lis-billing
+    app.kubernetes.io/name: lis-billing
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  type: ClusterIP
+  selector:
+    app: lis-billing
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8086
+      targetPort: 8086

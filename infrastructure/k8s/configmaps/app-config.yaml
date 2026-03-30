@@ -1,0 +1,34 @@
+---
+# Non-secret application configuration shared across all backend services.
+# Sensitive values (passwords, tokens) come from Secret objects referenced below.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lis-app-config
+  labels:
+    app.kubernetes.io/part-of: rasteronelab-lis
+data:
+  SPRING_PROFILES_ACTIVE: "docker"
+  DB_URL: "jdbc:postgresql://lis-postgres:5432/lisdb"
+  REDIS_HOST: "lis-redis"
+  REDIS_PORT: "6379"
+  RABBITMQ_HOST: "lis-rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: "/lis"
+  KEYCLOAK_URL: "http://lis-keycloak:8080"
+  MINIO_ENDPOINT: "http://lis-minio:9000"
+  MINIO_BUCKET: "lis-reports"
+  # Service discovery URLs (used by gateway routes and inter-service calls)
+  PATIENT_SERVICE_URL: "http://lis-patient:8081"
+  ORDER_SERVICE_URL: "http://lis-order:8082"
+  SAMPLE_SERVICE_URL: "http://lis-sample:8083"
+  RESULT_SERVICE_URL: "http://lis-result:8084"
+  REPORT_SERVICE_URL: "http://lis-report:8085"
+  BILLING_SERVICE_URL: "http://lis-billing:8086"
+  INVENTORY_SERVICE_URL: "http://lis-inventory:8087"
+  INSTRUMENT_SERVICE_URL: "http://lis-instrument:8088"
+  QC_SERVICE_URL: "http://lis-qc:8089"
+  ADMIN_SERVICE_URL: "http://lis-admin:8090"
+  NOTIFICATION_SERVICE_URL: "http://lis-notification:8091"
+  INTEGRATION_SERVICE_URL: "http://lis-integration:8092"
+  AUTH_SERVICE_URL: "http://lis-auth:8093"

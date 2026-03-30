@@ -1,0 +1,164 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lis-gateway
+  labels:
+    app: lis-gateway
+    app.kubernetes.io/name: lis-gateway
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lis-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lis-gateway
+        app.kubernetes.io/name: lis-gateway
+        app.kubernetes.io/part-of: rasteronelab-lis
+    spec:
+      imagePullSecrets:
+        - name: lis-docker-registry-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: gateway
+          image: registry.rasterdevapps.com/rasteronelab-lis/lis-gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: REDIS_PORT
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lis-redis-secret
+                  key: REDIS_PASSWORD
+            - name: KEYCLOAK_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: KEYCLOAK_URL
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: lis-keycloak-secret
+                  key: KEYCLOAK_CLIENT_SECRET
+            - name: PATIENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: PATIENT_SERVICE_URL
+            - name: ORDER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: ORDER_SERVICE_URL
+            - name: SAMPLE_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: SAMPLE_SERVICE_URL
+            - name: RESULT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: RESULT_SERVICE_URL
+            - name: REPORT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: REPORT_SERVICE_URL
+            - name: BILLING_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: BILLING_SERVICE_URL
+            - name: INVENTORY_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: INVENTORY_SERVICE_URL
+            - name: INSTRUMENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: INSTRUMENT_SERVICE_URL
+            - name: QC_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: QC_SERVICE_URL
+            - name: ADMIN_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: ADMIN_SERVICE_URL
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: NOTIFICATION_SERVICE_URL
+            - name: INTEGRATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: INTEGRATION_SERVICE_URL
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lis-app-config
+                  key: AUTH_SERVICE_URL
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
