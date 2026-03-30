@@ -20,6 +20,26 @@ docker-compose down
 docker-compose down -v
 ```
 
+## Production Deployment (Staging / Production)
+
+```bash
+cd infrastructure/docker
+
+# Copy and fill in ALL env vars (especially KC_HOSTNAME, ELASTIC_PASSWORD etc.)
+cp .env.example .env
+vi .env
+
+# Start with production overrides (Keycloak start mode, ES xpack security)
+docker-compose \
+  -f docker-compose.yml \
+  -f docker-compose.services.yml \
+  -f docker-compose.prod.yml \
+  up -d
+```
+
+> **Note**: `docker-compose.prod.yml` switches Keycloak from `start-dev` to `start --optimized`
+> and enables Elasticsearch xpack security. Never run `start-dev` on staging/production.
+
 ## Service URLs (Local)
 
 | Service | URL | Credentials |

@@ -1,0 +1,98 @@
+# ===========================
+# RasterOneLab LIS — Production Overrides
+# ===========================
+# Overrides docker-compose.yml for staging / production environments.
+#
+# Usage:
+#   docker-compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.services.yml \
+#     -f docker-compose.prod.yml \
+#     up -d
+#
+# Changes from the base file:
+#   1. Keycloak: use `start` (production mode) instead of `start-dev`
+#   2. Keycloak: enforce HTTPS hostname
+#   3. Elasticsearch: enable xpack security + basic authentication
+#   4. Mailhog: removed (not for production)
+#   5. All services: set restart=always (vs unless-stopped)
+
+services:
+  # ===========================
+  # Keycloak — Production Mode
+  # ===========================
+  keycloak:
+    command: start --optimized --import-realm
+    environment:
+      # Override dev defaults
+      # :? causes docker-compose to fail immediately if KC_HOSTNAME is not set.
+      KC_HOSTNAME: ${KC_HOSTNAME:?KC_HOSTNAME must be set in .env for production}
+      KC_HOSTNAME_PORT: 443
+      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME_STRICT_HTTPS: "true"
+      KC_HTTP_ENABLED: "false"             # Force HTTPS
+      KC_PROXY: edge                       # Behind TLS-terminating proxy (nginx / ALB)
+      KC_LOG_LEVEL: WARN
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    restart: always
+
+  # ===========================
+  # Elasticsearch — xpack Security Enabled
+  # ===========================
+  elasticsearch:
+    environment:
+      - node.name=lis-es01
+      - cluster.name=lis-cluster
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:?ELASTIC_PASSWORD must be set in .env for production}
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false  # SSL handled by nginx proxy
+      - xpack.security.transport.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"           # Larger heap for production
+    restart: always
+
+  # ===========================
+  # PostgreSQL — production settings
+  # ===========================
+  postgres:
+    restart: always
+
+  # ===========================
+  # PgBouncer — production settings
+  # ===========================
+  pgbouncer:
+    restart: always
+
+  # ===========================
+  # Redis — production settings
+  # ===========================
+  redis:
+    restart: always
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --loglevel warning
+
+  # ===========================
+  # RabbitMQ — production settings
+  # ===========================
+  rabbitmq:
+    restart: always
+
+  # ===========================
+  # MinIO — production settings
+  # ===========================
+  minio:
+    restart: always
+
+  # ===========================
+  # Mailhog — DISABLED in production
+  # ===========================
+  mailhog:
+    profiles:
+      - disabled

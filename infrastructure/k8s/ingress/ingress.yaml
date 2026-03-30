@@ -1,0 +1,76 @@
+---
+# NGINX Ingress Controller — RasterOneLab LIS
+# Requires: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+#
+# TLS certificate managed via cert-manager (Let's Encrypt).
+# Install cert-manager: https://cert-manager.io/docs/installation/
+#
+# Replace "lis.yourdomain.com" with your actual domain before applying.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lis-ingress
+  labels:
+    app.kubernetes.io/part-of: rasteronelab-lis
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # TLS — cert-manager (uncomment after cert-manager is installed)
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  # TLS (uncomment and set your domain)
+  # tls:
+  #   - hosts:
+  #       - lis.yourdomain.com
+  #     secretName: lis-tls-cert
+  rules:
+    # IMPORTANT: Replace 'lis.yourdomain.com' with your actual domain before applying.
+    # Failure to do so will result in a non-functional ingress.
+    # Also uncomment the tls: block above once cert-manager is installed.
+    - host: lis.yourdomain.com    # <-- CHANGE THIS before kubectl apply
+      http:
+        paths:
+          # API → gateway
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: lis-gateway
+                port:
+                  number: 8080
+          # WebSocket (real-time instrument results)
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: lis-gateway
+                port:
+                  number: 8080
+          # Swagger UI
+          - path: /swagger-ui
+            pathType: Prefix
+            backend:
+              service:
+                name: lis-gateway
+                port:
+                  number: 8080
+          # Angular SPA (catch-all — must be last)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lis-frontend
+                port:
+                  number: 80

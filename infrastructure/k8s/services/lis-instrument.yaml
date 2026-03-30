@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lis-instrument
+  labels:
+    app: lis-instrument
+    app.kubernetes.io/name: lis-instrument
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  type: ClusterIP
+  selector:
+    app: lis-instrument
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8088
+      targetPort: 8088

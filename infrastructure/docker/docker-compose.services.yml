@@ -18,7 +18,7 @@ services:
       args:
         MODULE: lis-gateway
         PORT: 8080
-    image: rasteronelab/lis-gateway:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-gateway:${APP_VERSION:-latest}
     container_name: lis-gateway
     ports:
       - "8080:8080"
@@ -66,7 +66,7 @@ services:
       args:
         MODULE: lis-patient
         PORT: 8081
-    image: rasteronelab/lis-patient:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-patient:${APP_VERSION:-latest}
     container_name: lis-patient
     ports:
       - "8081:8081"
@@ -112,7 +112,7 @@ services:
       args:
         MODULE: lis-order
         PORT: 8082
-    image: rasteronelab/lis-order:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-order:${APP_VERSION:-latest}
     container_name: lis-order
     ports:
       - "8082:8082"
@@ -158,7 +158,7 @@ services:
       args:
         MODULE: lis-sample
         PORT: 8083
-    image: rasteronelab/lis-sample:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-sample:${APP_VERSION:-latest}
     container_name: lis-sample
     ports:
       - "8083:8083"
@@ -204,7 +204,7 @@ services:
       args:
         MODULE: lis-result
         PORT: 8084
-    image: rasteronelab/lis-result:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-result:${APP_VERSION:-latest}
     container_name: lis-result
     ports:
       - "8084:8084"
@@ -250,7 +250,7 @@ services:
       args:
         MODULE: lis-report
         PORT: 8085
-    image: rasteronelab/lis-report:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-report:${APP_VERSION:-latest}
     container_name: lis-report
     ports:
       - "8085:8085"
@@ -302,7 +302,7 @@ services:
       args:
         MODULE: lis-billing
         PORT: 8086
-    image: rasteronelab/lis-billing:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-billing:${APP_VERSION:-latest}
     container_name: lis-billing
     ports:
       - "8086:8086"
@@ -348,7 +348,7 @@ services:
       args:
         MODULE: lis-inventory
         PORT: 8087
-    image: rasteronelab/lis-inventory:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-inventory:${APP_VERSION:-latest}
     container_name: lis-inventory
     ports:
       - "8087:8087"
@@ -394,7 +394,7 @@ services:
       args:
         MODULE: lis-instrument
         PORT: 8088
-    image: rasteronelab/lis-instrument:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-instrument:${APP_VERSION:-latest}
     container_name: lis-instrument
     ports:
       - "8088:8088"
@@ -440,7 +440,7 @@ services:
       args:
         MODULE: lis-qc
         PORT: 8089
-    image: rasteronelab/lis-qc:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-qc:${APP_VERSION:-latest}
     container_name: lis-qc
     ports:
       - "8089:8089"
@@ -486,7 +486,7 @@ services:
       args:
         MODULE: lis-admin
         PORT: 8090
-    image: rasteronelab/lis-admin:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-admin:${APP_VERSION:-latest}
     container_name: lis-admin
     ports:
       - "8090:8090"
@@ -532,7 +532,7 @@ services:
       args:
         MODULE: lis-notification
         PORT: 8091
-    image: rasteronelab/lis-notification:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-notification:${APP_VERSION:-latest}
     container_name: lis-notification
     ports:
       - "8091:8091"
@@ -584,7 +584,7 @@ services:
       args:
         MODULE: lis-integration
         PORT: 8092
-    image: rasteronelab/lis-integration:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-integration:${APP_VERSION:-latest}
     container_name: lis-integration
     ports:
       - "8092:8092"
@@ -630,7 +630,7 @@ services:
       args:
         MODULE: lis-auth
         PORT: 8093
-    image: rasteronelab/lis-auth:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-auth:${APP_VERSION:-latest}
     container_name: lis-auth
     ports:
       - "8093:8093"
@@ -665,7 +665,7 @@ services:
     build:
       context: ../../frontend
       dockerfile: ../infrastructure/docker/Dockerfile.frontend
-    image: rasteronelab/lis-frontend:${APP_VERSION:-latest}
+    image: ${DOCKER_REGISTRY:-registry.rasterdevapps.com}/rasteronelab-lis/lis-frontend:${APP_VERSION:-latest}
     container_name: lis-frontend
     ports:
       - "80:80"

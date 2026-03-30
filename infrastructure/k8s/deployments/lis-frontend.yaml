@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lis-frontend
+  labels:
+    app: lis-frontend
+    app.kubernetes.io/name: lis-frontend
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lis-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lis-frontend
+        app.kubernetes.io/name: lis-frontend
+        app.kubernetes.io/part-of: rasteronelab-lis
+    spec:
+      imagePullSecrets:
+        - name: lis-docker-registry-secret
+      securityContext:
+        runAsNonRoot: false   # nginx requires root to bind port 80 in container
+      containers:
+        - name: frontend
+          image: registry.rasterdevapps.com/rasteronelab-lis/lis-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

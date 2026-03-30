@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lis-patient
+  labels:
+    app: lis-patient
+    app.kubernetes.io/name: lis-patient
+    app.kubernetes.io/part-of: rasteronelab-lis
+spec:
+  type: ClusterIP
+  selector:
+    app: lis-patient
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
