@@ -32,7 +32,7 @@ FROM eclipse-temurin:21-jre-alpine AS runtime
 ARG MODULE=lis-patient
 ARG PORT=8081
 
-LABEL maintainer="Raster Dev Apps <dev@rasterdevapps.com>"
+LABEL maintainer="Raster Dev Apps <dev@rasterwebapps.com>"
 LABEL module="${MODULE}"
 
 WORKDIR /app

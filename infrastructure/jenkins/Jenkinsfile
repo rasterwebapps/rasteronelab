@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME = 'rasteronelab-lis'
-        DOCKER_REGISTRY = 'registry.rasterdevapps.com'
+        DOCKER_REGISTRY = 'registry.rasterwebapps.com'
         SONARQUBE_SERVER = 'SonarQube'
         NEXUS_CREDENTIALS = credentials('nexus-credentials')
         DOCKER_CREDENTIALS = credentials('docker-registry')

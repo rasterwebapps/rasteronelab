@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: admin
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-admin:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-admin:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8090

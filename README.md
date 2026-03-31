@@ -50,7 +50,7 @@
 ### 1. Clone & Setup Infrastructure
 
 ```bash
-git clone https://github.com/rasterdevapps/rasteronelab.git
+git clone https://github.com/rasterwebapps/rasteronelab.git
 cd rasteronelab
 
 # Start all infrastructure services

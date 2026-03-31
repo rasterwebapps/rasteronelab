@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: order
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-order:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-order:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8082

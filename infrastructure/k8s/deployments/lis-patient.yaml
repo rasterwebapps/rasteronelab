@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: patient
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-patient:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-patient:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8081

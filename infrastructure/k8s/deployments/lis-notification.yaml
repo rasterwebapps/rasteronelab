@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: notification
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-notification:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-notification:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8091

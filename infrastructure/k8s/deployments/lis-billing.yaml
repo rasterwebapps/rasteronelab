@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: billing
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-billing:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-billing:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8086
