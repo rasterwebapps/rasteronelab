@@ -20,7 +20,7 @@ RUN npm run build:prod
 # ===========================
 FROM nginx:1.27-alpine AS runtime
 
-LABEL maintainer="Raster Dev Apps <dev@rasterdevapps.com>"
+LABEL maintainer="Raster Dev Apps <dev@rasterwebapps.com>"
 
 # Copy built Angular app
 COPY --from=builder /app/dist/rasteronelab-lis-frontend/browser /usr/share/nginx/html

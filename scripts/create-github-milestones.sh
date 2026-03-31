@@ -7,7 +7,7 @@
 #
 # Prerequisites:
 #   - gh CLI installed and authenticated (gh auth login)
-#   - Repository: rasterdevapps/rasteronelab
+#   - Repository: rasterwebapps/rasteronelab
 #
 # Usage:
 #   ./scripts/create-github-milestones.sh [--dry-run] [--phase N]
@@ -18,7 +18,7 @@
 
 set -euo pipefail
 
-REPO="rasterdevapps/rasteronelab"
+REPO="rasterwebapps/rasteronelab"
 DRY_RUN=false
 PHASE_FILTER=""
 

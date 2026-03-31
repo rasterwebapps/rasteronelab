@@ -32,7 +32,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: inventory
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-inventory:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-inventory:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8087

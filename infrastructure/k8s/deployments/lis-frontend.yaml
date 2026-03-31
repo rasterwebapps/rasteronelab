@@ -30,7 +30,7 @@ spec:
         runAsNonRoot: false   # nginx requires root to bind port 80 in container
       containers:
         - name: frontend
-          image: registry.rasterdevapps.com/rasteronelab-lis/lis-frontend:latest
+          image: registry.rasterwebapps.com/rasteronelab-lis/lis-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
