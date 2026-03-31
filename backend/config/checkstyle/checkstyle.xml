@@ -70,7 +70,10 @@
         <module name="NoEnumTrailingComma"/>
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="UnnecessaryParentheses"/>
-        <module name="UnnecessarySemicolon"/>
+        <module name="UnnecessarySemicolonAfterOuterTypeDeclaration"/>
+        <module name="UnnecessarySemicolonAfterTypeMemberDeclaration"/>
+        <module name="UnnecessarySemicolonInEnumeration"/>
+        <module name="UnnecessarySemicolonInTryWithResources"/>
 
         <!-- Imports -->
         <module name="AvoidStarImport"/>
