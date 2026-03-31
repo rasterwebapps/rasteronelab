@@ -1,6 +1,11 @@
 spring:
   application:
     name: lis-auth
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
