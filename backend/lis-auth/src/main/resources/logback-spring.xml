@@ -17,9 +17,12 @@
         </root>
     </springProfile>
 
-    <!-- ===== Production: structured logging is handled by Spring Boot 3.4
-         logging.structured.format.console in application-prod.yml.
-         This section only sets the root level. ===== -->
+    <!-- ===== Production: Spring Boot 3.4 structured logging (ECS format)
+         is configured via logging.structured.format.console in application-prod.yml.
+         When that property is active, Spring Boot replaces the console encoder
+         with a structured JSON encoder, so the CONSOLE appender below provides
+         the base appender reference while the actual output format is overridden
+         by the framework. ===== -->
     <springProfile name="prod">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>

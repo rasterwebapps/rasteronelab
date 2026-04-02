@@ -24,7 +24,10 @@ server:
       max: 50
       min-spare: 10
 
-# Dedicated Keycloak admin service account for production
+# Dedicated Keycloak admin service account for production.
+# No defaults — these MUST be provided via environment variables.
+# Missing values will cause a startup failure, which is the intended
+# fail-fast behavior for production deployments.
 keycloak:
   admin:
     username: ${KEYCLOAK_ADMIN}
