@@ -6,41 +6,49 @@ spring:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:lisredispass}
-    timeout: 2000ms
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_ACTIVE:8}
+          max-idle: ${REDIS_POOL_MAX_IDLE:8}
+          min-idle: ${REDIS_POOL_MIN_IDLE:2}
+          max-wait: ${REDIS_POOL_MAX_WAIT:2000ms}
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/rasteronelab
-          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/rasteronelab/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/${KEYCLOAK_REALM:rasteronelab}
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/${KEYCLOAK_REALM:rasteronelab}/protocol/openid-connect/certs
       client:
         registration:
           keycloak:
-            client-id: lis-auth
+            client-id: ${KEYCLOAK_AUTH_CLIENT_ID:lis-auth}
             client-secret: ${KEYCLOAK_CLIENT_SECRET:}
             scope: openid,profile,email
             authorization-grant-type: client_credentials
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/rasteronelab
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8180}/realms/${KEYCLOAK_REALM:rasteronelab}
 
 server:
   port: 8093
+  shutdown: graceful
 
 keycloak:
   auth-server-url: ${KEYCLOAK_URL:http://localhost:8180}
-  realm: rasteronelab
-  resource: lis-auth
+  realm: ${KEYCLOAK_REALM:rasteronelab}
+  resource: ${KEYCLOAK_AUTH_CLIENT_ID:lis-auth}
   credentials:
     secret: ${KEYCLOAK_CLIENT_SECRET:}
   admin:
     username: ${KEYCLOAK_ADMIN:admin}
-    password: ${KEYCLOAK_ADMIN_PASSWORD:admin123}
-    client-id: admin-cli
+    password: ${KEYCLOAK_ADMIN_PASSWORD:}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
 
 management:
   endpoints:
