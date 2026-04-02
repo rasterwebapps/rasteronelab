@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="lis-auth"/>
+
+    <!-- ===== Console Appender (all profiles) ===== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== Default / dev / docker profiles: standard console ===== -->
+    <springProfile name="default | dev | docker">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- ===== Production: Spring Boot 3.4 structured logging (ECS format)
+         is configured via logging.structured.format.console in application-prod.yml.
+         When that property is active, Spring Boot replaces the console encoder
+         with a structured JSON encoder, so the CONSOLE appender below provides
+         the base appender reference while the actual output format is overridden
+         by the framework. ===== -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

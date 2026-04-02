@@ -1,0 +1,61 @@
+# =============================================================================
+# Production Profile — lis-auth
+# Activate via: SPRING_PROFILES_ACTIVE=prod
+# =============================================================================
+
+spring:
+  data:
+    redis:
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED:true}
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_ACTIVE:16}
+          max-idle: ${REDIS_POOL_MAX_IDLE:16}
+          min-idle: ${REDIS_POOL_MIN_IDLE:4}
+          max-wait: ${REDIS_POOL_MAX_WAIT:3000ms}
+
+server:
+  shutdown: graceful
+  tomcat:
+    connection-timeout: 5s
+    max-connections: 200
+    threads:
+      max: 50
+      min-spare: 10
+
+# Dedicated Keycloak admin service account for production.
+# No defaults — these MUST be provided via environment variables.
+# Missing values will cause a startup failure, which is the intended
+# fail-fast behavior for production deployments.
+keycloak:
+  admin:
+    username: ${KEYCLOAK_ADMIN}
+    password: ${KEYCLOAK_ADMIN_PASSWORD}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:lis-auth-admin}
+
+# Separate actuator port for internal-only access
+management:
+  server:
+    port: ${MANAGEMENT_PORT:9093}
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+# Disable Swagger/OpenAPI in production
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    com.rasteronelab.lis: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN

@@ -1,0 +1,26 @@
+# =============================================================================
+# Docker Profile — lis-auth
+# Activated automatically in Docker via Dockerfile ENTRYPOINT or
+# SPRING_PROFILES_ACTIVE=docker in docker-compose
+# =============================================================================
+
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_URL:http://keycloak:8080}
+
+# Health probes for container orchestration
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    com.rasteronelab.lis: INFO
+    org.springframework.security: WARN

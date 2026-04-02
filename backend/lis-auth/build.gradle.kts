@@ -18,8 +18,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    // Redis for token cache
+    // Redis for token cache + connection pool support
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.apache.commons:commons-pool2")
 
     // Spring Security Test (for jwt() MockMvc post-processor)
     testImplementation("org.springframework.security:spring-security-test")
