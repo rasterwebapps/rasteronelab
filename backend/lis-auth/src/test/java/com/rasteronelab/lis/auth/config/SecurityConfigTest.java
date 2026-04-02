@@ -59,6 +59,10 @@ class SecurityConfigTest {
     @SuppressWarnings("unused")
     private JwtDecoder jwtDecoder;
 
+    @MockBean
+    @SuppressWarnings("unused")
+    private com.rasteronelab.lis.auth.application.service.TokenBlacklistService tokenBlacklistService;
+
     // ── SecurityFilterChain tests ────────────────────────────────────────
 
     @Nested
