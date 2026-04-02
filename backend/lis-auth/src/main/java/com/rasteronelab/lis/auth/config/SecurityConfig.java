@@ -14,9 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.rasteronelab.lis.auth.config.TokenBlacklistFilter;
 
 /**
  * OAuth2 Resource Server security configuration for lis-auth (servlet-based).
@@ -28,8 +31,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:4200}")
-    private String allowedOrigins;
+    private final String allowedOrigins;
+    private final TokenBlacklistFilter tokenBlacklistFilter;
+
+    public SecurityConfig(
+            @Value("${cors.allowed-origins:http://localhost:4200}") String allowedOrigins,
+            TokenBlacklistFilter tokenBlacklistFilter) {
+        this.allowedOrigins = allowedOrigins;
+        this.tokenBlacklistFilter = tokenBlacklistFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,6 +48,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(tokenBlacklistFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/actuator/**",
@@ -66,7 +77,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization", "Content-Type", "Accept",
+                "X-Branch-Id", "X-Requested-With", "Origin"
+        ));
+        configuration.setExposedHeaders(List.of("X-Branch-Id"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 
