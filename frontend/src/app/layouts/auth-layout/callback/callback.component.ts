@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -106,7 +106,21 @@ export class CallbackComponent implements OnInit {
 
     this.http.post<TokenResponse>(tokenUrl, body.toString(), { headers }).subscribe({
       next: (response) => this.handleTokenResponse(response),
-      error: () => this.error.set('Failed to exchange authorization code for tokens.'),
+      error: (err: HttpErrorResponse) => {
+        console.error('Token exchange failed:', err);
+        let message = 'Failed to exchange authorization code for tokens.';
+        if (err.status === 0) {
+          message = 'Cannot reach authentication server. Please check that Keycloak is running.';
+        } else if (err.status === 400) {
+          const errorDetail = err.error?.error_description ?? err.error?.error ?? '';
+          message = errorDetail
+            ? `Authentication error: ${errorDetail}`
+            : 'Invalid authorization request. Please try signing in again.';
+        } else if (err.status >= 500) {
+          message = 'Authentication server error. Please try again later.';
+        }
+        this.error.set(message);
+      },
     });
   }
 
